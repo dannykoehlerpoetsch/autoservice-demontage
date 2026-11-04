@@ -4,7 +4,11 @@ import { hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
+import Script from 'next/script';
 import { routing, type Locale } from '@/i18n/routing';
+import { sans } from '@/lib/fonts';
+import { SITE_URL } from '@/lib/site';
+import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import '../globals.css';
@@ -20,10 +24,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale: locale as Locale, namespace: 'Metadata' });
+  const ogLocale = locale === 'de' ? 'de_DE' : 'en_US';
 
   return {
+    metadataBase: new URL(SITE_URL),
     title: t('title'),
     description: t('description'),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: locale === routing.defaultLocale ? '/' : `/${locale}`,
+      siteName: t('title'),
+      images: [{ url: '/Heroimage.png' }],
+      locale: ogLocale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: ['/Heroimage.png'],
+    },
     robots: {
       index: false,
       follow: false,
@@ -53,14 +74,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&d)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
-          }}
-        />
-      </head>
-      <body className="flex flex-col min-h-screen" suppressHydrationWarning>
+      <body className={`${sans.className} flex flex-col min-h-screen`} suppressHydrationWarning>
+        <Script id="theme-init" strategy="beforeInteractive" suppressHydrationWarning>
+          {THEME_INIT_SCRIPT}
+        </Script>
         <NextIntlClientProvider>
           <Header />
           <main className="grow flex flex-col">{children}</main>

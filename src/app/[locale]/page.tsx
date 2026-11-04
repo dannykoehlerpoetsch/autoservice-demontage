@@ -39,7 +39,7 @@ export default async function Home({ params }: HomeProps) {
         </p>
         <a
           href="tel:+4915112345678"
-          className="text-sm px-3 py-1 gap-2 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors flex items-center gap-2 self-center"
+          className="text-sm px-3 py-1 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors flex items-center gap-2 self-center"
         >
           {' '}
           <Phone size={20} />

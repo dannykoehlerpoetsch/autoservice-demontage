@@ -1,0 +1,5 @@
+[test]
+# This project uses Vitest ("bun run test") and Playwright ("bun run test:e2e")
+# for testing, not Bun's built-in test runner. Excluding these paths prevents
+# `bun test` from picking up and misinterpreting the Vitest/Playwright spec files.
+pathIgnorePatterns = ["src/**/*.test.*", "e2e/**"]

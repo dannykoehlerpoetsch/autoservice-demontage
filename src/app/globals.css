@@ -29,7 +29,6 @@ body {
   color: var(--color-text-primary);
   width: 100%;
   margin: 0 auto;
-  font-family: Arial, sans-serif;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;

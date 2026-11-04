@@ -1,11 +1,21 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-bg-primary: #ffffff;
   --color-bg-header: #59a305;
   --color-bg-footer: #59a305;
   --color-text-primary: #1f2937;
   --color-brand: #59a305;
+}
+
+.dark {
+  --color-bg-primary: #0f1511;
+  --color-bg-header: #2c4a08;
+  --color-bg-footer: #2c4a08;
+  --color-text-primary: #e5e7eb;
+  --color-brand: #3f6b0b;
 }
 
 html {
@@ -20,14 +30,19 @@ body {
   width: 100%;
   margin: 0 auto;
   font-family: Arial, sans-serif;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .header-bg {
   background-color: var(--color-bg-header);
+  transition: background-color 0.2s ease;
 }
 
 .footer-bg {
   background-color: var(--color-bg-footer);
+  transition: background-color 0.2s ease;
 }
 
 section {

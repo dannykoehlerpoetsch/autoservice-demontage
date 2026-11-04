@@ -1,0 +1,150 @@
+{
+  "Metadata": {
+    "title": "Bennis Autoservice",
+    "description": "Kfz-Werkstatt in Leipzig Plagwitz"
+  },
+  "Header": {
+    "homeAriaLabel": "Zur Startseite",
+    "navHome": "Start",
+    "navServices": "Leistungen",
+    "navAnfahrt": "Anfahrt",
+    "menuOpen": "Menu öffnen",
+    "menuClose": "Menu schließen",
+    "languageLabel": "Sprache",
+    "themeDark": "Dunkelmodus aktivieren",
+    "themeLight": "Hellmodus aktivieren"
+  },
+  "NotFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Die angeforderte Seite existiert nicht oder wurde verschoben.",
+    "backHome": "Zurück zur Startseite"
+  },
+  "ErrorPage": {
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.",
+    "retry": "Erneut versuchen",
+    "backHome": "Zurück zur Startseite"
+  },
+  "Footer": {
+    "rights": "Alle Rechte vorbehalten.",
+    "impressum": "Impressum",
+    "demoNote": "Dies ist ein Demo-Projekt für mein Entwickler-Portfolio."
+  },
+  "Home": {
+    "hero": {
+      "imageAlt": "Bennis Garage",
+      "title": "Willkommen bei Bennis Autoservice",
+      "subtitle": "Ihre Kfz-Werkstatt in Leipzig Plagwitz",
+      "intro": "Wartung, Reparatur und persönlicher Service rund um Ihr Fahrzeug – zuverlässig und direkt vor Ort.",
+      "address": "Naumburger Straße 10, 04229 Leipzig",
+      "callButton": "Jetzt anrufen"
+    },
+    "why": {
+      "heading": "Warum Bennis Autoservice?",
+      "text": "Bei Bennis Autoservice stehen eine persönliche Beratung, nachvollziehbare Absprachen und eine sorgfältige Ausführung der Arbeiten im Mittelpunkt."
+    },
+    "services": {
+      "heading": "Service und Dienstleistungen",
+      "subheading": "Unser Service für Ihr Fahrzeug",
+      "intro": "Ob regelmäßige Wartung, notwendige Reparatur oder die Suche nach der Ursache eines Problems: Wir kümmern uns fachgerecht um Ihr Fahrzeug und stimmen die erforderlichen Arbeiten transparent mit Ihnen ab."
+    },
+    "location": {
+      "heading": "So finden Sie uns"
+    }
+  },
+  "USP": {
+    "items": [
+      "Persönlicher Ansprechpartner",
+      "Transparente Abstimmung vor der Reparatur",
+      "Fachgerechte Arbeiten",
+      "Hilfe bei Wartung, Reparatur und Fahrzeugproblemen"
+    ]
+  },
+  "Services": {
+    "items": [
+      {
+        "heading": "Inspektion und Wartung",
+        "service": "Regelmäßige Wartungsarbeiten nach Herstellervorgaben für den zuverlässigen und sicheren Betrieb Ihres Fahrzeugs."
+      },
+      {
+        "heading": "Reparaturen",
+        "service": "Fachgerechte Reparaturen an mechanischen und elektrischen Fahrzeugkomponenten."
+      },
+      {
+        "heading": "Fahrzeugdiagnose",
+        "service": "Auslesen des Fehlerspeichers und gezielte Prüfung bei Warnleuchten, ungewöhnlichen Geräuschen oder technischen Problemen."
+      },
+      {
+        "heading": "Bremsenservice",
+        "service": "Kontrolle und Austausch von Bremsbelägen, Bremsscheiben und weiteren Komponenten der Bremsanlage."
+      },
+      {
+        "heading": "Ölwechsel",
+        "service": "Öl- und Filterwechsel passend zu den Anforderungen Ihres Fahrzeugs."
+      },
+      {
+        "heading": "Reifenservice",
+        "service": "Reifenwechsel, Prüfung des Reifenzustands und Kontrolle des Luftdrucks."
+      },
+      {
+        "heading": "Hauptuntersuchung",
+        "service": "Vorbereitung Ihres Fahrzeugs auf die Hauptuntersuchung und Durchführung notwendiger Reparaturen nach vorheriger Absprache."
+      },
+      {
+        "heading": "Weitere Arbeiten",
+        "service": "Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können."
+      }
+    ]
+  },
+  "Map": {
+    "heading": "Gut zu finden im Leipziger Westen",
+    "paragraph1": "Sie finden Bennis Autoservice in der Naumburger Straße 10 im Leipziger Stadtteil Plagwitz – einem Viertel, das für seine markante Industriearchitektur und seinen besonderen Charakter bekannt ist.",
+    "paragraph2": "Unsere Werkstatt befindet sich direkt neben dem POCO-Einrichtungsmarkt und ist dadurch leicht zu finden. Nutzen Sie die Karte*, um Ihre Anfahrt bequem zu planen.",
+    "note": "*Bei der Nutzung von Google Maps setzt Google Cookies, die in Ihrem Browser gespeichert bleiben können. Durch Klick auf „Route planen“ willigen Sie der Datenübermittlung an Google ein. Mit „Karte ausblenden“ stoppen Sie das weitere Tracking.",
+    "planRoute": "Route planen",
+    "planRouteOnGoogle": "Route auf Google Maps planen",
+    "hideMap": "Karte ausblenden",
+    "iframeTitle": "Standort Bennis Autoservice auf Google Maps"
+  },
+  "Impressum": {
+    "title": "Impressum",
+    "disclaimer": "Hinweis: Dies ist ein Demo-/Portfolio-Projekt. Die hier dargestellte Werkstatt existiert nicht mehr und wird nicht betrieben. Alle Inhalte dienen ausschließlich der Demonstration von Webentwicklungs-Fähigkeiten.",
+    "address": {
+      "heading": "Angaben gemäß § 5 TMG",
+      "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]
+    },
+    "contact": {
+      "heading": "Kontakt",
+      "lines": ["Telefon: [Telefonnummer]", "E-Mail: [E-Mail-Adresse]"]
+    },
+    "vat": {
+      "heading": "Umsatzsteuer-ID",
+      "lines": [
+        "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
+        "[USt-IdNr.]"
+      ]
+    },
+    "profession": {
+      "heading": "Berufsbezeichnung und berufsrechtliche Regelungen",
+      "lines": [
+        "Berufsbezeichnung: [Berufsbezeichnung]",
+        "Zuständige Kammer: [Kammer]",
+        "Verliehen in: [Staat]",
+        "Es gelten folgende berufsrechtliche Regelungen: [Regelungen]",
+        "Regelungen einsehbar unter: [URL]"
+      ]
+    },
+    "dispute": {
+      "heading": "Verbraucherstreitbeilegung / Universalschlichtungsstelle",
+      "lines": [
+        "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+      ]
+    },
+    "liability": {
+      "heading": "Haftung für Inhalte",
+      "lines": [
+        "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+      ]
+    }
+  }
+}

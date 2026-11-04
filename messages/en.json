@@ -1,0 +1,150 @@
+{
+  "Metadata": {
+    "title": "Bennis Autoservice",
+    "description": "Car repair shop in Leipzig Plagwitz"
+  },
+  "Header": {
+    "homeAriaLabel": "Go to homepage",
+    "navHome": "Home",
+    "navServices": "Services",
+    "navAnfahrt": "Directions",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "languageLabel": "Language",
+    "themeDark": "Switch to dark mode",
+    "themeLight": "Switch to light mode"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you requested doesn't exist or has been moved.",
+    "backHome": "Back to homepage"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "backHome": "Back to homepage"
+  },
+  "Footer": {
+    "rights": "All rights reserved.",
+    "impressum": "Legal Notice",
+    "demoNote": "This is a demo project for my developer portfolio."
+  },
+  "Home": {
+    "hero": {
+      "imageAlt": "Bennis Garage",
+      "title": "Welcome to Bennis Autoservice",
+      "subtitle": "Your car repair shop in Leipzig Plagwitz",
+      "intro": "Maintenance, repairs and personal service for your vehicle – reliable and right on site.",
+      "address": "Naumburger Straße 10, 04229 Leipzig",
+      "callButton": "Call now"
+    },
+    "why": {
+      "heading": "Why Bennis Autoservice?",
+      "text": "At Bennis Autoservice, personal advice, transparent agreements and careful workmanship are at the heart of everything we do."
+    },
+    "services": {
+      "heading": "Services",
+      "subheading": "Our service for your vehicle",
+      "intro": "Whether it's routine maintenance, a necessary repair, or tracking down the cause of a problem: we take care of your vehicle professionally and agree on the required work transparently with you."
+    },
+    "location": {
+      "heading": "How to find us"
+    }
+  },
+  "USP": {
+    "items": [
+      "Personal point of contact",
+      "Transparent agreements before any repair",
+      "Professional workmanship",
+      "Help with maintenance, repairs and vehicle issues"
+    ]
+  },
+  "Services": {
+    "items": [
+      {
+        "heading": "Inspection and maintenance",
+        "service": "Regular maintenance work according to manufacturer specifications for the reliable and safe operation of your vehicle."
+      },
+      {
+        "heading": "Repairs",
+        "service": "Professional repairs of mechanical and electrical vehicle components."
+      },
+      {
+        "heading": "Vehicle diagnostics",
+        "service": "Reading out the fault memory and targeted inspection in case of warning lights, unusual noises or technical problems."
+      },
+      {
+        "heading": "Brake service",
+        "service": "Inspection and replacement of brake pads, brake discs and other components of the braking system."
+      },
+      {
+        "heading": "Oil change",
+        "service": "Oil and filter changes tailored to your vehicle's requirements."
+      },
+      {
+        "heading": "Tire service",
+        "service": "Tire changes, tire condition inspection and tire pressure checks."
+      },
+      {
+        "heading": "Main inspection (TÜV)",
+        "service": "Preparing your vehicle for the main inspection and carrying out any necessary repairs by prior arrangement."
+      },
+      {
+        "heading": "Other work",
+        "service": "Need a different repair or not sure which service is required? Call us or send us an email. Together we'll figure out how we can help you."
+      }
+    ]
+  },
+  "Map": {
+    "heading": "Easy to find in the west of Leipzig",
+    "paragraph1": "You'll find Bennis Autoservice at Naumburger Straße 10 in the Leipzig district of Plagwitz – a neighborhood known for its striking industrial architecture and distinctive character.",
+    "paragraph2": "Our workshop is located right next to the POCO furniture store, making it easy to find. Use the map* to plan your route conveniently.",
+    "note": "*When using Google Maps, Google sets cookies that may be stored in your browser. By clicking \"Plan route\" you consent to the transfer of data to Google. Clicking \"Hide map\" stops any further tracking.",
+    "planRoute": "Plan route",
+    "planRouteOnGoogle": "Plan route on Google Maps",
+    "hideMap": "Hide map",
+    "iframeTitle": "Location of Bennis Autoservice on Google Maps"
+  },
+  "Impressum": {
+    "title": "Legal Notice",
+    "disclaimer": "Note: This is a demo/portfolio project. The repair shop shown here no longer exists and is not in operation. All content is for the sole purpose of demonstrating web development skills.",
+    "address": {
+      "heading": "Information pursuant to § 5 TMG",
+      "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]
+    },
+    "contact": {
+      "heading": "Contact",
+      "lines": ["Phone: [Phone number]", "Email: [Email address]"]
+    },
+    "vat": {
+      "heading": "VAT ID",
+      "lines": [
+        "VAT identification number pursuant to § 27a of the German VAT Act:",
+        "[VAT ID]"
+      ]
+    },
+    "profession": {
+      "heading": "Professional title and professional regulations",
+      "lines": [
+        "Professional title: [Professional title]",
+        "Competent chamber: [Chamber]",
+        "Awarded in: [Country]",
+        "The following professional regulations apply: [Regulations]",
+        "Regulations available at: [URL]"
+      ]
+    },
+    "dispute": {
+      "heading": "Consumer dispute resolution / universal arbitration board",
+      "lines": [
+        "We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+      ]
+    },
+    "liability": {
+      "heading": "Liability for content",
+      "lines": [
+        "As a service provider, we are responsible for our own content on these pages in accordance with § 7 para. 1 TMG under general law. However, according to §§ 8 to 10 TMG, we as a service provider are not obliged to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information under general law remain unaffected. However, liability in this regard is only possible from the point in time at which a specific infringement becomes known. If we become aware of any such infringements, we will remove the relevant content immediately."
+      ]
+    }
+  }
+}

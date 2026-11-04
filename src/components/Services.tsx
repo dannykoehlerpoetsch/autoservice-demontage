@@ -1,63 +1,32 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
-const services = [
-  {
-    heading: 'Inspektion und Wartung',
-    service:
-      'Regelmäßige Wartungsarbeiten nach Herstellervorgaben für den zuverlässigen und sicheren Betrieb Ihres Fahrzeugs.',
-    image: '/inspektion.jpg',
-  },
-  {
-    heading: 'Reparaturen',
-    service: 'Fachgerechte Reparaturen an mechanischen und elektrischen Fahrzeugkomponenten.',
-    image: '/reparatur.jpg',
-  },
-  {
-    heading: 'Fahrzeugdiagnose',
-    service:
-      'Auslesen des Fehlerspeichers und gezielte Prüfung bei Warnleuchten, ungewöhnlichen Geräuschen oder technischen Problemen.',
-    image: '/diagnose.jpg',
-  },
-  {
-    heading: 'Bremsenservice',
-    service:
-      'Kontrolle und Austausch von Bremsbelägen, Bremsscheiben und weiteren Komponenten der Bremsanlage.',
-    image: '/bremsen.jpg',
-  },
-  {
-    heading: 'Ölwechsel',
-    service: 'Öl- und Filterwechsel passend zu den Anforderungen Ihres Fahrzeugs.',
-    image: '/oelwechsel.jpg',
-  },
-  {
-    heading: 'Reifenservice',
-    service: 'Reifenwechsel, Prüfung des Reifenzustands und Kontrolle des Luftdrucks.',
-    image: '/reifen.jpg',
-  },
-  {
-    heading: 'Hauptuntersuchung',
-    service:
-      'Vorbereitung Ihres Fahrzeugs auf die Hauptuntersuchung und Durchführung notwendiger Reparaturen nach vorheriger Absprache.',
-    image: '/hauptuntersuchung.jpg',
-  },
-  {
-    heading: 'Weitere Arbeiten',
-    service:
-      'Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können.',
-    image: '/beratung.jpg',
-  },
+const serviceImages = [
+  '/inspektion.jpg',
+  '/reparatur.jpg',
+  '/diagnose.jpg',
+  '/bremsen.jpg',
+  '/oelwechsel.jpg',
+  '/reifen.jpg',
+  '/hauptuntersuchung.jpg',
+  '/beratung.jpg',
 ];
 
+type ServiceItem = { heading: string; service: string };
+
 export default function Services() {
+  const t = useTranslations('Services');
+  const items = t.raw('items') as ServiceItem[];
+
   return (
     <article className="grid gap-4 md:grid-cols-2">
-      {services.map(({ heading, service, image }, index) => (
+      {items.map(({ heading, service }, index) => (
         <div
           key={heading}
           className="relative rounded-lg overflow-hidden min-h-50 flex items-end justify-center"
         >
           <Image
-            src={image}
+            src={serviceImages[index]}
             alt={heading}
             fill
             className="object-cover"

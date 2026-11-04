@@ -1,48 +1,56 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
-
-const navLinks = [
-  { href: '/', label: 'Start' },
-  { href: '#services', label: 'Leistungen' },
-  { href: '#anfahrt', label: 'Anfahrt' },
-];
+import { Link, usePathname } from '@/i18n/navigation';
+import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
+  const t = useTranslations('Header');
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const hash = window.location.hash;
+  const navLinks = [
+    { href: '/', hash: null, label: t('navHome') },
+    { href: '/#services', hash: '#services', label: t('navServices') },
+    { href: '/#anfahrt', hash: '#anfahrt', label: t('navAnfahrt') },
+  ];
+
+  const scrollToHash = (hash: string | null) => {
     if (hash) {
       const el = document.querySelector(hash);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
+        return;
       }
     }
-  }, []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavClick = (hash: string | null) => (e: MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      scrollToHash(hash);
+    }
+  };
+
+  useEffect(() => {
+    if (pathname === '/' && window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [pathname]);
 
   return (
     <header className="header-bg text-white sticky top-0 z-50">
       <div className="relative px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link
-            href="/#home"
-            aria-label="Zur Startseite"
-            onClick={(e) => {
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                const el = document.querySelector('#home');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }
-            }}
-          >
+          <Link href="/#home" aria-label={t('homeAriaLabel')} onClick={handleNavClick('#home')}>
             <Image
               src="/Headerlogo.png"
               alt="Bennis Garage Logo"
@@ -54,28 +62,28 @@ export default function Header() {
           </Link>
           <button
             type="button"
-            className="md:hidden p-2 -mr-2 hover:bg-green-400 rounded-lg cursor-pointer"
+            className="md:hidden p-2 -mr-2 hover:bg-green-400 dark:hover:bg-green-800 rounded-lg cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label={isOpen ? 'Menu schließen' : 'Menu öffnen'}
+            aria-label={isOpen ? t('menuClose') : t('menuOpen')}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <nav className="hidden md:block">
+          <nav className="hidden md:flex items-center gap-6">
             <ul className="flex gap-6">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  {link.href.startsWith('#') ? (
-                    <a href={link.href} className="hover:underline">
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link href={link.href} className="hover:underline">
-                      {link.label}
-                    </Link>
-                  )}
+                  <Link
+                    href={link.href}
+                    className="hover:underline"
+                    onClick={handleNavClick(link.hash)}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
+            <LanguageSwitcher />
+            <ThemeToggle />
           </nav>
         </div>
         {isOpen && (
@@ -83,25 +91,22 @@ export default function Header() {
             <ul className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  {link.href.startsWith('#') ? (
-                    <a
-                      href={link.href}
-                      className="block py-2 px-3 hover:bg-green-400 rounded-lg"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="block py-2 px-3 hover:bg-green-400 rounded-lg"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  )}
+                  <Link
+                    href={link.href}
+                    className="block py-2 px-3 hover:bg-green-400 dark:hover:bg-green-800 rounded-lg"
+                    onClick={(e) => {
+                      handleNavClick(link.hash)(e);
+                      setIsOpen(false);
+                    }}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
+              <li className="px-3 pt-2 flex items-center justify-between">
+                <LanguageSwitcher />
+                <ThemeToggle />
+              </li>
             </ul>
           </nav>
         )}

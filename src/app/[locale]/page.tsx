@@ -1,20 +1,17 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import { MapPin, Phone } from 'lucide-react';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import Services from '@/components/Services';
 import USP from '@/components/USP';
 import Map from '@/components/Map';
+import PageSkeleton from '@/components/PageSkeleton';
 import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
-import type { Locale } from '@/i18n/routing';
+import { debugDelay } from '@/lib/debug-delay';
 
-type HomeProps = {
-  params: Promise<{ locale: string }>;
-};
-
-export default async function Home({ params }: HomeProps) {
-  const { locale } = await params;
-  setRequestLocale(locale as Locale);
+async function HomeContent() {
+  await debugDelay();
   const t = await getTranslations('Home');
 
   return (
@@ -65,5 +62,13 @@ export default async function Home({ params }: HomeProps) {
         <Map />
       </Section>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<PageSkeleton className="fallback-reveal" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

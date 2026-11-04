@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { hasLocale } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
@@ -69,8 +69,6 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
-
-  setRequestLocale(locale as Locale);
 
   return (
     <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>

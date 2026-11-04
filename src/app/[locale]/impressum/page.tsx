@@ -1,10 +1,5 @@
 import { Fragment } from 'react';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { Locale } from '@/i18n/routing';
-
-type ImpressumProps = {
-  params: Promise<{ locale: string }>;
-};
+import { getTranslations } from 'next-intl/server';
 
 function Lines({ lines }: { lines: string[] }) {
   return (
@@ -19,9 +14,7 @@ function Lines({ lines }: { lines: string[] }) {
   );
 }
 
-export default async function Impressum({ params }: ImpressumProps) {
-  const { locale } = await params;
-  setRequestLocale(locale as Locale);
+export default async function Impressum() {
   const t = await getTranslations('Impressum');
 
   return (

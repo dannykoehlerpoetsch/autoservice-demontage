@@ -2,15 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { applyStoredOrSystemTheme } from '@/lib/theme-script';
 
 export default function ThemeToggle() {
   const t = useTranslations('Header');
+  const locale = useLocale();
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
+    // Switching locales re-renders the root <html> element, which resets the
+    // `dark` class applied outside of React's control. Re-apply it here so the
+    // user's stored preference (or system preference) survives locale changes.
+    applyStoredOrSystemTheme();
     setIsDark(document.documentElement.classList.contains('dark'));
-  }, []);
+  }, [locale]);
 
   const toggleTheme = () => {
     const next = !isDark;

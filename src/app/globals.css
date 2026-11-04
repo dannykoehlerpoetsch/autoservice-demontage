@@ -47,3 +47,18 @@ body {
 section {
   width: 90vw;
 }
+
+/* Suspense-Fallback (Skeleton) erst nach kurzer Verzögerung einblenden:
+   schnelle Navigationen zeigen kein Flackern, hängender Content zeigt
+   das Skeleton nach 200ms. Läuft rein per CSS, also schon während des
+   Streamings und ohne auf Hydration zu warten. */
+@keyframes fallback-reveal {
+  to {
+    visibility: visible;
+  }
+}
+
+.fallback-reveal {
+  visibility: hidden;
+  animation: fallback-reveal 0s linear 200ms forwards;
+}

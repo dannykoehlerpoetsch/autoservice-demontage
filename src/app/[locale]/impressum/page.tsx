@@ -1,0 +1,66 @@
+import { Fragment } from 'react';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import type { Locale } from '@/i18n/routing';
+
+type ImpressumProps = {
+  params: Promise<{ locale: string }>;
+};
+
+function Lines({ lines }: { lines: string[] }) {
+  return (
+    <p className="leading-relaxed">
+      {lines.map((line, index) => (
+        <Fragment key={index}>
+          {index > 0 && <br />}
+          {line}
+        </Fragment>
+      ))}
+    </p>
+  );
+}
+
+export default async function Impressum({ params }: ImpressumProps) {
+  const { locale } = await params;
+  setRequestLocale(locale as Locale);
+  const t = await getTranslations('Impressum');
+
+  return (
+    <section className="flex flex-col items-start md:px-4 py-4 m-auto">
+      <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
+
+      <p className="mb-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-800 text-sm leading-relaxed">
+        {t('disclaimer')}
+      </p>
+
+      <section className="mb-4">
+        <h2 className="text-xl font-semibold mb-1">{t('address.heading')}</h2>
+        <Lines lines={t.raw('address.lines') as string[]} />
+      </section>
+
+      <section className="mb-4">
+        <h2 className="text-xl font-semibold mb-1">{t('contact.heading')}</h2>
+        <Lines lines={t.raw('contact.lines') as string[]} />
+      </section>
+
+      <section className="mb-4">
+        <h2 className="text-xl font-semibold mb-1">{t('vat.heading')}</h2>
+        <Lines lines={t.raw('vat.lines') as string[]} />
+      </section>
+
+      <section className="mb-4">
+        <h2 className="text-xl font-semibold mb-1">{t('profession.heading')}</h2>
+        <Lines lines={t.raw('profession.lines') as string[]} />
+      </section>
+
+      <section className="mb-4">
+        <h2 className="text-xl font-semibold mb-1">{t('dispute.heading')}</h2>
+        <Lines lines={t.raw('dispute.lines') as string[]} />
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-1">{t('liability.heading')}</h2>
+        <Lines lines={t.raw('liability.lines') as string[]} />
+      </section>
+    </section>
+  );
+}

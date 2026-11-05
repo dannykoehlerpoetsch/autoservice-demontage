@@ -3,20 +3,27 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import type { ServiceId } from '@/lib/services';
 import ServiceDetailDialog from './ServiceDetailDialog';
 
-const serviceImages = [
-  '/inspektion.jpg',
-  '/reparatur.jpg',
-  '/diagnose.jpg',
-  '/bremsen.jpg',
-  '/oelwechsel.jpg',
-  '/reifen.jpg',
-  '/hauptuntersuchung.jpg',
-  '/beratung.jpg',
-];
+/** Bild pro Leistung – an der ID festgemacht, nicht an der Listenposition. */
+const serviceImages: Record<ServiceId, string> = {
+  inspektion: '/inspektion.jpg',
+  reparatur: '/reparatur.jpg',
+  diagnose: '/diagnose.jpg',
+  bremsen: '/bremsen.jpg',
+  oelwechsel: '/oelwechsel.jpg',
+  reifen: '/reifen.jpg',
+  hu: '/hauptuntersuchung.jpg',
+  beratung: '/beratung.jpg',
+};
 
-export type ServiceItem = { heading: string; service: string; details: string };
+export type ServiceItem = {
+  id: ServiceId;
+  heading: string;
+  service: string;
+  details: string;
+};
 
 export default function Services() {
   const t = useTranslations('Services');
@@ -42,7 +49,7 @@ export default function Services() {
           className="group relative flex min-h-50 cursor-pointer items-end justify-center overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary"
         >
           <Image
-            src={serviceImages[index]}
+            src={serviceImages[item.id]}
             alt={item.heading}
             fill
             className="object-cover"

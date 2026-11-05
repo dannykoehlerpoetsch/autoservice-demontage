@@ -63,51 +63,145 @@
   "Services": {
     "dialog": {
       "close": "Close",
-      "book": "Book an appointment for {service} now",
-      "alert": "This feature is not yet available"
+      "book": "Book an appointment for {service} now"
     },
     "items": [
       {
+        "id": "inspektion",
         "heading": "Inspection and maintenance",
         "service": "Regular maintenance work according to manufacturer specifications for the reliable and safe operation of your vehicle.",
         "details": "We service your vehicle exactly as the manufacturer specifies and check oil, filters, fluid levels, brakes, lights and electronics along the way. In advance we tell you transparently which jobs are due and what they cost. Afterwards everything is documented in your service book."
       },
       {
+        "id": "reparatur",
         "heading": "Repairs",
         "service": "Professional repairs of mechanical and electrical vehicle components.",
         "details": "Whether it is a worn part, a leak or an electrical failure: we repair mechanical and electrical components properly. After a quick check we discuss what must be fixed right away and what can simply be monitored. Price and effort are agreed before you give the green light."
       },
       {
+        "id": "diagnose",
         "heading": "Vehicle diagnostics",
         "service": "Reading out the fault memory and targeted inspection in case of warning lights, unusual noises or technical problems.",
         "details": "We read out the fault memory and measure systematically whenever warning lights, unusual noises or dropping performance appear. In doing so we separate the real cause from the follow-up faults it triggers. You get a clear answer on which repair actually makes sense."
       },
       {
+        "id": "bremsen",
         "heading": "Brake service",
         "service": "Inspection and replacement of brake pads, brake discs and other components of the braking system.",
         "details": "We measure the material left on pads and discs and check the calipers, lines, handbrake and the condition of the brake fluid. What needs replacing we show you directly at the vehicle, with a transparent quote beforehand. After installation we run in the new pads."
       },
       {
+        "id": "oelwechsel",
         "heading": "Oil change",
         "service": "Oil and filter changes tailored to your vehicle's requirements.",
         "details": "We change the engine oil and the oil filter in the grade your manufacturer requires and dispose of the old oil properly. While we are at it we check the fluid levels and the seals. On request we note when the next change is due."
       },
       {
+        "id": "reifen",
         "heading": "Tire service",
         "service": "Tire changes, tire condition inspection and tire pressure checks.",
         "details": "We mount your summer or winter tires, check tread, age and wear pattern and control the air pressure including the spare wheel. Uneven wear we trace back to the suspension or axle setting behind it. On request we balance the wheels and store your tires for the season."
       },
       {
+        "id": "hu",
         "heading": "Main inspection (TÜV)",
         "service": "Preparing your vehicle for the main inspection and carrying out any necessary repairs by prior arrangement.",
         "details": "We pre-check your vehicle at the typical inspection points: brakes, lights, suspension, exhaust, fluids and visible defects. Everything else we calculate transparently in advance and fix once you approve it. That way you go into the inspection relaxed."
       },
       {
+        "id": "beratung",
         "heading": "Other work",
         "service": "Need a different repair or not sure which service is required? Call us or send us an email. Together we'll figure out how we can help you.",
         "details": "We are glad to look at work outside this list too: describe the problem by phone or email and stop by with the vehicle if needed. We tell you honestly whether a repair makes sense and get back to you with a clear statement on effort and cost."
       }
     ]
+  },
+  "Appointment": {
+    "title": "Request an appointment",
+    "intro": "Tell us briefly what your vehicle needs – we will get back to you with an appointment proposal. The date is only binding once we confirm it.",
+    "requiredHint": "Fields marked with * are required.",
+    "backToServices": "Back to the services",
+    "fields": {
+      "name": "Name",
+      "phone": "Phone number",
+      "email": "Email",
+      "service": "Requested service",
+      "date": "Preferred date",
+      "note": "Notes"
+    },
+    "placeholders": {
+      "name": "First and last name",
+      "phone": "+49 170 1234567",
+      "email": "name@example.com",
+      "service": "Please select a service",
+      "date": "No date selected",
+      "note": "e.g. warning light on, car model, preferred time of day"
+    },
+    "hints": {
+      "phone": "Landline or mobile, with country code if you like.",
+      "email": "For questions and the appointment confirmation.",
+      "note": "Everything we should know in advance."
+    },
+    "calendar": {
+      "navigation": "Calendar navigation",
+      "previousMonth": "Go to the previous month",
+      "nextMonth": "Go to the next month",
+      "grid": "Select an appointment in {month}",
+      "today": "today",
+      "selected": "selected",
+      "clear": "Remove date",
+      "hint": "No earlier than today, no later than 12 months ahead."
+    },
+    "errorSummary": "Please check the following fields:",
+    "submit": "Send appointment request",
+    "submitting": "Sending request …",
+    "errors": {
+      "required": "Please fill in this field.",
+      "tooLong": "Please shorten – maximum {max} characters.",
+      "nameTooShort": "Please provide your full name (at least two characters).",
+      "nameInvalid": "Please use only letters, spaces and the characters period, comma, hyphen and apostrophe.",
+      "phoneInvalid": "Please provide a valid phone number (6 to 15 digits, optional + and separators).",
+      "emailInvalid": "Please provide a valid email address.",
+      "serviceInvalid": "Please select one of the listed services.",
+      "dateInvalid": "Please select a valid date.",
+      "dateInPast": "The appointment cannot be in the past.",
+      "dateTooFar": "The appointment can be at most 12 months in the future.",
+      "noteInvalid": "The notes contain invalid characters – please avoid special characters such as <, > or backslash."
+    }
+  },
+  "AppointmentConfirmation": {
+    "title": "Your appointment request has been recorded",
+    "intro": "Please review your entries. From here you can also have the request sent to you by email.",
+    "summaryHeading": "Your entries",
+    "noNote": "no notes given",
+    "mail": {
+      "heading": "Copy by email",
+      "intro": "Would you like this request in your mailbox as well?",
+      "consent": "Send this request to {email}",
+      "submit": "Send request by email",
+      "submitting": "Sending email …",
+      "sent": "The email was sent to {email}.",
+      "alreadySent": "This request has already been sent by email.",
+      "consentRequired": "Please confirm first that you want to receive the email.",
+      "notConfigured": "Email delivery is not set up in this demo environment. The request was therefore only written to the server log.",
+      "failed": "The email could not be sent. Please try again or call us.",
+      "expired": "This request has expired, so sending an email is not possible."
+    },
+    "expired": {
+      "title": "Request not found",
+      "text": "This appointment request has expired or no longer exists. Please submit it again if needed.",
+      "again": "Start a new appointment request"
+    },
+    "backHome": "Back to homepage"
+  },
+  "Mail": {
+    "subject": "Appointment request: {service} at Bennis Autoservice",
+    "greeting": "Hello {name},",
+    "intro": "thank you for your appointment request. Here are your entries once more:",
+    "noNote": "none",
+    "outro": "We will get back to you by phone or email with an appointment proposal. The date is only binding once we confirm it.",
+    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig",
+    "demoNote": "Note: this is a demo project for a developer portfolio. The workshop does not exist in this form, nothing is actually booked."
   },
   "Map": {
     "heading": "Easy to find in the west of Leipzig",

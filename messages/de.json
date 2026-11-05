@@ -63,51 +63,145 @@
   "Services": {
     "dialog": {
       "close": "Schließen",
-      "book": "Jetzt Termin für {service} buchen",
-      "alert": "Dieses Feature steht Ihnen bald zur Verfügung"
+      "book": "Jetzt Termin für {service} buchen"
     },
     "items": [
       {
+        "id": "inspektion",
         "heading": "Inspektion und Wartung",
         "service": "Regelmäßige Wartungsarbeiten nach Herstellervorgaben für den zuverlässigen und sicheren Betrieb Ihres Fahrzeugs.",
         "details": "Wir warten Ihr Fahrzeug nach den Vorgaben des Herstellers und prüfen dabei Öl, Filter, Füllstände, Bremsen, Licht und Elektronik. Vorab sagen wir transparent, welche Arbeiten fällig sind und was sie kosten. Danach dokumentieren wir alles im Serviceheft."
       },
       {
+        "id": "reparatur",
         "heading": "Reparaturen",
         "service": "Fachgerechte Reparaturen an mechanischen und elektrischen Fahrzeugkomponenten.",
         "details": "Ob verschlissenes Bauteil, undichte Stelle oder elektrischer Ausfall: Wir reparieren mechanische und elektrische Komponenten fachgerecht. Nach einer kurzen Prüfung besprechen wir, was sofort gemacht werden muss und was noch beobachtet werden kann. Preis und Aufwand stehen vor der Freigabe fest."
       },
       {
+        "id": "diagnose",
         "heading": "Fahrzeugdiagnose",
         "service": "Auslesen des Fehlerspeichers und gezielte Prüfung bei Warnleuchten, ungewöhnlichen Geräuschen oder technischen Problemen.",
         "details": "Wir lesen den Fehlerspeicher aus und messen systematisch nach, wenn Warnleuchten, ungewöhnliche Geräusche oder schwankende Leistungen auftauchen. Dabei trennen wir die eigentliche Ursache von den Folgefehlern. Sie erfahren verständlich, welche Reparatur wirklich sinnvoll ist."
       },
       {
+        "id": "bremsen",
         "heading": "Bremsenservice",
         "service": "Kontrolle und Austausch von Bremsbelägen, Bremsscheiben und weiteren Komponenten der Bremsanlage.",
         "details": "Wir messen die Materialstärke von Belägen und Scheiben und prüfen Sättel, Leitungen, Handbremse und Bremsflüssigkeit. Was ausgetauscht werden muss, zeigen wir direkt am Fahrzeug und rechnen es vorher transparent. Nach dem Einbau fahren wir die neuen Beläge ein."
       },
       {
+        "id": "oelwechsel",
         "heading": "Ölwechsel",
         "service": "Öl- und Filterwechsel passend zu den Anforderungen Ihres Fahrzeugs.",
         "details": "Wir wechseln Motoröl und Ölfilter in der vom Hersteller vorgeschriebenen Qualität und entsorgen das Altöl fachgerecht. Dabei kontrollieren wir Füllstände und Dichtungen. Auf Wunsch halten wir fest, wann der nächste Wechsel fällig ist."
       },
       {
+        "id": "reifen",
         "heading": "Reifenservice",
         "service": "Reifenwechsel, Prüfung des Reifenzustands und Kontrolle des Luftdrucks.",
         "details": "Wir montieren Ihre Sommer- oder Winterreifen, prüfen Profil, Alter und Verschleißbild und kontrollieren den Luftdruck inklusive Reserverad. Bei ungleichmäßigem Verschleiß sagen wir Ihnen, welche Einstellung dahinterstecken könnte. Auf Wunsch wuchten wir die Räder und übernehmen die Einlagerung."
       },
       {
+        "id": "hu",
         "heading": "Hauptuntersuchung",
         "service": "Vorbereitung Ihres Fahrzeugs auf die Hauptuntersuchung und Durchführung notwendiger Reparaturen nach vorheriger Absprache.",
         "details": "Wir prüfen Ihr Fahrzeug vorab an den typischen HU-Punkten: Bremsen, Licht, Fahrwerk, Auspuff, Flüssigkeiten und sichtbare Mängel. Alles Weitere kalkulieren wir transparent vorab und beheben es nach Ihrer Freigabe. So fahren Sie entspannt zur eigentlichen Prüfung."
       },
       {
+        "id": "beratung",
         "heading": "Weitere Arbeiten",
         "service": "Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können.",
         "details": "Auch Arbeiten außerhalb dieser Liste schauen wir uns an: Beschreiben Sie das Problem am Telefon oder per E-Mail und kommen Sie bei Bedarf mit dem Fahrzeug vorbei. Wir sagen ehrlich, ob eine Reparatur sinnvoll ist, und melden uns mit einer klaren Aussage zu Aufwand und Kosten."
       }
     ]
+  },
+  "Appointment": {
+    "title": "Termin anfragen",
+    "intro": "Erzählen Sie uns kurz, worum es geht – wir melden uns mit einem Terminvorschlag. Verbindlich ist der Termin erst nach unserer Bestätigung.",
+    "requiredHint": "Mit * markierte Felder sind Pflichtangaben.",
+    "backToServices": "Zurück zu den Leistungen",
+    "fields": {
+      "name": "Name",
+      "phone": "Telefonnummer",
+      "email": "E-Mail",
+      "service": "Gewünschter Service",
+      "date": "Gewünschter Termin",
+      "note": "Bemerkung"
+    },
+    "placeholders": {
+      "name": "Vor- und Nachname",
+      "phone": "+49 170 1234567",
+      "email": "name@beispiel.de",
+      "service": "Bitte Service auswählen",
+      "date": "Kein Datum gewählt",
+      "note": "z. B. Warnleuchte leuchtet, Fahrzeugmodell, gewünschte Uhrzeit"
+    },
+    "hints": {
+      "phone": "Festnetz oder mobil, gern mit Ländervorwahl.",
+      "email": "Für Rückfragen und die Terminbestätigung.",
+      "note": "Alles, was wir vorab wissen sollten."
+    },
+    "calendar": {
+      "navigation": "Kalendernavigation",
+      "previousMonth": "Zum vorherigen Monat",
+      "nextMonth": "Zum nächsten Monat",
+      "grid": "Termin im {month} auswählen",
+      "today": "heute",
+      "selected": "ausgewählt",
+      "clear": "Datum entfernen",
+      "hint": "Frühestens heute, spätestens 12 Monate im Voraus."
+    },
+    "errorSummary": "Bitte prüfen Sie folgende Felder:",
+    "submit": "Terminanfrage senden",
+    "submitting": "Anfrage wird gesendet …",
+    "errors": {
+      "required": "Bitte dieses Feld ausfüllen.",
+      "tooLong": "Bitte kürzen – maximal {max} Zeichen.",
+      "nameTooShort": "Bitte den vollständigen Namen angeben (mindestens zwei Zeichen).",
+      "nameInvalid": "Bitte nur Buchstaben, Leerzeichen sowie Punkt, Komma, Bindestrich und Apostroph verwenden.",
+      "phoneInvalid": "Bitte eine gültige Telefonnummer angeben (6 bis 15 Ziffern, optional + und Trennzeichen).",
+      "emailInvalid": "Bitte eine gültige E-Mail-Adresse angeben.",
+      "serviceInvalid": "Bitte einen der aufgeführten Services auswählen.",
+      "dateInvalid": "Bitte ein gültiges Datum auswählen.",
+      "dateInPast": "Der Termin darf nicht in der Vergangenheit liegen.",
+      "dateTooFar": "Der Termin darf höchstens 12 Monate in der Zukunft liegen.",
+      "noteInvalid": "Die Bemerkung enthält unerlaubte Zeichen – bitte ohne Sonderzeichen wie <, > oder Backslash."
+    }
+  },
+  "AppointmentConfirmation": {
+    "title": "Ihre Terminanfrage ist erfasst",
+    "intro": "Bitte prüfen Sie Ihre Angaben. Von hier aus können Sie sich die Anfrage zusätzlich per E-Mail zusenden lassen.",
+    "summaryHeading": "Ihre Angaben",
+    "noNote": "keine Bemerkung angegeben",
+    "mail": {
+      "heading": "Kopie per E-Mail",
+      "intro": "Möchten Sie diese Anfrage zusätzlich in Ihrem E-Mail-Fach haben?",
+      "consent": "Diese Anfrage an {email} senden",
+      "submit": "Anfrage per E-Mail senden",
+      "submitting": "E-Mail wird gesendet …",
+      "sent": "Die E-Mail wurde an {email} versendet.",
+      "alreadySent": "Diese Anfrage wurde bereits per E-Mail versendet.",
+      "consentRequired": "Bitte bestätigen Sie zuerst, dass Sie die E-Mail erhalten möchten.",
+      "notConfigured": "In dieser Demo-Umgebung ist kein Mailversand eingerichtet. Die Anfrage wurde deshalb nur im Server-Log protokolliert.",
+      "failed": "Die E-Mail konnte nicht versendet werden. Bitte versuchen Sie es erneut oder rufen Sie uns an.",
+      "expired": "Diese Anfrage ist abgelaufen, eine E-Mail ist deshalb nicht möglich."
+    },
+    "expired": {
+      "title": "Anfrage nicht gefunden",
+      "text": "Diese Terminanfrage ist abgelaufen oder existiert nicht (mehr). Bitte stellen Sie die Anfrage bei Bedarf erneut.",
+      "again": "Neue Terminanfrage stellen"
+    },
+    "backHome": "Zurück zur Startseite"
+  },
+  "Mail": {
+    "subject": "Terminanfrage: {service} bei Bennis Autoservice",
+    "greeting": "Guten Tag {name},",
+    "intro": "vielen Dank für Ihre Terminanfrage. Hier noch einmal Ihre Angaben:",
+    "noNote": "keine",
+    "outro": "Wir melden uns telefonisch oder per E-Mail mit einem Terminvorschlag. Verbindlich ist der Termin erst nach unserer Bestätigung.",
+    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig",
+    "demoNote": "Hinweis: Dies ist ein Demo-Projekt für ein Entwickler-Portfolio. Die Werkstatt existiert in dieser Form nicht, es wird nichts gebucht."
   },
   "Map": {
     "heading": "Gut zu finden im Leipziger Westen",

@@ -9,6 +9,7 @@ import { sans } from '@/lib/fonts';
 import { SITE_URL } from '@/lib/site';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BookingProvider from '@/components/BookingProvider';
 import ThemeInit from '@/components/ThemeInit';
 import '../globals.css';
 
@@ -84,9 +85,12 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className={`${sans.className} flex flex-col min-h-screen`} suppressHydrationWarning>
         <NextIntlClientProvider>
-          <Header />
-          <main className="grow flex flex-col">{children}</main>
-          <Footer />
+          {/* Überlebt die Navigation – trägt die Leistungsauswahl vom Dialog ins Formular. */}
+          <BookingProvider>
+            <Header />
+            <main className="grow flex flex-col">{children}</main>
+            <Footer />
+          </BookingProvider>
         </NextIntlClientProvider>
       </body>
     </html>

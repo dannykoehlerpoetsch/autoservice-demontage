@@ -20,6 +20,32 @@
   --animate-content-in: content-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-content-out: content-out 130ms ease-in forwards;
 
+  /* Ein-/Ausblenden des Terminkalenders (Radix-Popover). Kleiner Versatz nach unten,
+     damit der Kalender vom Auslöser weg aufgleitet. */
+  --animate-pop-in: pop-in 130ms ease-out forwards;
+  --animate-pop-out: pop-out 90ms ease-in forwards;
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes pop-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-2px) scale(0.98);
+    }
+  }
+
   @keyframes overlay-in {
     from {
       opacity: 0;
@@ -67,6 +93,30 @@
   --color-bg-footer: #2c4a08;
   --color-text-primary: #e5e7eb;
   --color-brand: #3f6b0b;
+}
+
+/* Der Terminkalender (react-day-picker) bringt eigene Klassen mit. Seine Farben laufen
+   über CSS-Variablen, die hier an die Marken- bzw. Dunkelheitsfarbe der Seite gebunden
+   werden – deshalb braucht die Kalendarioberfläche keine eigenen dunklen Klassen. */
+.rdp-root {
+  --rdp-accent-color: var(--color-brand);
+  --rdp-today-color: var(--color-brand);
+  --rdp-accent-background-color: #edf5e2;
+  --rdp-day-height: 38px;
+  --rdp-day-width: 38px;
+  --rdp-day_button-height: 34px;
+  --rdp-day_button-width: 34px;
+  --rdp-nav-height: 2.25rem;
+  --rdp-nav_button-height: 2rem;
+  --rdp-nav_button-width: 2rem;
+}
+
+.dark .rdp-root {
+  --rdp-accent-background-color: #22330c;
+}
+
+.rdp-day_button:not(:disabled):hover {
+  background-color: var(--rdp-accent-background-color);
 }
 
 html {

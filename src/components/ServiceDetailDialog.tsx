@@ -1,6 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { CalendarPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
+import { useBookingService } from './BookingProvider';
 import type { ServiceItem } from './Services';
 
 type ServiceDetailDialogProps = {
@@ -15,6 +17,20 @@ export default function ServiceDetailDialog({
   onOpenChange,
 }: ServiceDetailDialogProps) {
   const t = useTranslations('Services');
+  const router = useRouter();
+  const { selectService } = useBookingService();
+
+  // Die Auswahl wandert in den BookingProvider (Layout-Context) und überlebt dadurch die
+  // Navigation: das Formular auf /termin-anfrage wählt den Service damit voraus.
+  const requestAppointment = () => {
+    if (!service) {
+      return;
+    }
+
+    selectService({ id: service.id, heading: service.heading });
+    onOpenChange(false);
+    router.push('/termin-anfrage');
+  };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +49,7 @@ export default function ServiceDetailDialog({
           <button
             type="button"
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            onClick={() => alert(t('dialog.alert'))}
+            onClick={requestAppointment}
           >
             <CalendarPlus size={18} />
             {t('dialog.book', { service: service?.heading ?? '' })}

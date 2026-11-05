@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect, type MouseEvent, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
@@ -12,6 +12,8 @@ export default function Header() {
   const t = useTranslations('Header');
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   const navLinks = [
     { href: '/', hash: null, label: t('navHome') },
@@ -38,6 +40,29 @@ export default function Header() {
   };
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      if (menuRef.current?.contains(target) || toggleRef.current?.contains(target)) {
+        return;
+      }
+      setIsOpen(false);
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePress, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePress, true);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (pathname === '/' && window.location.hash) {
       const el = document.querySelector(window.location.hash);
       if (el) {
@@ -62,6 +87,7 @@ export default function Header() {
           </Link>
           <button
             type="button"
+            ref={toggleRef}
             className="md:hidden p-2 -mr-2 hover:bg-green-400 dark:hover:bg-green-800 rounded-lg cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? t('menuClose') : t('menuOpen')}
@@ -87,7 +113,10 @@ export default function Header() {
           </nav>
         </div>
         {isOpen && (
-          <nav className="md:hidden absolute top-full left-0 right-0 header-bg z-50 px-4 py-4 rounded-b-lg shadow-lg">
+          <nav
+            ref={menuRef}
+            className="md:hidden absolute top-full left-0 right-0 header-bg z-50 px-4 py-4 rounded-b-lg shadow-lg"
+          >
             <ul className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <li key={link.href}>

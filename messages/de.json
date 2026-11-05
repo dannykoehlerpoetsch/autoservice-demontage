@@ -61,38 +61,51 @@
     ]
   },
   "Services": {
+    "dialog": {
+      "close": "Schließen",
+      "book": "Jetzt Termin für {service} buchen",
+      "alert": "Dieses Feature steht Ihnen bald zur Verfügung"
+    },
     "items": [
       {
         "heading": "Inspektion und Wartung",
-        "service": "Regelmäßige Wartungsarbeiten nach Herstellervorgaben für den zuverlässigen und sicheren Betrieb Ihres Fahrzeugs."
+        "service": "Regelmäßige Wartungsarbeiten nach Herstellervorgaben für den zuverlässigen und sicheren Betrieb Ihres Fahrzeugs.",
+        "details": "Wir warten Ihr Fahrzeug nach den Vorgaben des Herstellers und prüfen dabei Öl, Filter, Füllstände, Bremsen, Licht und Elektronik. Vorab sagen wir transparent, welche Arbeiten fällig sind und was sie kosten. Danach dokumentieren wir alles im Serviceheft."
       },
       {
         "heading": "Reparaturen",
-        "service": "Fachgerechte Reparaturen an mechanischen und elektrischen Fahrzeugkomponenten."
+        "service": "Fachgerechte Reparaturen an mechanischen und elektrischen Fahrzeugkomponenten.",
+        "details": "Ob verschlissenes Bauteil, undichte Stelle oder elektrischer Ausfall: Wir reparieren mechanische und elektrische Komponenten fachgerecht. Nach einer kurzen Prüfung besprechen wir, was sofort gemacht werden muss und was noch beobachtet werden kann. Preis und Aufwand stehen vor der Freigabe fest."
       },
       {
         "heading": "Fahrzeugdiagnose",
-        "service": "Auslesen des Fehlerspeichers und gezielte Prüfung bei Warnleuchten, ungewöhnlichen Geräuschen oder technischen Problemen."
+        "service": "Auslesen des Fehlerspeichers und gezielte Prüfung bei Warnleuchten, ungewöhnlichen Geräuschen oder technischen Problemen.",
+        "details": "Wir lesen den Fehlerspeicher aus und messen systematisch nach, wenn Warnleuchten, ungewöhnliche Geräusche oder schwankende Leistungen auftauchen. Dabei trennen wir die eigentliche Ursache von den Folgefehlern. Sie erfahren verständlich, welche Reparatur wirklich sinnvoll ist."
       },
       {
         "heading": "Bremsenservice",
-        "service": "Kontrolle und Austausch von Bremsbelägen, Bremsscheiben und weiteren Komponenten der Bremsanlage."
+        "service": "Kontrolle und Austausch von Bremsbelägen, Bremsscheiben und weiteren Komponenten der Bremsanlage.",
+        "details": "Wir messen die Materialstärke von Belägen und Scheiben und prüfen Sättel, Leitungen, Handbremse und Bremsflüssigkeit. Was ausgetauscht werden muss, zeigen wir direkt am Fahrzeug und rechnen es vorher transparent. Nach dem Einbau fahren wir die neuen Beläge ein."
       },
       {
         "heading": "Ölwechsel",
-        "service": "Öl- und Filterwechsel passend zu den Anforderungen Ihres Fahrzeugs."
+        "service": "Öl- und Filterwechsel passend zu den Anforderungen Ihres Fahrzeugs.",
+        "details": "Wir wechseln Motoröl und Ölfilter in der vom Hersteller vorgeschriebenen Qualität und entsorgen das Altöl fachgerecht. Dabei kontrollieren wir Füllstände und Dichtungen. Auf Wunsch halten wir fest, wann der nächste Wechsel fällig ist."
       },
       {
         "heading": "Reifenservice",
-        "service": "Reifenwechsel, Prüfung des Reifenzustands und Kontrolle des Luftdrucks."
+        "service": "Reifenwechsel, Prüfung des Reifenzustands und Kontrolle des Luftdrucks.",
+        "details": "Wir montieren Ihre Sommer- oder Winterreifen, prüfen Profil, Alter und Verschleißbild und kontrollieren den Luftdruck inklusive Reserverad. Bei ungleichmäßigem Verschleiß sagen wir Ihnen, welche Einstellung dahinterstecken könnte. Auf Wunsch wuchten wir die Räder und übernehmen die Einlagerung."
       },
       {
         "heading": "Hauptuntersuchung",
-        "service": "Vorbereitung Ihres Fahrzeugs auf die Hauptuntersuchung und Durchführung notwendiger Reparaturen nach vorheriger Absprache."
+        "service": "Vorbereitung Ihres Fahrzeugs auf die Hauptuntersuchung und Durchführung notwendiger Reparaturen nach vorheriger Absprache.",
+        "details": "Wir prüfen Ihr Fahrzeug vorab an den typischen HU-Punkten: Bremsen, Licht, Fahrwerk, Auspuff, Flüssigkeiten und sichtbare Mängel. Alles Weitere kalkulieren wir transparent vorab und beheben es nach Ihrer Freigabe. So fahren Sie entspannt zur eigentlichen Prüfung."
       },
       {
         "heading": "Weitere Arbeiten",
-        "service": "Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können."
+        "service": "Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können.",
+        "details": "Auch Arbeiten außerhalb dieser Liste schauen wir uns an: Beschreiben Sie das Problem am Telefon oder per E-Mail und kommen Sie bei Bedarf mit dem Fahrzeug vorbei. Wir sagen ehrlich, ob eine Reparatur sinnvoll ist, und melden uns mit einer klaren Aussage zu Aufwand und Kosten."
       }
     ]
   },

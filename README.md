@@ -9,6 +9,7 @@
 - **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS 4
+- **UI-Primitives:** Radix UI (`@radix-ui/react-dialog`, accessible service detail dialog)
 - **i18n:** next-intl (German/English, locale-aware routing)
 - **Package Manager:** Bun
 - **Linting:** ESLint 9 (Flat Config)
@@ -84,5 +85,6 @@ language dropdown in the header. All page/UI copy lives in `messages/de.json` an
 - **Unit tests** (`src/components/__tests__`) cover presentational components and the Header's
   navigation/scroll logic in isolation.
 - **E2E tests** (`e2e/`) verify cross-page navigation (e.g. clicking a section link from the
-  Impressum page correctly lands on the homepage section) and language switching against a real
+  Impressum page correctly lands on the homepage section), language switching and the service
+  detail dialog (opens with the clicked service, closes via button/Escape) against a real
   production build.

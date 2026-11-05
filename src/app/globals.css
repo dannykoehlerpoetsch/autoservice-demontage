@@ -8,6 +8,57 @@
   --color-bg-footer: #59a305;
   --color-text-primary: #1f2937;
   --color-brand: #59a305;
+
+  /* Ein-/Ausblenden der Radix-Dialog-Layer (Overlay + Content). Radix hält
+     geschlossene Elemente kurz im DOM (data-state="closed"), dadurch laufen
+     die Out-Animationen wirklich, bevor der Node entfernt wird.
+     Das Content-Element wird über inset-0 + margin:auto zentriert, deshalb
+     dürfen die Keyframes kein translate enthalten – sonst verrutscht das Modal
+     aus der Seitenmitte. */
+  --animate-overlay-in: overlay-in 150ms ease-out forwards;
+  --animate-overlay-out: overlay-out 120ms ease-in forwards;
+  --animate-content-in: content-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-content-out: content-out 130ms ease-in forwards;
+
+  @keyframes overlay-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes overlay-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes content-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes content-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
 }
 
 .dark {
@@ -22,6 +73,22 @@ html {
   font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1.125rem);
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  /* Scrollbar-Pfad dauerhaft sichtbar halten (auch auf kurzen Seiten).
+     Würde der Radix-Scroll-Lock die Scrollbar entfernen, wäre das Layout
+     ~15px breiter: die Sektionen (width: 90vw) wachsen mit und springen nach
+     rechts, und die Mittelachse des Modals verrutscht.
+     `scrollbar-gutter: stable` bringt hier nichts, weil es bei
+     overflow: hidden (setzt Radix) ignoriert wird. */
+  overflow-y: scroll;
+}
+
+/* Radix' Scrollbar-Kompensation (react-remove-scroll-bar) setzt
+   `body[data-scroll-locked] { margin-right: <scrollbarbreite>px !important }`.
+   Weil der Scrollbar-Pfad dank overflow-y: scroll nie verschwindet, wäre diese
+   Kompensation ein echter Layoutshift. Die doppelte Attributsauswahl erhöht die
+   Spezifität, damit die Regel gegen das !important von Radix gewinnt. */
+body[data-scroll-locked][data-scroll-locked] {
+  margin-right: 0 !important;
 }
 
 body {

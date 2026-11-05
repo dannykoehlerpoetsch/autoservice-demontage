@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { sans } from '@/lib/fonts';
-import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
+import ThemeInit from '@/components/ThemeInit';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -12,13 +11,14 @@ export const metadata: Metadata = {
 export default function GlobalNotFound() {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Inline theme init in <head>, see src/app/[locale]/layout.tsx for the reason */}
+        <ThemeInit />
+      </head>
       <body
         className={`${sans.className} flex min-h-screen flex-col items-center justify-center gap-4 text-center px-4`}
         suppressHydrationWarning
       >
-        <Script id="theme-init" strategy="beforeInteractive" suppressHydrationWarning>
-          {THEME_INIT_SCRIPT}
-        </Script>
         <h1 className="text-3xl font-bold">Page not found</h1>
         <p>The page you requested doesn&apos;t exist or has been moved.</p>
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global-not-found renders outside the router, next/link is unavailable here */}

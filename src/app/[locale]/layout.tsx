@@ -4,13 +4,12 @@ import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
-import Script from 'next/script';
 import { routing, type Locale } from '@/i18n/routing';
 import { sans } from '@/lib/fonts';
 import { SITE_URL } from '@/lib/site';
-import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ThemeInit from '@/components/ThemeInit';
 import '../globals.css';
 
 export function generateStaticParams() {
@@ -72,10 +71,18 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/*
+         * Theme init has to run before the first paint. It lives in <head> rather than
+         * <body> on purpose: the beforeInteractive strategy of next/script renders a
+         * React-owned <script> as the first child of <body>, and an extension injecting its
+         * own <script> at that position gets hydrated against that node (hydration mismatch).
+         * Nodes rendered into <head> are not hydrated in place, so injected scripts cannot
+         * shift them. ThemeInit unmounts itself once the script has run.
+         */}
+        <ThemeInit />
+      </head>
       <body className={`${sans.className} flex flex-col min-h-screen`} suppressHydrationWarning>
-        <Script id="theme-init" strategy="beforeInteractive" suppressHydrationWarning>
-          {THEME_INIT_SCRIPT}
-        </Script>
         <NextIntlClientProvider>
           <Header />
           <main className="grow flex flex-col">{children}</main>

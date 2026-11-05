@@ -93,4 +93,45 @@ describe('Header', () => {
 
     expect(screen.getByLabelText('Menu schließen')).toBeInTheDocument();
   });
+
+  const openMobileMenu = () => {
+    fireEvent.click(screen.getByLabelText('Menu öffnen'));
+  };
+
+  it('closes the mobile menu on a pointer press outside of it', () => {
+    renderHeader();
+    openMobileMenu();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.getByLabelText('Menu öffnen')).toBeInTheDocument();
+  });
+
+  it('keeps the mobile menu open on a pointer press inside of it', () => {
+    renderHeader();
+    openMobileMenu();
+
+    const mobileMenu = document.querySelectorAll('nav')[1];
+    fireEvent.pointerDown(mobileMenu);
+
+    expect(screen.getByLabelText('Menu schließen')).toBeInTheDocument();
+  });
+
+  it('does not close the mobile menu when the language switcher inside is used', () => {
+    renderHeader();
+    openMobileMenu();
+
+    fireEvent.pointerDown(screen.getAllByLabelText('Sprache')[1]);
+
+    expect(screen.getByLabelText('Menu schließen')).toBeInTheDocument();
+  });
+
+  it('still closes the mobile menu when its toggle button is clicked again', () => {
+    renderHeader();
+    openMobileMenu();
+
+    fireEvent.click(screen.getByLabelText('Menu schließen'));
+
+    expect(screen.getByLabelText('Menu öffnen')).toBeInTheDocument();
+  });
 });

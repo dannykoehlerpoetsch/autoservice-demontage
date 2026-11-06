@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Binärdateien dürfen bei der Normalisierung nicht angefasst werden.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary

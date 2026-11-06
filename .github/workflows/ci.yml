@@ -71,6 +71,13 @@ jobs:
       - name: Unit tests with coverage
         run: bun run test:coverage
 
+      # Zahlen auf der PR-Seite statt nur im Log: die Deckung erscheint in der
+      # Lauf-Zusammenfassung des Checks, ohne dass jemand Artefakte entpacken muss.
+      - name: Deckung in die Lauf-Zusammenfassung
+        if: always()
+        run: |
+          node -e 'const t = require("./coverage/coverage-summary.json").total; const f = (k) => t[k].pct + " %"; console.log("### Testabdeckung"); console.log(""); console.log("| Kennzahl | Wert |"); console.log("| --- | --- |"); console.log("| Statements | " + f("statements") + " |"); console.log("| Branches | " + f("branches") + " |"); console.log("| Funktionen | " + f("functions") + " |"); console.log("| Zeilen | " + f("lines") + " |");' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Coverage-Bericht sichern
         if: always()
         uses: actions/upload-artifact@v4

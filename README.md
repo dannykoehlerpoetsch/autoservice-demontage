@@ -223,11 +223,9 @@ instead of disappearing into a green tick.
 ### Visual regression baselines
 
 Baselines are platform specific (font antialiasing), so they are generated on the same OS the
-pipeline runs on:
-
-Seven baselines are committed as `*-chromium-linux.png` (home in de/en/light/dark, service dialog,
-appointment form, impressum, 404), so the pipeline compares real pixels on every pull request. To
-regenerate them after an intended redesign:
+pipeline runs on. Seven of them are committed as `*-chromium-linux.png` (home in de/en/light/dark,
+service dialog, appointment form, impressum, 404), so the pipeline compares real pixels on every
+pull request. To regenerate them after an intended redesign:
 
 1. Run the workflow **on the branch**, so the pull request goes green on its first try:
    `gh workflow run ci.yml --ref <branch> -f update_snapshots=true` — or on GitHub:
@@ -243,11 +241,9 @@ than reporting a false failure.
 
 ### Pipeline
 
-`.github/workflows/ci.yml` runs in five stages, cheapest first — each stage only starts when the
-previous one is green:
-
-Job names are written exactly as GitHub shows them, because the ruleset matches on those strings.
-Durations are the measured wall times of the runs on `main`:
+`.github/workflows/ci.yml` runs five jobs, cheapest first. Job names are written exactly as GitHub
+shows them, because the ruleset matches on those strings; durations are the measured wall times of
+recent runs on `main`:
 
 | Stage | Job | Measured | Catches |
 | ----- | --- | -------- | ------- |
@@ -262,7 +258,7 @@ an artifact, so the app is built exactly once per run and the whole pipeline is 
 seconds. `workflow_dispatch` exists to regenerate the visual baselines (see above) and runs only the
 build and the screenshot job.
 
-### Local note: line endings
+### Line endings
 
 `.gitattributes` pins `* text=auto eol=lf`, so repository, CI and every clone agree on LF and
 `bun run fmt:check` answers the same on Windows as on Ubuntu. Without it, a working copy with

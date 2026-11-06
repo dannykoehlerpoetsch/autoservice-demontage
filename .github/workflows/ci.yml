@@ -185,15 +185,15 @@ jobs:
           fi
 
       - name: Baselines neu erzeugen
-        if: github.event_inputs.update_snapshots == 'true'
+        if: github.event.inputs.update_snapshots == 'true'
         run: bun run test:e2e -- --grep @visual --update-snapshots
 
       - name: Bildvergleich
-        if: github.event_inputs.update_snapshots != 'true'
+        if: github.event.inputs.update_snapshots != 'true'
         run: bun run test:e2e -- --grep @visual ${{ steps.baselines.outputs.flags }}
 
       - name: Frische Baselines zum Einchecken bereitlegen
-        if: github.event_inputs.update_snapshots == 'true' && always()
+        if: github.event.inputs.update_snapshots == 'true' && always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-snapshots

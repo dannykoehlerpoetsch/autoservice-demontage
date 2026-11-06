@@ -29,8 +29,8 @@ jobs:
   quality:
     name: Lint, Typen & Format
     if: github.event_name != 'workflow_dispatch'
-    runs_on: ubuntu_latest
-    timeout_minutes: 10
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -55,8 +55,8 @@ jobs:
   unit:
     name: Unit-Tests & Abdeckung
     if: github.event_name != 'workflow_dispatch'
-    runs_on: ubuntu_latest
-    timeout_minutes: 10
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -82,8 +82,8 @@ jobs:
   # ── Stufe 3: Production-Build – einmal, für alle nachfolgenden Jobs ───────────
   build:
     name: Production Build
-    runs_on: ubuntu_latest
-    timeout_minutes: 15
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -114,8 +114,8 @@ jobs:
     name: E2E & Barrierefreiheit
     needs: build
     if: github.event_name != 'workflow_dispatch'
-    runs_on: ubuntu_latest
-    timeout_minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -151,8 +151,8 @@ jobs:
   visual:
     name: Visuelle Regression
     needs: build
-    runs_on: ubuntu_latest
-    timeout_minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 

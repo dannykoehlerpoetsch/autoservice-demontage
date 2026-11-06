@@ -7,11 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "fmt": "prettier --write src",
-    "fmt:check": "prettier --check src",
+    "typecheck": "tsc --noEmit",
+    "fmt": "prettier --write src e2e playwright.config.ts vitest.config.ts vitest.setup.ts",
+    "fmt:check": "prettier --check src e2e playwright.config.ts vitest.config.ts vitest.setup.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:functional": "playwright test --grep-invert @visual",
+    "test:e2e:visual": "playwright test --grep @visual"
   },
   "repository": {
     "type": "git",
@@ -25,6 +29,7 @@
   },
   "homepage": "https://github.com/dannykoehlerpoetsch/bennis-garage#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "16.4.5",
@@ -39,6 +44,7 @@
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
     "@vitejs/plugin-react": "^6.2.1",
+    "@vitest/coverage-v8": "^5.1.0",
     "autoprefixer": "^10.5.4",
     "eslint": "9",
     "eslint-config-next": "16.4.5",

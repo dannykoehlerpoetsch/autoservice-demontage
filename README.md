@@ -16,7 +16,9 @@
 - **Formatting:** Prettier
 - **Unit Testing:** Vitest + React Testing Library
 - **E2E Testing:** Playwright
-- **CI:** GitHub Actions (lint, typecheck, format check, unit & E2E tests)
+- **Accessibility Testing:** axe-core (`@axe-core/playwright`) inside the E2E run
+- **Visual Regression:** Playwright screenshot comparison with committed baselines
+- **CI:** GitHub Actions (lint, typecheck, format check, unit tests + coverage, production build, E2E, axe, visual regression)
 
 ## Getting Started
 
@@ -48,16 +50,20 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 
 ### Available Scripts
 
-| Script               | Description                                                       |
-| -------------------- | ----------------------------------------------------------------- |
-| `bun run build`      | Create production build                                           |
-| `bun run start`      | Start production server                                           |
-| `bun run lint`       | Run ESLint                                                        |
-| `bun run fmt`        | Format code                                                       |
-| `bun run fmt:check`  | Check code formatting                                             |
-| `bun run test`       | Run unit tests (Vitest)                                           |
-| `bun run test:watch` | Run unit tests in watch mode                                      |
-| `bun run test:e2e`   | Run E2E tests (Playwright, builds & serves the app automatically) |
+| Script                    | Description                                                          |
+| ------------------------- | -------------------------------------------------------------------- |
+| `bun run build`           | Create production build                                              |
+| `bun run start`           | Start production server                                              |
+| `bun run lint`            | Run ESLint                                                           |
+| `bun run typecheck`       | Type-check the whole project (`tsc --noEmit`)                        |
+| `bun run fmt`             | Format code                                                          |
+| `bun run fmt:check`       | Check code formatting                                                |
+| `bun run test`            | Run unit tests (Vitest)                                              |
+| `bun run test:watch`      | Run unit tests in watch mode                                         |
+| `bun run test:coverage`   | Run unit tests and fail below the coverage thresholds                |
+| `bun run test:e2e`        | Run all E2E tests (Playwright; builds & serves the app if needed)     |
+| `bun run test:e2e:functional` | E2E functional + axe tests, skipping the screenshot specs           |
+| `bun run test:e2e:visual` | Screenshot specs only                                                |
 
 ## Project Structure
 
@@ -139,12 +145,103 @@ component rather than by a plain text field.
 
 ## Testing
 
+Three layers, ~120 unit tests and ~29 browser scenarios. Everything below runs unattended in
+GitHub Actions — no manual clicking.
+
 - **Unit tests** (`src/lib/__tests__`, `src/components/__tests__`) cover presentational components,
-  the Header's navigation/scroll logic, the date helpers (time zones, daylight-saving boundaries)
-  and the Zod schema of the appointment request, including injection attempts and the
-  calendar boundaries of the date picker.
+  the Header's navigation/scroll logic, the date helpers (time zones, daylight-saving boundaries),
+  the language switcher, theme toggle, footer, the consent-gated map embed and the Zod schema of
+  the appointment request, including injection attempts and the calendar boundaries of the date
+  picker. The appointment server actions and the in-memory store are covered too: only the random
+  ID of the stored copy grants access, and every request can be mailed exactly once.
 - **E2E tests** (`e2e/`) verify cross-page navigation (e.g. clicking a section link from the
   Impressum page correctly lands on the homepage section), language switching, the service detail
   dialog (opens with the clicked service, closes via button/Escape) and the whole appointment
   request flow (dialog → form → confirmation → email proposal, including validation messages and
   the English locale) against a real production build.
+- **Accessibility tests** (`e2e/a11y.spec.ts`) run axe-core over the homepage in both locales, the
+  open service dialog, the appointment form, the open calendar popover, the impressum page and the
+  404 page. Any *new* violation fails the pipeline.
+- **Visual regression** (`e2e/visual.spec.ts`, tagged `@visual`) compares one screenshot per core
+  view (home in both locales and both themes, dialog, form, impressum, 404).
+
+### Coverage
+
+`bun run test:coverage` fails when coverage drops below the thresholds in `vitest.config.ts`
+(current floor: 75 % statements/lines/functions, 65 % branches). The floor is today's measurement,
+not a wish — Server Component pages (`layout.tsx`, `page.tsx`, `impressum`, `termin-anfrage`,
+`bestaetigung`) are exercised by the E2E specs in a real browser, so they contribute 0 % to the
+jsdom number. Raise the thresholds when you add tests, never lower them to green.
+
+### Accessibility: one deliberate exception
+
+The brand green `#59a305` is the brand colour and stays. White text on it measures **3.15:1**,
+`text-white/70` measures **2.29:1**, while WCAG 1.4.3 asks for 4.5:1 — so axe reports 7–10
+`color-contrast` findings per page (header navigation, language select, phone button, dialog CTA,
+footer).
+
+`e2e/a11y.spec.ts` tolerates exactly one thing: a `color-contrast` finding whose measured
+background is that brand colour, read from axe's own `bgColor` data per node. The comparison allows
+12 units per channel, because axe samples *rendered* colours and the app's 90–180 ms entrance
+animations shift the measurement slightly (`#59a305` may read as `#5aa207`) — before that the two
+dialog tests were flaky. Grey surfaces stay far outside that window (`#bdbdbd` is 200 units away in
+the blue channel). Each measurement also waits for `document.fonts.ready` and for running
+animations to settle.
+
+Everything else keeps failing the pipeline — grey on grey, a translucent overlay label, a new
+surface in a new colour. If axe ever stops reporting the background, the findings stay in the list
+and the pipeline goes red rather than silently waving them through. The tolerated count is printed
+to the CI log on every run (`Kontrast auf Marke #59a305: 9 Stellen`), so the exception stays visible
+instead of disappearing into a green tick.
+
+### Visual regression baselines
+
+Baselines are platform specific (font antialiasing), so they are generated on the same OS the
+pipeline runs on:
+
+1. GitHub → Actions → **CI** → **Run workflow** → tick `update_snapshots`.
+2. Download the `playwright-snapshots` artifact and unpack it into `e2e/`.
+3. Commit `e2e/visual.spec.ts-snapshots/*-linux-*.png` (or the `-chromium-linux.png` files).
+
+Locally generated baselines (`*-win32.png`, `*-darwin.png`) are git-ignored on purpose; they make
+`bun run test:e2e:visual` useful on your machine without polluting the repo. Until Linux baselines
+exist, the CI job runs with `--ignore-snapshots` instead of reporting a false failure.
+
+### Pipeline
+
+`.github/workflows/ci.yml` runs in five stages, cheapest first — each stage only starts when the
+previous one is green:
+
+| Stage | Job | Duration | Catches |
+| ----- | --- | -------- | ------- |
+| 1 | Lint, Typen & Format | ~1 min | typos, broken types, formatting |
+| 2 | Unit tests + coverage | ~1 min | logic and component regressions |
+| 3 | Production build | ~2 min | anything that builds locally but not in production mode |
+| 4 | E2E + axe | ~2 min | broken pages, forms, i18n, semantics |
+| 5 | Visual regression | ~2 min | visible changes that role-based tests can't see |
+
+Stages 1 and 2 run in parallel; stage 3 builds once and hands `.next` to stages 4 and 5 as an
+artifact, so the app is built exactly once per run. `workflow_dispatch` exists to regenerate the
+visual baselines (see above) and skips stages 1, 2 and 4.
+
+### Local note: line endings
+
+On Windows with `git config core.autocrlf true` the working copy gets CRLF while the repository stores LF, so
+`bun run fmt:check` reports every file as unformatted although nothing is. The same check passes
+in CI (Ubuntu checks out LF). If you want the local run to agree: `git config core.autocrlf input`
+or add a `.gitattributes` with `* text=auto eol=lf`.
+
+### One-time GitHub configuration (not in code)
+
+1. **Settings → Branches → Add branch protection rule** for `main`:
+   - *Require a pull request before merging*
+   - *Require status checks to pass*: `Lint, Typen & Format`, `Unit-Tests & Abdeckung`,
+     `Production Build`, `E2E & Barrierefreiheit`, `Visuelle Regression`
+   - *Do not allow bypassing the above settings*
+2. **Settings → Secrets and variables → Actions → Variables:** `NEXT_PUBLIC_SITE_URL` (used by the
+   build).
+3. **Secrets** (Environments or the deployment target, not the workflow file): `RESEND_API_KEY`,
+   `MAIL_FROM`, `MAIL_REPLY_TO` — see “Email delivery” above.
+4. Deploy is intentionally not part of this pipeline: connecting Vercel (or any other host) is a
+   decision about where the site lives, not about code quality.
+

@@ -93,6 +93,12 @@ export default function AppointmentDatePicker({
           <Popover.Content
             align="start"
             sideOffset={6}
+            /*
+             * Radix meldet den Popover-Inhalt als `role="dialog"`; ohne Namen fragt ein
+             * Screenreader ins Leere. Der Name ist derselbe wie am Auslöser – der Kalender
+             * ist ja genau dieses Feld.
+             */
+            aria-label={label}
             className="z-100 rounded-lg border border-gray-200 bg-bg-primary p-2 shadow-xl outline-none data-[state=open]:animate-pop-in data-[state=closed]:animate-pop-out motion-reduce:animate-none dark:border-gray-700"
           >
             <DayPicker

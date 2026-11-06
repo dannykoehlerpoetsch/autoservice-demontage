@@ -6,6 +6,10 @@
 .pnp.js
 
 # testing
+# Bildvergleiche: die Referenzbilder erzeugt die CI auf Ubuntu. Lokal erzeugte Bilder
+# (Windows/macOS) haben andere Schriftkanten und gehören nicht ins Repo.
+e2e/*-snapshots/*-win32.png
+e2e/*-snapshots/*-darwin.png
 /coverage
 /playwright-report
 /test-results

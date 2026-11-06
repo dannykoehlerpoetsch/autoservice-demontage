@@ -1,21 +1,43 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
+  # Manuell auslösbar, z. B. um die Bildvergleiche-Baselines neu zu erzeugen.
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: Bildvergleiche-Baselines neu erzeugen und als Artefakt zum Einchecken ablegen
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Ein neuer Push auf demselben Branch macht den laufenden Vorgänger überflüssig.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
 
 jobs:
-  checks:
-    name: Lint, Typecheck, Format & Unit Tests
+  # ── Stufe 1: billig und schnell – Tippen, Typen, Format ────────────────────────
+  quality:
+    name: Lint, Typen & Format
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: bun
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -24,38 +46,164 @@ jobs:
         run: bun run lint
 
       - name: Type check
-        run: bunx tsc --noEmit
+        run: bun run typecheck
 
       - name: Format check
         run: bun run fmt:check
 
-      - name: Unit tests
-        run: bun run test
-
-  e2e:
-    name: E2E Tests
+  # ── Stufe 2: Logik und Komponenten, inkl. Abdeckungsbericht ────────────────────
+  unit:
+    name: Unit-Tests & Abdeckung
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: checks
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          cache: bun
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Unit tests with coverage
+        run: bun run test:coverage
+
+      - name: Coverage-Bericht sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  # ── Stufe 3: Production-Build – einmal, für alle nachfolgenden Jobs ───────────
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: bun
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+
+      - name: Build-Artefakt weitergeben
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next/
+          retention-days: 1
+          # Artefakte dürfen nicht über Job-Grenzen hinweg verschwindeln.
+          include-hidden-files: true
+
+  # ── Stufe 4: echte Browserstrecke + Barrierefreiheit ───────────────────────────
+  e2e:
+    name: E2E & Barrierefreiheit
+    needs: build
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: bun
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Production-Build holen
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
-      - name: Run E2E tests
-        run: bun run test:e2e
+      - name: Run E2E tests (funktional + axe)
+        run: bun run test:e2e -- --grep-invert @visual
 
-      - name: Upload Playwright report
+      - name: Playwright-Report sichern
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ── Stufe 5: Bildvergleich – eigene Stufe, weil Baselines Plattformabhängig sind
+  visual:
+    name: Visuelle Regression
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: bun
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Production-Build holen
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      # Ohne referenzierte Bilder wäre der erste Lauf ein Fehlalarm: dann vergleicht
+      # Playwright nicht, sondern lässt die Bilder erzeugen (Parameter unten).
+      - name: Baselines ermitteln
+        id: baselines
+        run: |
+          if find e2e -name '*-chromium-linux.png' | grep -q .; then
+            echo 'flags=' >> "$GITHUB_OUTPUT"
+          else
+            echo 'flags=--ignore-snapshots' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Baselines neu erzeugen
+        if: github.event_inputs.update_snapshots == 'true'
+        run: bun run test:e2e -- --grep @visual --update-snapshots
+
+      - name: Bildvergleich
+        if: github.event_inputs.update_snapshots != 'true'
+        run: bun run test:e2e -- --grep @visual ${{ steps.baselines.outputs.flags }}
+
+      - name: Frische Baselines zum Einchecken bereitlegen
+        if: github.event_inputs.update_snapshots == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-snapshots
+          path: e2e/visual.spec.ts-snapshots/
+          retention-days: 7
+
+      - name: Bildvergleiche-Bericht sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-visual
           path: playwright-report/
           retention-days: 7

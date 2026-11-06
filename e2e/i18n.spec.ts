@@ -3,13 +3,15 @@ import { test, expect } from '@playwright/test';
 test.describe('Language switching', () => {
   test('switches the homepage content and URL to English', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Willkommen bei Bennis Autoservice' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Willkommen bei Bennis Autoservice' })
+    ).toBeVisible();
 
     await page.getByLabel('Sprache').selectOption('en');
 
     await expect(page).toHaveURL(/\/en$/);
     await expect(
-      page.getByRole('heading', { name: 'Welcome to Bennis Autoservice' }),
+      page.getByRole('heading', { name: 'Welcome to Bennis Autoservice' })
     ).toBeVisible();
   });
 

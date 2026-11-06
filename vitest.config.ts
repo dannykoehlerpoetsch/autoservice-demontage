@@ -11,8 +11,12 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
+      // text für den CI-Log, html für den Artefakt-Browser, json-summary als Datenbasis
+      // für die Lauf-Zusammenfassung auf der PR-Seite. Kein lcov: der Reporter schreibt
+      // zusätzlich eine zweite Kopie als coverage/lcov-report/ und niemand liest die Datei.
+      reporter: ['text', 'html', 'json-summary'],
       reportsDirectory: './coverage',
+      clean: true,
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/**/*.test.{ts,tsx}',

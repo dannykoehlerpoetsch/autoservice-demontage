@@ -3,6 +3,20 @@
 > Portfolio/demo project. The repair shop shown here no longer exists; this project exists solely
 > to demonstrate frontend development skills. The site is excluded from search engine indexing
 > (`noindex`, `robots.txt`).
+>
+> **Live:** <https://bennis-garage.vercel.app> — German at the root, English under `/en`.
+> `main` deploys through Vercel; every pull request gets its own preview URL.
+
+## Quality in numbers
+
+| Aspect | Status of `main` |
+| --- | --- |
+| Unit tests | 118 (Vitest + React Testing Library) |
+| Browser scenarios | 29 — 22 functional incl. axe-core, 7 screenshot comparisons |
+| Pipeline | five stages, ~90 s wall to wall, `main` protected by an active ruleset |
+| Coverage | 77.8 % statements · 67.0 % branches · 77.7 % functions, floor enforced in CI |
+| Accessibility | axe on seven pages/views, exactly one documented colour exception |
+| Deployment | Vercel: production on merge, preview per pull request |
 
 ## Technologies
 
@@ -70,18 +84,24 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 ```
 src/
   app/
-    [locale]/        # Localized routes (layout, home page, impressum, appointment request)
+    [locale]/         # Localized routes (layout, home page, impressum, appointment request)
     robots.ts         # robots.txt (disallow all — portfolio demo, not indexed)
-    not-found.tsx      # Fallback 404 for invalid locale segments
-  components/          # UI components
-  i18n/                # next-intl routing, navigation & request config
+    not-found.tsx     # Fallback 404 for invalid locale segments
+  components/         # UI components; __tests__/ holds their Vitest specs
+  i18n/               # next-intl routing, navigation & request config
   lib/
-    appointment/       # Appointment flow: Zod schema, in-memory store, server actions, mail
-    dates.ts           # Time-zone-safe calendar-date helpers
-    services.ts        # Stable service IDs shared by dialog, form and validation
+    appointment/      # Appointment flow: Zod schema, in-memory store, server actions, mail
+    __tests__/        # Date helpers, appointment store and server actions
+    dates.ts          # Time-zone-safe calendar-date helpers
+    services.ts       # Stable service IDs shared by dialog, form and validation
 messages/
-  de.json, en.json      # Translated content, per locale
-e2e/                     # Playwright E2E tests
+  de.json, en.json    # Translated content, per locale
+e2e/
+  *.spec.ts           # Playwright: navigation, i18n, dialog, appointment form, axe, screenshots
+  visual.spec.ts-snapshots/   # Committed Linux baselines (see “Visual regression baselines”)
+.github/workflows/ci.yml      # The five pipeline stages described below
+playwright.config.ts          # Build & serve for the browser run, reporters, screenshot tolerances
+vitest.config.ts              # Coverage scope, thresholds, reporters
 ```
 
 ## Internationalization
@@ -145,8 +165,8 @@ component rather than by a plain text field.
 
 ## Testing
 
-Three layers, ~120 unit tests and ~29 browser scenarios. Everything below runs unattended in
-GitHub Actions — no manual clicking.
+Three layers: 118 unit tests and 29 browser scenarios — 22 functional and accessibility specs, 7
+screenshot comparisons. Everything below runs unattended in GitHub Actions, no manual clicking.
 
 - **Unit tests** (`src/lib/__tests__`, `src/components/__tests__`) cover presentational components,
   the Header's navigation/scroll logic, the date helpers (time zones, daylight-saving boundaries),
@@ -172,6 +192,12 @@ GitHub Actions — no manual clicking.
 not a wish — Server Component pages (`layout.tsx`, `page.tsx`, `impressum`, `termin-anfrage`,
 `bestaetigung`) are exercised by the E2E specs in a real browser, so they contribute 0 % to the
 jsdom number. Raise the thresholds when you add tests, never lower them to green.
+
+Measured on `main`: **77.8 % statements, 67.0 % branches, 77.7 % functions**. Where to read it
+without digging through logs: the *Unit-Tests & Abdeckung* check shows a summary table on the run
+page, `coverage/index.html` (artifact of every run) gives the line-by-line view, and the job log
+prints the per-file table. Reporters are `text`, `html` and `json-summary`; output lands in
+`coverage/`, which is git-ignored like `.next/` and cleaned on every run.
 
 ### Accessibility: one deliberate exception
 
@@ -199,49 +225,62 @@ instead of disappearing into a green tick.
 Baselines are platform specific (font antialiasing), so they are generated on the same OS the
 pipeline runs on:
 
-1. GitHub → Actions → **CI** → **Run workflow** → tick `update_snapshots`.
-2. Download the `playwright-snapshots` artifact and unpack it into `e2e/`.
-3. Commit `e2e/visual.spec.ts-snapshots/*-linux-*.png` (or the `-chromium-linux.png` files).
+Seven baselines are committed as `*-chromium-linux.png` (home in de/en/light/dark, service dialog,
+appointment form, impressum, 404), so the pipeline compares real pixels on every pull request. To
+regenerate them after an intended redesign:
+
+1. Run the workflow **on the branch**, so the pull request goes green on its first try:
+   `gh workflow run ci.yml --ref <branch> -f update_snapshots=true` — or on GitHub:
+   Actions → **CI** → **Run workflow** → pick the branch, tick `update_snapshots`.
+2. `gh run download <run-id> --name playwright-snapshots -D tmp-snaps` and copy the PNGs into
+   `e2e/visual.spec.ts-snapshots/`.
+3. Commit them in the same pull request that changes the layout.
 
 Locally generated baselines (`*-win32.png`, `*-darwin.png`) are git-ignored on purpose; they make
-`bun run test:e2e:visual` useful on your machine without polluting the repo. Until Linux baselines
-exist, the CI job runs with `--ignore-snapshots` instead of reporting a false failure.
+`bun run test:e2e:visual` useful on your machine without fighting platform font rendering in CI. If
+a run finds no committed baseline for its platform, that job runs with `--ignore-snapshots` rather
+than reporting a false failure.
 
 ### Pipeline
 
 `.github/workflows/ci.yml` runs in five stages, cheapest first — each stage only starts when the
 previous one is green:
 
-| Stage | Job | Duration | Catches |
-| ----- | --- | -------- | ------- |
-| 1 | Lint, Typen & Format | ~1 min | typos, broken types, formatting |
-| 2 | Unit tests + coverage | ~1 min | logic and component regressions |
-| 3 | Production build | ~2 min | anything that builds locally but not in production mode |
-| 4 | E2E + axe | ~2 min | broken pages, forms, i18n, semantics |
-| 5 | Visual regression | ~2 min | visible changes that role-based tests can't see |
+Job names are written exactly as GitHub shows them, because the ruleset matches on those strings.
+Durations are the measured wall times of the runs on `main`:
 
-Stages 1 and 2 run in parallel; stage 3 builds once and hands `.next` to stages 4 and 5 as an
-artifact, so the app is built exactly once per run. `workflow_dispatch` exists to regenerate the
-visual baselines (see above) and skips stages 1, 2 and 4.
+| Stage | Job | Measured | Catches |
+| ----- | --- | -------- | ------- |
+| 1 | `Lint, Typen & Format` | ~15 s | typos, broken types, formatting |
+| 1 | `Unit-Tests & Abdeckung` | ~20 s | logic and component behaviour |
+| 2 | `Production Build` | ~30 s | anything that builds locally but not in production mode |
+| 3 | `E2E & Barrierefreiheit` | ~50 s | broken pages, forms, i18n, semantics |
+| 3 | `Visuelle Regression` | ~35 s | visible changes that role-based tests cannot see |
+
+The first three jobs start together; the two browser stages wait for the build and reuse it through
+an artifact, so the app is built exactly once per run and the whole pipeline is done in about 90
+seconds. `workflow_dispatch` exists to regenerate the visual baselines (see above) and runs only the
+build and the screenshot job.
 
 ### Local note: line endings
 
-On Windows with `git config core.autocrlf true` the working copy gets CRLF while the repository stores LF, so
-`bun run fmt:check` reports every file as unformatted although nothing is. The same check passes
-in CI (Ubuntu checks out LF). If you want the local run to agree: `git config core.autocrlf input`
-or add a `.gitattributes` with `* text=auto eol=lf`.
+`.gitattributes` pins `* text=auto eol=lf`, so repository, CI and every clone agree on LF and
+`bun run fmt:check` answers the same on Windows as on Ubuntu. Without it, a working copy with
+`core.autocrlf=true` reports every file as unformatted although nothing changed — and it is a good
+way to mangle keys such as `runs-on` into `runs_on` while “fixing” line endings by hand.
 
-### One-time GitHub configuration (not in code)
+### Set up on the hosted side (not visible in the code)
 
-1. **Settings → Branches → Add branch protection rule** for `main`:
-   - *Require a pull request before merging*
-   - *Require status checks to pass*: `Lint, Typen & Format`, `Unit-Tests & Abdeckung`,
-     `Production Build`, `E2E & Barrierefreiheit`, `Visuelle Regression`
-   - *Do not allow bypassing the above settings*
-2. **Settings → Secrets and variables → Actions → Variables:** `NEXT_PUBLIC_SITE_URL` (used by the
-   build).
-3. **Secrets** (Environments or the deployment target, not the workflow file): `RESEND_API_KEY`,
-   `MAIL_FROM`, `MAIL_REPLY_TO` — see “Email delivery” above.
-4. Deploy is intentionally not part of this pipeline: connecting Vercel (or any other host) is a
-   decision about where the site lives, not about code quality.
+- **Ruleset `protect-main`** — Settings → Rules → Rulesets, status *Active*, empty bypass list:
+  pull request required, force pushes and branch deletion blocked, and all five jobs above must be
+  green before a merge. Names are matched exactly, so renaming a job updates the gate.
+- **Actions variable** `NEXT_PUBLIC_SITE_URL = https://bennis-garage.vercel.app`
+  (Settings → Secrets and variables → Actions → **Variables**). A *variable*, not a secret:
+  `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`.
+- **Vercel** builds the repository: production on merge to `main`, one preview deployment per pull
+  request, `NEXT_PUBLIC_SITE_URL` set as a Config variable for Production/Preview/Development.
+- **Mail is deliberately unconfigured** — no `RESEND_API_KEY`, no `SMTP_*`: the app states openly
+  that delivery is off and logs the message instead of pretending to send (see “Email delivery”).
+- **No deploy step in this pipeline.** Vercel pulls from GitHub, so deployment stays a hosting
+  decision rather than a code-quality gate.
 

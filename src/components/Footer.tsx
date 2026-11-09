@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="footer-bg text-white py-4 px-6 text-center">
       <p>
-        &copy; {new Date().getFullYear()} Bennis Garage. {t('rights')}
+        &copy; {new Date().getFullYear()} DaKoPo. {t('rights')}
         <br />
         <Link href="/impressum" scroll={true} className="hover:underline">
           {t('impressum')}

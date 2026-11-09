@@ -25,4 +25,16 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/\/impressum$/);
     await expect(page.getByRole('heading', { name: 'Impressum' })).toBeVisible();
   });
+
+  test('the demo notice above the header points at the portfolio', async ({ page }) => {
+    await page.goto('/');
+
+    const notice = page.getByRole('complementary', { name: 'Hinweis: Demo-Projekt' });
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText('Demo-Projekt für meine Portfoliowebsite');
+
+    const portfolio = notice.getByRole('link', { name: /Zum Portfolio/ });
+    await expect(portfolio).toHaveAttribute('href', 'https://dakopo.vercel.app/');
+    await expect(portfolio).toHaveAttribute('target', '_blank');
+  });
 });

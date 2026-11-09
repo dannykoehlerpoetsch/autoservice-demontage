@@ -9,6 +9,7 @@ import { sans } from '@/lib/fonts';
 import { SITE_URL } from '@/lib/site';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import DemoBanner from '@/components/DemoBanner';
 import BookingProvider from '@/components/BookingProvider';
 import ThemeInit from '@/components/ThemeInit';
 import '../globals.css';
@@ -85,6 +86,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className={`${sans.className} flex flex-col min-h-screen`} suppressHydrationWarning>
         <NextIntlClientProvider>
+          {/* Klebt nicht: der Hinweis scrollt weg, der darunterliegende Header bleibt oben stehen. */}
+          <DemoBanner />
           {/* Überlebt die Navigation – trägt die Leistungsauswahl vom Dialog ins Formular. */}
           <BookingProvider>
             <Header />

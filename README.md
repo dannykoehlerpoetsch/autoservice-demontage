@@ -1,8 +1,9 @@
 # Bennis Garage
 
 > Portfolio/demo project. The repair shop shown here no longer exists; this project exists solely
-> to demonstrate frontend development skills. The site is excluded from search engine indexing
-> (`noindex`, `robots.txt`).
+> to demonstrate frontend development skills. A permanent notice above the header says so in words
+> and links to the portfolio (<https://dakopo.vercel.app>), and the footer is copyrighted to DaKoPo.
+> The site is excluded from search engine indexing (`noindex`, `robots.txt`).
 >
 > **Live:** <https://bennis-garage.vercel.app> — German at the root, English under `/en`.
 > `main` deploys through Vercel; every pull request gets its own preview URL.
@@ -11,10 +12,10 @@
 
 | Aspect | Status of `main` |
 | --- | --- |
-| Unit tests | 118 (Vitest + React Testing Library) |
-| Browser scenarios | 29 — 22 functional incl. axe-core, 7 screenshot comparisons |
+| Unit tests | 123 (Vitest + React Testing Library) |
+| Browser scenarios | 30 — 23 functional incl. axe-core, 7 screenshot comparisons |
 | Pipeline | five stages, ~90 s wall to wall, `main` protected by an active ruleset |
-| Coverage | 77.8 % statements · 67.0 % branches · 77.7 % functions, floor enforced in CI |
+| Coverage | 77.9 % statements · 67.0 % branches · 77.9 % functions, floor enforced in CI |
 | Accessibility | axe on seven pages/views, exactly one documented colour exception |
 | Deployment | Vercel: production on merge, preview per pull request |
 

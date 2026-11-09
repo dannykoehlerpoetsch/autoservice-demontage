@@ -14,6 +14,12 @@
     "themeDark": "Dunkelmodus aktivieren",
     "themeLight": "Hellmodus aktivieren"
   },
+  "DemoBanner": {
+    "ariaLabel": "Hinweis: Demo-Projekt",
+    "text": "Dies ist ein Demo-Projekt für meine Portfoliowebsite – diese Werkstatt gibt es nicht.",
+    "cta": "Zum Portfolio",
+    "newTab": "(öffnet in neuem Tab)"
+  },
   "NotFound": {
     "title": "Seite nicht gefunden",
     "description": "Die angeforderte Seite existiert nicht oder wurde verschoben.",

@@ -4,7 +4,8 @@ import { hasLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
-import { routing, type Locale } from '@/i18n/routing';
+import { routing } from '@/i18n/routing';
+import { toLocale } from '@/i18n/locale';
 import { sans } from '@/lib/fonts';
 import { SITE_URL } from '@/lib/site';
 import Header from '@/components/Header';
@@ -24,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale: locale as Locale, namespace: 'Metadata' });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: 'Metadata' });
   const ogLocale = locale === 'de' ? 'de_DE' : 'en_US';
 
   return {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import AppointmentConfirmation from '@/components/AppointmentConfirmation';
-import type { Locale } from '@/i18n/routing';
+import { toLocale } from '@/i18n/locale';
 
 /**
  * Bestätigungsansicht der Demo-Anfrage.
@@ -17,7 +17,7 @@ type ConfirmationParams = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: ConfirmationParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({
-    locale: locale as Locale,
+    locale: toLocale(locale),
     namespace: 'AppointmentConfirmation',
   });
 

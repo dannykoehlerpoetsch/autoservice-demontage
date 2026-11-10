@@ -41,12 +41,12 @@ describe('Footer', () => {
     expect(screen.getByRole('contentinfo')).toHaveTextContent(String(new Date().getFullYear()));
   });
 
-  it('weist das Urheberrecht DaKoPo zu, nicht der erfundenen Werkstatt', () => {
+  it('weist das Urheberrecht DaKoPo zu, nicht der fiktiven Werkstatt', () => {
     renderFooter();
 
     const footer = screen.getByRole('contentinfo');
     expect(footer).toHaveTextContent('DaKoPo');
-    expect(footer).not.toHaveTextContent('Bennis Garage');
+    expect(footer).not.toHaveTextContent('Autoservice Demontage');
   });
 
   it('erklärt offen, dass es ein Demo-Projekt ist', () => {

@@ -18,7 +18,7 @@ export default function Header() {
   const navLinks = [
     { href: '/', hash: null, label: t('navHome') },
     { href: '/#services', hash: '#services', label: t('navServices') },
-    { href: '/#anfahrt', hash: '#anfahrt', label: t('navAnfahrt') },
+    { href: '/#demo', hash: '#demo', label: t('navDemo') },
   ];
 
   const scrollToHash = (hash: string | null) => {
@@ -76,12 +76,16 @@ export default function Header() {
       <div className="relative">
         <div className="flex items-center justify-between">
           <Link href="/#home" aria-label={t('homeAriaLabel')} onClick={handleNavClick('#home')}>
+            {/*
+             * width/height folgen dem Seitenverhältnis der Datei (2172×724), damit das Logo
+             * nie gedehnt wird, egal welche Klasse die Größe am Ende setzt.
+             */}
             <Image
               src="/Headerlogo.png"
-              alt="Bennis Garage Logo"
-              width={220}
-              height={60}
-              className="h-3/4 w-auto"
+              alt={t('logoAlt')}
+              width={217}
+              height={72}
+              className="h-auto w-40 md:w-56"
               priority
             />
           </Link>

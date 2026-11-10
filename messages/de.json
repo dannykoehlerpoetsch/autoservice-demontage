@@ -1,13 +1,14 @@
 {
   "Metadata": {
-    "title": "Bennis Autoservice",
-    "description": "Kfz-Werkstatt in Leipzig Plagwitz"
+    "title": "Autoservice Demontage – Portfolio-Demo einer Kfz-Werkstatt",
+    "description": "Autoservice Demontage ist ein fiktives Kfz-Werkstattprojekt und demonstriert moderne Frontend-Entwicklung mit Next.js, interaktiven Service-Dialogen und einem Demo-Terminanfrageprozess."
   },
   "Header": {
+    "logoAlt": "Logo von Autoservice Demontage",
     "homeAriaLabel": "Zur Startseite",
     "navHome": "Start",
     "navServices": "Leistungen",
-    "navAnfahrt": "Anfahrt",
+    "navDemo": "Demo-Ablauf",
     "menuOpen": "Menu öffnen",
     "menuClose": "Menu schließen",
     "languageLabel": "Sprache",
@@ -16,7 +17,7 @@
   },
   "DemoBanner": {
     "ariaLabel": "Hinweis: Demo-Projekt",
-    "text": "Dies ist ein Demo-Projekt für meine Portfoliowebsite – diese Werkstatt gibt es nicht.",
+    "text": "Portfolio-Demo: Autoservice Demontage ist eine fiktive Kfz-Werkstatt. Es können keine echten Termine vereinbart werden.",
     "cta": "Zum Portfolio",
     "newTab": "(öffnet in neuem Tab)"
   },
@@ -38,25 +39,47 @@
   },
   "Home": {
     "hero": {
-      "imageAlt": "Bennis Garage",
-      "title": "Willkommen bei Bennis Autoservice",
-      "subtitle": "Ihre Kfz-Werkstatt in Leipzig Plagwitz",
-      "intro": "Wartung, Reparatur und persönlicher Service rund um Ihr Fahrzeug – zuverlässig und direkt vor Ort.",
-      "address": "Naumburger Straße 10, 04229 Leipzig",
-      "callButton": "Jetzt anrufen"
+      "imageAlt": "Logo von Autoservice Demontage",
+      "title": "Autoservice Demontage",
+      "subtitle": "Alles rund ums Auto. Vom Check bis zur Reparatur.",
+      "intro": "Wartung, Reparatur und Fahrzeugdiagnose, dargestellt als freie Kfz-Werkstatt. Der Betrieb ist fiktiv – diese Website zeigt, wie ein solcher Auftritt gebaut ist.",
+      "demoCta": "Demo-Anfrage starten"
     },
     "why": {
-      "heading": "Warum Bennis Autoservice?",
-      "text": "Bei Bennis Autoservice stehen eine persönliche Beratung, nachvollziehbare Absprachen und eine sorgfältige Ausführung der Arbeiten im Mittelpunkt."
+      "heading": "Warum Autoservice Demontage?",
+      "text": "Autoservice Demontage steht als Beispiel für eine bodenständige freie Werkstatt: persönliche Beratung, nachvollziehbare Absprachen und sorgfältig ausgeführte Arbeiten. Die Werkstatt ist erfunden, die Website dahinter nicht."
     },
     "services": {
       "heading": "Service und Dienstleistungen",
       "subheading": "Unser Service für Ihr Fahrzeug",
       "intro": "Ob regelmäßige Wartung, notwendige Reparatur oder die Suche nach der Ursache eines Problems: Wir kümmern uns fachgerecht um Ihr Fahrzeug und stimmen die erforderlichen Arbeiten transparent mit Ihnen ab."
     },
-    "location": {
-      "heading": "So finden Sie uns"
+    "demo": {
+      "heading": "So funktioniert die Demo",
+      "intro": "Vier Schritte, ohne jedes Backend: Alle Eingaben bleiben im Browser und verschwinden beim nächsten Neuladen."
     }
+  },
+  "DemoFlow": {
+    "steps": [
+      {
+        "title": "Service entdecken",
+        "text": "Eine Werkstattleistung auswählen – der Detaildialog zeigt, was zu dem Service gehört."
+      },
+      {
+        "title": "Demo-Anfrage erstellen",
+        "text": "Aus dem Dialog heraus geht es ins Formular: Die Leistung ist vorausgewählt, dazu kommen Name, Terminwunsch und die freiwilligen Angaben."
+      },
+      {
+        "title": "Anfrage überprüfen",
+        "text": "Die Bestätigungsseite fasst alle Eingaben noch einmal zusammen – gehalten im Browser, nicht auf einem Server."
+      },
+      {
+        "title": "E-Mail-Vorschau ansehen",
+        "text": "Der Text, den eine Bestätigungs-E-Mail hätte: entsteht im Browser und lässt sich Feld für Feld nachvollziehen."
+      }
+    ],
+    "note": "Alle Schritte dienen ausschließlich der Demonstration. Es werden weder echte Termine vereinbart noch Bestätigungs-E-Mails verschickt.",
+    "cta": "Demo-Anfrage starten"
   },
   "USP": {
     "items": [
@@ -117,8 +140,8 @@
       {
         "id": "beratung",
         "heading": "Weitere Arbeiten",
-        "service": "Sie benötigen eine andere Reparatur oder sind sich nicht sicher, welcher Service erforderlich ist? Rufen Sie uns an oder schreiben Sie uns eine E-Mail. Wir klären gemeinsam, wie wir Ihnen weiterhelfen können.",
-        "details": "Auch Arbeiten außerhalb dieser Liste schauen wir uns an: Beschreiben Sie das Problem am Telefon oder per E-Mail und kommen Sie bei Bedarf mit dem Fahrzeug vorbei. Wir sagen ehrlich, ob eine Reparatur sinnvoll ist, und melden uns mit einer klaren Aussage zu Aufwand und Kosten."
+        "service": "Auch Arbeiten außerhalb dieser Liste gehören zum Alltag einer freien Werkstatt. Was Sie brauchen, lässt sich in dieser Demo in der Bemerkung der Anfrage beschreiben.",
+        "details": "Der Weg ist überall derselbe: erst das Problem beschreiben, dann das Fahrzeug ansehen, dann ehrlich einschätzen, ob sich eine Reparatur lohnt. In dieser Portfolio-Demo endet dieser Weg im Anfrageformular – ohne Anruf, ohne E-Mail-Adresse und ohne echten Betrieb dahinter."
       }
     ]
   },
@@ -201,7 +224,7 @@
     "backHome": "Zurück zur Startseite"
   },
   "DemoEmail": {
-    "from": "Bennis Garage – Demo",
+    "from": "Autoservice Demontage – Demo",
     "labels": {
       "from": "Absender",
       "to": "Empfänger",
@@ -214,21 +237,12 @@
     "bodyLabel": "Text der E-Mail-Vorschau",
     "noticeHeading": "Wichtiger Hinweis",
     "notice": "Dies ist eine automatisch erzeugte Vorschau innerhalb eines Frontend-Demoprojekts. Es wurde keine E-Mail versendet und kein Werkstatttermin vereinbart.",
-    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig"
-  },
-  "Map": {
-    "heading": "Gut zu finden im Leipziger Westen",
-    "paragraph1": "Sie finden Bennis Autoservice in der Naumburger Straße 10 im Leipziger Stadtteil Plagwitz – einem Viertel, das für seine markante Industriearchitektur und seinen besonderen Charakter bekannt ist.",
-    "paragraph2": "Unsere Werkstatt befindet sich direkt neben dem POCO-Einrichtungsmarkt und ist dadurch leicht zu finden. Nutzen Sie die Karte*, um Ihre Anfahrt bequem zu planen.",
-    "note": "*Bei der Nutzung von Google Maps setzt Google Cookies, die in Ihrem Browser gespeichert bleiben können. Durch Klick auf „Route planen“ willigen Sie der Datenübermittlung an Google ein. Mit „Karte ausblenden“ stoppen Sie das weitere Tracking.",
-    "planRoute": "Route planen",
-    "planRouteOnGoogle": "Route auf Google Maps planen",
-    "hideMap": "Karte ausblenden",
-    "iframeTitle": "Standort Bennis Autoservice auf Google Maps"
+    "signature": "Autoservice Demontage · Portfolio-Demo · kein realer Betrieb"
   },
   "Impressum": {
     "title": "Impressum",
-    "disclaimer": "Hinweis: Dies ist ein Demo-/Portfolio-Projekt. Die hier dargestellte Werkstatt existiert nicht mehr und wird nicht betrieben. Alle Inhalte dienen ausschließlich der Demonstration von Webentwicklungs-Fähigkeiten.",
+    "disclaimer": "Hinweis: Dies ist ein Demo-/Portfolio-Projekt. Die dargestellte Werkstatt „Autoservice Demontage“ ist frei erfunden und wird nicht betrieben. Alle Inhalte dienen ausschließlich der Demonstration von Webentwicklungs-Fähigkeiten.",
+    "placeholderNote": "Die folgenden Abschnitte sind Platzhalter und enthalten bewusst keine echten Angaben. Sie sind vor einer Veröffentlichung durch die tatsächlichen Betreiberangaben zu ersetzen; ob und in welcher Form ein Impressum und eine Datenschutzerklärung erforderlich sind, ist vorab zu klären.",
     "address": {
       "heading": "Angaben gemäß § 5 TMG",
       "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]

@@ -49,7 +49,21 @@ describe('Header', () => {
 
     expect(screen.getByRole('link', { name: 'Start' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Leistungen' })).toHaveAttribute('href', '/#services');
-    expect(screen.getByRole('link', { name: 'Anfahrt' })).toHaveAttribute('href', '/#anfahrt');
+    expect(screen.getByRole('link', { name: 'Demo-Ablauf' })).toHaveAttribute('href', '/#demo');
+  });
+
+  it('names the new brand in the logo alt text', () => {
+    renderHeader();
+
+    const logo = screen.getByRole('link', { name: 'Zur Startseite' }).querySelector('img');
+
+    expect(logo).toHaveAttribute('alt', messages.Header.logoAlt);
+    expect(logo?.getAttribute('alt')).toContain('Autoservice Demontage');
+    // Seitenverhältnis der Datei (2172×724): gedehnt würde das Logo sofort aussehen.
+    expect(Number(logo?.getAttribute('width')) / Number(logo?.getAttribute('height'))).toBeCloseTo(
+      2172 / 724,
+      1
+    );
   });
 
   it('smooth-scrolls instead of navigating when already on the homepage', () => {
@@ -63,6 +77,22 @@ describe('Header', () => {
     document.body.appendChild(section);
 
     fireEvent.click(screen.getByRole('link', { name: 'Leistungen' }));
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+    document.body.removeChild(section);
+  });
+
+  it('scrolls to the demo section through the same mechanism', () => {
+    usePathnameMock.mockReturnValue('/');
+    renderHeader();
+
+    const scrollIntoView = vi.fn();
+    const section = document.createElement('section');
+    section.id = 'demo';
+    section.scrollIntoView = scrollIntoView;
+    document.body.appendChild(section);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Demo-Ablauf' }));
 
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
     document.body.removeChild(section);

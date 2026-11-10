@@ -25,6 +25,15 @@ export default async function Impressum() {
         {t('disclaimer')}
       </p>
 
+      {/*
+       * Die Platzhalter unten sind keine Angaben, sondern Lücken: wer diese Seite
+       * veröffentlicht, muss sie durch die echten Betreiberangaben ersetzen. Der Hinweis
+       * bleibt im Text, damit niemand die eckigen Klammern für Daten hält.
+       */}
+      <p className="mb-6 p-4 rounded-lg border border-gray-200 text-sm leading-relaxed dark:border-gray-700">
+        {t('placeholderNote')}
+      </p>
+
       <section className="mb-4">
         <h2 className="text-xl font-semibold mb-1">{t('address.heading')}</h2>
         <Lines lines={t.raw('address.lines') as string[]} />

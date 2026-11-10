@@ -43,9 +43,16 @@ export default function PageSkeleton({ className = '' }: { className?: string })
         </div>
       </section>
 
-      <section className="flex flex-col items-start md:px-4 py-4 mx-auto md:mt-10" id="anfahrt">
-        <Bar className="h-7 w-48 mb-4 self-center" />
-        <Bar className="h-[50vh] w-full" />
+      <section className="flex flex-col items-start md:px-4 py-4 mx-auto md:mt-10" id="demo">
+        <Bar className="h-7 w-56 mb-4 self-center" />
+        <Bar className="h-4 w-full max-w-2xl mb-6" />
+        <div className="grid gap-4 md:grid-cols-2 w-full">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Bar key={i} className="h-24 w-full rounded-lg" />
+          ))}
+        </div>
+        <Bar className="h-16 w-full mt-4 rounded-lg" />
+        <Bar className="h-9 w-44 mt-4 rounded-md" />
       </section>
     </div>
   );

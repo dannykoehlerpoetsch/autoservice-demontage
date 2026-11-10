@@ -4,8 +4,8 @@ import SectionHeading from '../SectionHeading';
 
 describe('SectionHeading', () => {
   it('renders the children as an h2', () => {
-    render(<SectionHeading>Warum Bennis Autoservice?</SectionHeading>);
+    render(<SectionHeading>Warum Autoservice Demontage?</SectionHeading>);
     const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading).toHaveTextContent('Warum Bennis Autoservice?');
+    expect(heading).toHaveTextContent('Warum Autoservice Demontage?');
   });
 });

@@ -329,7 +329,7 @@ describe('AppointmentForm', () => {
 
     it('lehnt eine ungültige E-Mail nur ab, wenn sie eingetragen ist', () => {
       gültigAusfuellen();
-      text('email', 'max@bennis');
+      text('email', 'max@beispiel');
       absenden();
 
       expect(pushMock).not.toHaveBeenCalled();

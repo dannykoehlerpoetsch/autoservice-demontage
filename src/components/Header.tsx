@@ -72,16 +72,16 @@ export default function Header() {
   }, [pathname]);
 
   return (
-    <header className="header-bg text-white sticky top-0 z-50">
-      <div className="relative px-4 py-4">
+    <header className="header-bg text-white sticky top-0 z-50 h-3/4">
+      <div className="relative">
         <div className="flex items-center justify-between">
           <Link href="/#home" aria-label={t('homeAriaLabel')} onClick={handleNavClick('#home')}>
             <Image
               src="/Headerlogo.png"
               alt="Bennis Garage Logo"
-              width={180}
-              height={48}
-              className="h-12 w-auto"
+              width={220}
+              height={60}
+              className="h-3/4 w-auto"
               priority
             />
           </Link>

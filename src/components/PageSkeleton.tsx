@@ -13,7 +13,7 @@ export default function PageSkeleton({ className = '' }: { className?: string })
       <span className="sr-only">Loading…</span>
 
       <section className="flex flex-col items-start m-auto md:items-center" id="home">
-        <Bar className="relative w-full md:max-w-[70vw] h-[15vh] md:h-[25vh] mx-auto md:mt-8" />
+        <Bar className="w-full md:max-w-[70vw] aspect-[1686/346] mx-auto md:mt-8" />
         <Bar className="h-9 w-3/4 max-w-md mt-6 mb-4 md:mx-auto" />
         <Bar className="h-7 w-2/3 max-w-sm mb-4 md:mx-auto" />
         <Bar className="h-4 w-full max-w-lg mb-2" />

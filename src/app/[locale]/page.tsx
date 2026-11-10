@@ -17,13 +17,21 @@ async function HomeContent() {
   return (
     <>
       <section className="flex flex-col items-start m-auto md:items-center" id="home">
-        <div className="relative w-full md:max-w-[70vw] h-[15vh] md:h-[25vh] mx-auto md:mt-8">
+        {/*
+         * Die Höhe folgt dem Seitenverhältnis des Logos, nicht der Viewport-Höhe. Ein
+         * fester vh-Wert würde das Breiten-/Höhenverhältnis des Rahmens vom Browserfenster
+         * abhängig machen: bei object-cover schrumpft dann nur die Breite, das Logo wird
+         * links und rechts abgeschnitten. aspect-... hält das Verhältnis des Bildes ein,
+         * object-contain zeigt es zusätzlich immer vollständig – auch nach dem nächsten
+         * Logo-Tausch mit anderem Verhältnis.
+         */}
+        <div className="relative w-full md:max-w-[70vw] mx-auto md:mt-8 aspect-[1686/346]">
           <Image
             src="/Heroimage.png"
             alt={t('hero.imageAlt')}
             fill
-            className="object-cover"
-            sizes="60vw"
+            className="object-contain"
+            sizes="(min-width: 768px) 70vw, 100vw"
             priority
           />
         </div>

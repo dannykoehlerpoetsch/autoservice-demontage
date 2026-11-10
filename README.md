@@ -1,26 +1,32 @@
-# Bennis Garage
+# Autoservice Demontage
 
-> Portfolio/demo project. The repair shop shown here no longer exists; this project exists solely
-> to demonstrate frontend development skills. A permanent notice above the header says so in words
-> and links to the portfolio (<https://dakopo.vercel.app>), and the footer is copyrighted to DaKoPo.
-> The site is excluded from search engine indexing (`noindex`, `robots.txt`).
+> Portfolio/demo project. The repair shop shown here is fictional — “Autoservice Demontage” is
+> an invented brand that nobody operates; the project exists solely to demonstrate frontend
+> development skills. A permanent notice above the header says so in words and links to the
+> portfolio (<https://dakopo.vercel.app>), and the footer is copyrighted to DaKoPo. Every word on
+> the site stays free of real contact data: no address, no phone number, no email address, no
+> hours, no directions. The site is excluded from search engine indexing (`noindex`,
+> `robots.txt`).
 >
-> **Live:** <https://bennis-garage.vercel.app> — German at the root, English under `/en`.
-> `main` deploys through Vercel; every pull request gets its own preview URL.
+> **Live:** the Vercel deployment of this repository, target address once the project is renamed:
+> <https://autoservice-demontage.vercel.app> — German at the root, English under `/en`. Until
+> the rename the address the project carries today keeps working. `main` deploys through Vercel;
+> every pull request gets its own preview URL.
 
 ## Quality in numbers
 
 | Aspect | Status of `main` |
 | --- | --- |
-| Unit tests | 138 (Vitest + React Testing Library) |
-| Browser scenarios | 40 — 32 functional incl. axe-core, 8 screenshot comparisons |
+| Unit tests | 152 (Vitest + React Testing Library) |
+| Browser scenarios | 43 — 35 functional incl. axe-core, 8 screenshot comparisons |
 | Pipeline | five stages, ~90 s wall to wall, `main` protected by an active ruleset |
-| Coverage | 83.8 % statements · 81.9 % branches · 82.2 % functions, floor enforced in CI |
+| Coverage | 83.2 % statements · 80.2 % branches · 80.3 % functions, floor enforced in CI |
 | Accessibility | axe on ten pages/views, exactly one documented colour exception |
 | Deployment | Vercel: production on merge, preview per pull request |
 
 ## What the demo shows
 
+- a “How the demo works” section that explains the frontend-only request flow in four steps
 - service cards with an accessible Radix detail dialog per service
 - service preselection carried into the form across the navigation
 - an interactive appointment form with Zod validation and a react-day-picker calendar
@@ -144,6 +150,12 @@ There is
 
 The form is validated client-side and the values live in React state for as long as the tab lives.
 
+The homepage section **How the demo works** (`#demo`, `src/components/DemoFlow.tsx`) spells this same
+flow out for visitors in four steps and took over the place of the old “Anfahrt” section: a fictional
+workshop has no address to travel to, so `Map.tsx`, its consent gating, the directions link and the
+header entry for directions were removed together with it. The header now navigates Start ·
+Leistungen · Demo-Ablauf (`/#demo`).
+
 **State architecture.** `BookingProvider` (`src/components/BookingProvider.tsx`) hangs in the locale
 layout and holds exactly two values: `serviceId` (the preselection from the dialog) and `request`
 (the completed request that the confirmation view renders). React context plus React state — no
@@ -188,17 +200,19 @@ component rather than by a plain text field.
 
 Because nothing is sent, nothing can leak: the appointment values never leave the browser context,
 they are not written to storage and they do not appear in server logs (there are none). The only
-third-party request on the site stays the opt-in Google Maps embed on the homepage, which loads
-after an explicit click.
+third-party request left on the site is the portfolio link in the notice above the header, and
+that one is a plain `<a>` — nothing loads until someone activates it. The Google Maps embed
+that used to sit on the homepage left together with the directions it belonged to, so the page no
+longer asks for cookie consent at all and no third party can learn anything from a visit.
 
 ## Testing
 
-Three layers: 138 unit tests and 40 browser scenarios — 32 functional and accessibility specs, 8
+Three layers: 152 unit tests and 43 browser scenarios — 35 functional and accessibility specs, 8
 screenshot comparisons. Everything below runs unattended in GitHub Actions, no manual clicking.
 
 - **Unit tests** (`src/lib/__tests__`, `src/components/__tests__`) cover presentational components,
   the Header's navigation/scroll logic, the date helpers (time zones, daylight-saving boundaries),
-  the language switcher, theme toggle, footer, the consent-gated map embed, the Zod schema of the
+  the language switcher, theme toggle, footer, the demo-flow section, the Zod schema of the
   demo request (optional fields, injection attempts, calendar boundaries) and the email-preview
   builder in both locales. The client-side state is covered too: `BookingProvider` keeps a request
   across remounts and touches no storage, no cookie and no `fetch` — the same rule asserted for
@@ -226,7 +240,7 @@ not a wish — Server Component pages (`layout.tsx`, `page.tsx`, `impressum`, `t
 `bestaetigung`) are exercised by the E2E specs in a real browser, so they contribute 0 % to the
 jsdom number. Raise the thresholds when you add tests, never lower them to green.
 
-Measured with the client-side demo flow: **83.8 % statements, 81.9 % branches, 82.2 % functions**. Where to read it
+Measured with the client-side demo flow: **83.2 % statements, 80.2 % branches, 80.3 % functions**. Where to read it
 without digging through logs: the *Unit-Tests & Abdeckung* check shows a summary table on the run
 page, `coverage/index.html` (artifact of every run) gives the line-by-line view, and the job log
 prints the per-file table. Reporters are `text`, `html` and `json-summary`; output lands in
@@ -236,8 +250,8 @@ prints the per-file table. Reporters are `text`, `html` and `json-summary`; outp
 
 The brand green `#59a305` is the brand colour and stays. White text on it measures **3.15:1**,
 `text-white/70` measures **2.29:1**, while WCAG 1.4.3 asks for 4.5:1 — so axe reports 7–10
-`color-contrast` findings per page (header navigation, language select, phone button, dialog CTA,
-footer).
+`color-contrast` findings per page (header navigation, language select, call-to-action buttons,
+dialog CTA, footer).
 
 `e2e/a11y.spec.ts` tolerates exactly one thing: a `color-contrast` finding whose measured
 background is that brand colour, read from axe's own `bgColor` data per node. The comparison allows
@@ -256,7 +270,7 @@ instead of disappearing into a green tick.
 ### Visual regression baselines
 
 Baselines are platform specific (font antialiasing), so they are generated on the same OS the
-pipeline runs on. Seven of them are committed as `*-chromium-linux.png` (home in de/en/light/dark,
+pipeline runs on. Eight of them are committed as `*-chromium-linux.png` (home in de/en/light/dark,
 service dialog, appointment form, impressum, 404), so the pipeline compares real pixels on every
 pull request. To regenerate them after an intended redesign:
 
@@ -303,11 +317,39 @@ way to mangle keys such as `runs-on` into `runs_on` while “fixing” line endi
 - **Ruleset `protect-main`** — Settings → Rules → Rulesets, status *Active*, empty bypass list:
   pull request required, force pushes and branch deletion blocked, and all five jobs above must be
   green before a merge. Names are matched exactly, so renaming a job updates the gate.
-- **Actions variable** `NEXT_PUBLIC_SITE_URL = https://bennis-garage.vercel.app`
+- **Actions variable** `NEXT_PUBLIC_SITE_URL = https://autoservice-demontage.vercel.app`
   (Settings → Secrets and variables → Actions → **Variables**). A *variable*, not a secret:
-  `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`.
+  `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`. Same value as the
+  Vercel Config variable below; both only become true after the rename described at the end of
+  this file.
 - **Vercel** builds the repository: production on merge to `main`, one preview deployment per pull
   request, `NEXT_PUBLIC_SITE_URL` set as a Config variable for Production/Preview/Development.
 - **No deploy step in this pipeline.** Vercel pulls from GitHub, so deployment stays a hosting
   decision rather than a code-quality gate.
 
+## Renaming the project (by hand)
+
+The working copy already carries the new name everywhere: brand and copy in `messages/*.json`,
+components, tests, `package.json`, `bun.lock` and the `.idea` module file. What is left lives
+outside the code, and none of it happens on its own:
+
+1. **GitHub** — Settings → General → Repository name → `autoservice-demontage`. Existing clones
+   keep working: GitHub answers the old slug with a redirect until someone claims it.
+2. **Local clone** — `git remote set-url origin git@github.com:dannykoehlerpoetsch/autoservice-demontage.git`
+   (verify the address in the repository sidebar first), then rename the folder if you want to.
+   `.idea/workspace.xml` is not tracked and keeps the old folder path until WebStorm rewrites it.
+3. **Vercel** — Settings → General → rename the project. The `*.vercel.app` address follows the new
+   slug; that new address is the value the next step needs.
+4. **Both variables, same value** — set `NEXT_PUBLIC_SITE_URL` in Vercel (Config Variables, all
+   three environments) *and* in GitHub (Settings → Secrets and variables → Actions → Variables).
+   CI builds its own copy of the metadata, so two different values mean a silently wrong `og:url`.
+5. **package.json** — `repository.url`, `bugs.url` and `homepage` are already on the new slug; keep
+   them in step with any later rename.
+6. **After the rename** — check Vercel → Domains: aliases, redirects and any deploy hook do not
+   follow a rename automatically.
+7. **Indexing stays off** — `noindex` and `robots.txt` remain, whatever the address is: this project
+   is a portfolio piece, not a search result.
+
+Git history is deliberately untouched: the commits that show the old workshop stay in the history,
+so renaming a repository is not a way to erase it. Rewriting history (and forcing every clone and
+branch protection to follow) would be a separate, deliberate decision.

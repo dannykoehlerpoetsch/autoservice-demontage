@@ -102,7 +102,7 @@ test.describe('Demo-Terminanfrage', () => {
 
     // Vorschau: sie zeigt denselben Text, verschickt ihn aber nicht.
     const dialog = await vorschauOeffnen(page);
-    await expect(dialog).toContainText('Bennis Garage – Demo');
+    await expect(dialog).toContainText('Autoservice Demontage – Demo');
     await expect(dialog).toContainText(EMAIL);
     await expect(dialog).toContainText('Deine Demo-Terminanfrage – Bremsenservice');
     await expect(dialog).toContainText(`Hallo ${NAME},`);
@@ -151,7 +151,7 @@ test.describe('Demo-Terminanfrage', () => {
   }) => {
     await page.goto('/termin-anfrage');
 
-    await gueltigAusfuellen(page, { email: 'max@bennis', phone: 'nine one two' });
+    await gueltigAusfuellen(page, { email: 'max@beispiel', phone: 'nine one two' });
     await page.getByRole('button', { name: 'Demo-Anfrage abschließen' }).click();
 
     await expect(page.locator('#error-email')).toContainText('Bitte eine gültige E-Mail-Adresse');
@@ -281,7 +281,7 @@ test.describe('Demo-Terminanfrage', () => {
     await expect(page.getByText(/no real appointment was booked/)).toBeVisible();
 
     const dialog = await vorschauOeffnen(page, 'View email preview');
-    await expect(dialog).toContainText('Bennis Garage – demo');
+    await expect(dialog).toContainText('Autoservice Demontage – demo');
     await expect(dialog).toContainText('Your demo appointment request – Brake service');
     await expect(dialog).toContainText('Hello Taylor Example,');
     await expect(dialog).toContainText('No email was sent');

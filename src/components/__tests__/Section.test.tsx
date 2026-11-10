@@ -14,11 +14,11 @@ describe('Section', () => {
 
   it('applies the given id to the section element', () => {
     render(
-      <Section id="anfahrt">
+      <Section id="demo">
         <p>Content</p>
       </Section>
     );
-    expect(screen.getByText('Content').closest('section')).toHaveAttribute('id', 'anfahrt');
+    expect(screen.getByText('Content').closest('section')).toHaveAttribute('id', 'demo');
   });
 
   it('does not set an id when none is given', () => {

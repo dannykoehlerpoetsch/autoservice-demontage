@@ -7,7 +7,10 @@
  * Server-Offset um einen Tag springen.
  */
 
-/** Zeitzone der Werkstatt – "heute" meint den Kalendertag in Leipzig, nicht in UTC. */
+/**
+ * Zeitzone der Werkstatt – "heute" meint den Kalendertag in Europe/Berlin, nicht in UTC.
+ * Die Seite ist deutsch gedacht; ein Ort gehört nicht zu einer erfundenen Werkstatt.
+ */
 export const WORKSHOP_TIME_ZONE = 'Europe/Berlin';
 
 /** ein Datum als `YYYY-MM-DD` */

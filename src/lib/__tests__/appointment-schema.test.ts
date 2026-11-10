@@ -155,7 +155,7 @@ describe('Demo-Terminanfrage – Schema', () => {
     });
 
     it('akzeptiert übliche Formate', () => {
-      const nummern = ['+49 170 1234567', '0341 123 45 67', '(0341) 1234567', '0049 341 123456'];
+      const nummern = ['+49 170 1234567', '030 123 45 67', '(030) 1234567', '0049 30 123456'];
 
       for (const phone of nummern) {
         expect(prüfe({ phone }).success, phone).toBe(true);
@@ -164,8 +164,8 @@ describe('Demo-Terminanfrage – Schema', () => {
 
     it('lehnt alles andere ab, sobald etwas eingetragen ist', () => {
       const nummern = [
-        '0341/1234567',
-        '0341 1234567 ext 22',
+        '030/1234567',
+        '030 1234567 ext 22',
         '12345',
         '+49 170 1234567890123456',
         'nine one two',
@@ -185,19 +185,19 @@ describe('Demo-Terminanfrage – Schema', () => {
     });
 
     it('erwartet genau eine Adresse, wenn das Feld gefüllt ist', () => {
-      for (const email of ['a@b.de', 'max.mustermann+newsletter@bennis-autoservice.de']) {
+      for (const email of ['a@b.de', 'max.mustermann+newsletter@beispiel.de']) {
         expect(prüfe({ email }).success, email).toBe(true);
       }
 
       const adressen = [
-        'max@bennis',
+        'max@beispiel',
         'max@b',
-        'max@@bennis.de',
-        'max bennis@bennis.de',
-        'spam@example.com, max@bennis.de',
-        '<script>@bennis.de',
-        '"max"@bennis.de',
-        `a${'b'.repeat(64)}@bennis.de`,
+        'max@@beispiel.de',
+        'max beispiel@beispiel.de',
+        'spam@example.com, max@beispiel.de',
+        '<script>@beispiel.de',
+        '"max"@beispiel.de',
+        `a${'b'.repeat(64)}@beispiel.de`,
         `a@${'b'.repeat(64)}.de`,
       ];
 
@@ -296,13 +296,13 @@ describe('Demo-Terminanfrage – Rohwerte aus dem Formular', () => {
   it('ignoriert Datei-Bestandteile und unbekannte Schlüssel', () => {
     const form = new FormData();
     form.append('name', new File(['x'], 'name.txt'));
-    form.append('email', '  max@bennis.de  ');
+    form.append('email', '  max@beispiel.de  ');
     form.append('admin', 'true');
 
     const gelessen = readAppointmentValues(form);
 
     expect(gelessen.name).toBe('');
-    expect(gelessen.email).toBe('max@bennis.de');
+    expect(gelessen.email).toBe('max@beispiel.de');
     expect(gelessen.note).toBe('');
     expect('admin' in gelessen).toBe(false);
   });

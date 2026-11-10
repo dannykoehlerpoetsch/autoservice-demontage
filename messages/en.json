@@ -1,13 +1,14 @@
 {
   "Metadata": {
-    "title": "Bennis Autoservice",
-    "description": "Car repair shop in Leipzig Plagwitz"
+    "title": "Autoservice Demontage – auto repair shop portfolio demo",
+    "description": "Autoservice Demontage is a fictional auto repair shop project that demonstrates modern frontend development with Next.js, interactive service dialogs and a demo appointment request flow."
   },
   "Header": {
+    "logoAlt": "Autoservice Demontage logo",
     "homeAriaLabel": "Go to homepage",
     "navHome": "Home",
     "navServices": "Services",
-    "navAnfahrt": "Directions",
+    "navDemo": "Demo Flow",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "languageLabel": "Language",
@@ -16,7 +17,7 @@
   },
   "DemoBanner": {
     "ariaLabel": "Notice: demo project",
-    "text": "This is a demo project for my portfolio website – this workshop does not exist.",
+    "text": "Portfolio demo: Autoservice Demontage is a fictional auto repair shop. No real appointments can be booked.",
     "cta": "View portfolio",
     "newTab": "(opens in a new tab)"
   },
@@ -38,25 +39,47 @@
   },
   "Home": {
     "hero": {
-      "imageAlt": "Bennis Garage",
-      "title": "Welcome to Bennis Autoservice",
-      "subtitle": "Your car repair shop in Leipzig Plagwitz",
-      "intro": "Maintenance, repairs and personal service for your vehicle – reliable and right on site.",
-      "address": "Naumburger Straße 10, 04229 Leipzig",
-      "callButton": "Call now"
+      "imageAlt": "Autoservice Demontage logo",
+      "title": "Autoservice Demontage",
+      "subtitle": "Everything around the car. From check to repair.",
+      "intro": "Maintenance, repairs and vehicle diagnostics, presented as an independent auto repair shop. The business is fictional – this website shows how such a site is built.",
+      "demoCta": "Start a demo request"
     },
     "why": {
-      "heading": "Why Bennis Autoservice?",
-      "text": "At Bennis Autoservice, personal advice, transparent agreements and careful workmanship are at the heart of everything we do."
+      "heading": "Why Autoservice Demontage?",
+      "text": "Autoservice Demontage stands as an example of a down-to-earth independent garage: personal advice, transparent agreements and careful workmanship. The workshop is invented, the website behind it is not."
     },
     "services": {
       "heading": "Services",
       "subheading": "Our service for your vehicle",
       "intro": "Whether it's routine maintenance, a necessary repair, or tracking down the cause of a problem: we take care of your vehicle professionally and agree on the required work transparently with you."
     },
-    "location": {
-      "heading": "How to find us"
+    "demo": {
+      "heading": "How the demo works",
+      "intro": "Four steps, no backend at all: every entry stays in the browser and is gone on the next reload."
     }
+  },
+  "DemoFlow": {
+    "steps": [
+      {
+        "title": "Discover a service",
+        "text": "Pick one of the workshop services – the detail dialog shows what that service includes."
+      },
+      {
+        "title": "Create a demo request",
+        "text": "From the dialog you go straight to the form: the service is already preselected, name, preferred date and the optional fields are added."
+      },
+      {
+        "title": "Review the request",
+        "text": "The confirmation view summarises every entry again – held in the browser, not on a server."
+      },
+      {
+        "title": "Look at the email preview",
+        "text": "The text a confirmation email would have carried: generated in the browser and traceable field by field."
+      }
+    ],
+    "note": "Every step exists for demonstration only. No real appointments are made and no confirmation emails are sent.",
+    "cta": "Start a demo request"
   },
   "USP": {
     "items": [
@@ -117,8 +140,8 @@
       {
         "id": "beratung",
         "heading": "Other work",
-        "service": "Need a different repair or not sure which service is required? Call us or send us an email. Together we'll figure out how we can help you.",
-        "details": "We are glad to look at work outside this list too: describe the problem by phone or email and stop by with the vehicle if needed. We tell you honestly whether a repair makes sense and get back to you with a clear statement on effort and cost."
+        "service": "Work outside this list belongs to an independent garage day to day too. In this demo you describe what you need in the notes field of the request.",
+        "details": "The path is always the same: describe the problem, look at the vehicle, then honestly assess whether a repair is worth it. In this portfolio demo that path ends in the request form – no phone call, no email address and no real business behind it."
       }
     ]
   },
@@ -201,7 +224,7 @@
     "backHome": "Back to homepage"
   },
   "DemoEmail": {
-    "from": "Bennis Garage – demo",
+    "from": "Autoservice Demontage – demo",
     "labels": {
       "from": "From",
       "to": "To",
@@ -214,21 +237,12 @@
     "bodyLabel": "Email preview text",
     "noticeHeading": "Important note",
     "notice": "This is an automatically generated preview inside a frontend demo project. No email was sent and no workshop appointment was made.",
-    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig"
-  },
-  "Map": {
-    "heading": "Easy to find in the west of Leipzig",
-    "paragraph1": "You'll find Bennis Autoservice at Naumburger Straße 10 in the Leipzig district of Plagwitz – a neighborhood known for its striking industrial architecture and distinctive character.",
-    "paragraph2": "Our workshop is located right next to the POCO furniture store, making it easy to find. Use the map* to plan your route conveniently.",
-    "note": "*When using Google Maps, Google sets cookies that may be stored in your browser. By clicking \"Plan route\" you consent to the transfer of data to Google. Clicking \"Hide map\" stops any further tracking.",
-    "planRoute": "Plan route",
-    "planRouteOnGoogle": "Plan route on Google Maps",
-    "hideMap": "Hide map",
-    "iframeTitle": "Location of Bennis Autoservice on Google Maps"
+    "signature": "Autoservice Demontage · portfolio demo · not a real business"
   },
   "Impressum": {
     "title": "Legal Notice",
-    "disclaimer": "Note: This is a demo/portfolio project. The repair shop shown here no longer exists and is not in operation. All content is for the sole purpose of demonstrating web development skills.",
+    "disclaimer": "Note: This is a demo/portfolio project. The repair shop shown here, \"Autoservice Demontage\", is entirely fictional and is not in operation. All content exists solely to demonstrate web development skills.",
+    "placeholderNote": "The sections below are placeholders and deliberately contain no real details. Before publishing, they have to be replaced with the actual operator's details; whether a legal notice and a privacy policy are required at all, and in what form, has to be clarified beforehand.",
     "address": {
       "heading": "Information pursuant to § 5 TMG",
       "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]

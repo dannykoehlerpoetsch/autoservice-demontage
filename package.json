@@ -1,7 +1,7 @@
 {
-  "name": "bennis-garage",
+  "name": "autoservice-demontage",
   "version": "1.0.0",
-  "description": "",
+  "description": "Portfolio demo of a fictional independent auto repair shop: Next.js 16 App Router, next-intl, Radix UI, Zod-validated demo appointment flow with an in-browser email preview, Vitest, Playwright, axe-core and visual regression testing.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,15 +19,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dannykoehlerpoetsch/bennis-garage.git"
+    "url": "git+https://github.com/dannykoehlerpoetsch/autoservice-demontage.git"
   },
-  "keywords": [],
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "next-intl",
+    "playwright",
+    "vitest",
+    "accessibility",
+    "portfolio-demo"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/dannykoehlerpoetsch/bennis-garage/issues"
+    "url": "https://github.com/dannykoehlerpoetsch/autoservice-demontage/issues"
   },
-  "homepage": "https://github.com/dannykoehlerpoetsch/bennis-garage#readme",
+  "homepage": "https://github.com/dannykoehlerpoetsch/autoservice-demontage#readme",
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3.3.6",

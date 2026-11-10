@@ -37,7 +37,7 @@ describe('Datumshelfer', () => {
   });
 
   it('bestimmt „heute“ nach der Zeitzone des Betriebs, nicht nach der des Servers', () => {
-    // 22:30 UTC ist in Leipzig schon der nächste Tag, auf Hawaii noch derselbe.
+    // 22:30 UTC ist in Europe/Berlin schon der nächste Tag, auf Hawaii noch derselbe.
     const instant = new Date('2026-05-08T22:30:00Z');
 
     expect(todayIso('UTC', instant)).toBe('2026-05-08');

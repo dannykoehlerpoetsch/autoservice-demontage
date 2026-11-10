@@ -21,11 +21,14 @@ export function stubSystemTheme(prefersDark: boolean) {
 }
 
 /**
- * Übersetzer für Tests, die Server Components aufrufen (`getTranslations` aus next-intl/server
- * braucht dort den Request-Kontext und ist deshalb mockbar, aber nicht ausführbar).
+ * Übersetzer für Tests, die Übersetzungen messbar brauchen, ohne React und ohne
+ * Request-Kontext: Server Components rufen `getTranslations` aus `next-intl/server` auf (dort
+ * mockbar, aber nicht ausführbar), und die E-Mail-Vorschau bekommt ihre Übersetzerin als
+ * Argument – beides lässt sich mit diesem Übersetzer prüfen.
  *
  * Liest die echten Werte aus `messages/*.json`, damit Tests an den Texten messen, die auch
- * Nutzer sehen – nicht an einer zweiten, frei erfundenen Übersetzung.
+ * Nutzer sehen – nicht an einer zweiten, frei erfundenen Übersetzung. Ein leerer Namespace
+ * bedeutet „Wurzel“, die Schlüssel sind dann absolut ("Appointment.fields.name").
  */
 export function makeTranslator(messages: Record<string, unknown>, namespace: string) {
   function lookup(path: string): unknown {
@@ -38,7 +41,8 @@ export function makeTranslator(messages: Record<string, unknown>, namespace: str
   }
 
   const t = (key: string, values?: Record<string, string | number>) => {
-    const text = lookup(`${namespace}.${key}`);
+    // Leerer Namespace = Wurzel: dann sind die Schlüssel absolut ("Appointment.fields.name").
+    const text = lookup(namespace ? `${namespace}.${key}` : key);
     if (typeof text !== 'string') {
       throw new Error(`Übersetzung fehlt: ${namespace}.${key}`);
     }
@@ -49,7 +53,7 @@ export function makeTranslator(messages: Record<string, unknown>, namespace: str
     );
   };
 
-  t.raw = (key: string) => lookup(`${namespace}.${key}`);
+  t.raw = (key: string) => lookup(namespace ? `${namespace}.${key}` : key);
 
   return t;
 }

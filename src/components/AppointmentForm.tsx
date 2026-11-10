@@ -1,72 +1,100 @@
 'use client';
 
-import { useActionState, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { submitAppointmentRequest } from '@/lib/appointment/actions';
+import { useMemo, useState, type FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
+import { Info } from 'lucide-react';
+import { Link, useRouter } from '@/i18n/navigation';
 import {
   FIELD_LIMITS,
+  getAppointmentDateBounds,
+  parseAppointmentRequest,
+  readAppointmentValues,
   type AppointmentErrorKey,
+  type AppointmentErrors,
   type AppointmentField,
 } from '@/lib/appointment/schema';
-import { isServiceId, type ServiceId } from '@/lib/services';
-import type { IsoDate } from '@/lib/dates';
+import { todayIso, type IsoDate } from '@/lib/dates';
+import { isServiceId, type ServiceListing } from '@/lib/services';
 import { useBookingService } from './BookingProvider';
 import AppointmentDatePicker from './AppointmentDatePicker';
 
 /**
- * Formular für die Terminanfrage.
+ * Formular für die Demo-Terminanfrage.
  *
- * Die einzige Prüfinstanz ist das Zod-Schema im Server-Action – das Formular schickt nur
- * die Felddaten und spiegelt zurück, was der Server beanstandet hat. Native
- * Browservalidierung ist per `noValidate` aus, damit immer die (übersetzten) Meldungen des
- * Schemas erscheinen und nicht die des Browsers.
+ * Geprüft wird hier, im Browser: `parseAppointmentRequest` gegen dasselbe Zod-Schema, das
+ * auch die Feldlängen und den Terminrahmen setzt. Eine Server Action gibt es nicht – was
+ * gültig ist, wandert in den `BookingProvider` und von dort auf die Bestätigungsseite.
+ *
+ * Die Felder bleiben ungesteuert (`defaultValue` statt `value`): nach einem Fehlversuch
+ * stehen die Eingaben noch im Formular, ohne dass jeder Anschlag durch React muss. Nur die
+ * Serviceauswahl ist gesteuert, weil der Detaildialog sie mitsetzen kann.
+ *
+ * Native Browservalidierung ist per `noValidate` aus, damit immer die übersetzten Meldungen
+ * des Schemas erscheinen und nicht die des Browsers.
  */
 
-type ServiceItem = { id: string; heading: string };
-
-/** Erster Kandidat, der eine bekannte Leistungs-ID ist – Rest wird ignoriert. */
-function pickServiceId(...candidates: (string | undefined)[]): ServiceId | '' {
-  for (const candidate of candidates) {
-    if (isServiceId(candidate)) {
-      return candidate;
-    }
-  }
-  return '';
-}
-
-type AppointmentFormProps = {
-  /** Terminrahmen vom Server, damit "heute" nicht von Client- zu Servertag springt. */
-  minDate: IsoDate;
-  maxDate: IsoDate;
-};
-
+/** Reihenfolge und Eingabetypen der drei Textfelder. */
 const TEXT_FIELDS = [
-  { name: 'name', type: 'text', autoComplete: 'name', hasHint: false },
-  { name: 'phone', type: 'tel', autoComplete: 'tel', inputMode: 'tel', hasHint: true },
-  { name: 'email', type: 'email', autoComplete: 'email', inputMode: 'email', hasHint: true },
+  { name: 'name', type: 'text', autoComplete: 'name', required: true, hasHint: false },
+  {
+    name: 'phone',
+    type: 'tel',
+    autoComplete: 'tel',
+    inputMode: 'tel',
+    required: false,
+    hasHint: true,
+  },
+  {
+    name: 'email',
+    type: 'email',
+    autoComplete: 'email',
+    inputMode: 'email',
+    required: false,
+    hasHint: true,
+  },
 ] as const satisfies readonly {
   name: AppointmentField;
   type: string;
   autoComplete: string;
   inputMode?: string;
+  required: boolean;
   hasHint: boolean;
 }[];
 
-export default function AppointmentForm({ minDate, maxDate }: AppointmentFormProps) {
+export default function AppointmentForm() {
   const t = useTranslations('Appointment');
   const tServices = useTranslations('Services');
-  const locale = useLocale();
-  const { service } = useBookingService();
+  const router = useRouter();
+  const { serviceId, request, selectService, completeRequest } = useBookingService();
 
-  const [state, formAction, isPending] = useActionState(submitAppointmentRequest, null);
-  const [date, setDate] = useState<IsoDate>(state?.values.date ?? '');
+  const [errors, setErrors] = useState<AppointmentErrors>({});
+  const [date, setDate] = useState<IsoDate>(request?.date ?? '');
 
-  const items = tServices.raw('items') as ServiceItem[];
-  const errors = state?.errors ?? {};
+  // Der Terminrahmen hängt am heutigen Kalendertag – `todayIso()` rechnet dabei in der
+  // Zeitzone der Werkstatt, nicht in der des Rechners. Dieselbe Funktion liefert beim
+  // Rendern und im Browser dasselbe Datum, eine Servervorgabe ist nicht nötig.
+  const bounds = useMemo(() => getAppointmentDateBounds(todayIso()), []);
+
+  const items = tServices.raw('items') as ServiceListing[];
   const errorFields = Object.entries(errors) as [AppointmentField, AppointmentErrorKey][];
 
-  const valueOf = (field: AppointmentField) => state?.values?.[field] ?? '';
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const result = parseAppointmentRequest(
+      readAppointmentValues(new FormData(event.currentTarget)),
+      bounds
+    );
+
+    if (!result.success) {
+      setErrors(result.errors);
+      return;
+    }
+
+    setErrors({});
+    completeRequest(result.data);
+    router.push('/termin-anfrage/bestaetigung');
+  }
 
   // Explizite Zuordnung statt dynamischer Schlüssel: die Meldungstexte bleiben typisiert.
   function errorLabel(field: AppointmentField, key: AppointmentErrorKey): string {
@@ -96,27 +124,21 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
     }
   }
 
-  // Vorauswahl: zuerst der vom Server zurückgemeldete Wert (nach einem Fehlversuch), dann die
-  // Auswahl aus dem Service-Dialog.
-  //
-  // Das Feld ist bewusst ungesteuert und zusätzlich `key`-gesteuert: React setzt ein Formular
-  // nach einer Action zurück, und bei einem gesteuerten `select` gewinnt dieser Reset mitunter
-  // über den React-Wert. Über den Schlüssel gehört zum angezeigten Wert immer derselbe
-  // Anfangswert, wohin der Reset auch zurückschiebt.
-  const initialService = pickServiceId(state?.values.service, service?.id);
-
   return (
     <section className="flex flex-col items-start md:px-4 py-4 m-auto w-full max-w-xl" id="termin">
       <h1 className="text-3xl font-bold mb-3">{t('title')}</h1>
       <p className="mb-2 max-w-2xl">{t('intro')}</p>
+
+      <div className="mb-2 flex w-full items-start gap-2 rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900/50 dark:text-gray-100">
+        <Info size={18} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
+        <p>
+          {t('demoNotice')} {t('testDataHint')}
+        </p>
+      </div>
+
       <p className="mb-6 text-xs text-gray-500 dark:text-gray-400">{t('requiredHint')}</p>
 
-      <form action={formAction} noValidate className="flex flex-col gap-5 w-full">
-        {/*
-         * Der Server darf `getLocale()` in einer Server Action nicht aufrufen; die Sprache der
-         * Anfrage wandert deshalb als verstecktes Feld mit – geprüft wird sie dort trotzdem.
-         */}
-        <input type="hidden" name="locale" value={locale} readOnly />
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5 w-full">
         {errorFields.length > 0 && (
           <div
             id="form-errors"
@@ -138,7 +160,14 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
         {TEXT_FIELDS.map((field) => (
           <div key={field.name} className="flex flex-col gap-1">
             <label htmlFor={`field-${field.name}`} className="text-sm font-medium">
-              {t(`fields.${field.name}`)} <span aria-hidden="true">*</span>
+              {t(`fields.${field.name}`)}{' '}
+              {field.required ? (
+                <span aria-hidden="true">*</span>
+              ) : (
+                <span className="font-normal text-gray-500 dark:text-gray-400">
+                  {t('optional')}
+                </span>
+              )}
             </label>
             <input
               id={`field-${field.name}`}
@@ -146,10 +175,10 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
               type={field.type}
               autoComplete={field.autoComplete}
               inputMode={'inputMode' in field ? field.inputMode : undefined}
-              required
+              required={field.required}
               maxLength={FIELD_LIMITS[field.name]}
               placeholder={t(`placeholders.${field.name}`)}
-              defaultValue={valueOf(field.name)}
+              defaultValue={request?.[field.name] ?? ''}
               aria-invalid={errors[field.name] ? 'true' : undefined}
               aria-describedby={
                 errors[field.name]
@@ -178,11 +207,15 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
             {t('fields.service')} <span aria-hidden="true">*</span>
           </label>
           <select
-            key={initialService}
             id="field-service"
             name="service"
             required
-            defaultValue={initialService}
+            value={serviceId ?? ''}
+            onChange={(event) => {
+              // Das Feld kann nur die bekannten Kennungen liefern; geprüft wird trotzdem
+              // erst wieder durch das Schema.
+              selectService(isServiceId(event.target.value) ? event.target.value : null);
+            }}
             aria-invalid={errors.service ? 'true' : undefined}
             aria-describedby={errors.service ? 'error-service' : undefined}
             className="rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
@@ -211,8 +244,8 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
             label={t('fields.date')}
             value={date}
             onChange={setDate}
-            minDate={minDate}
-            maxDate={maxDate}
+            minDate={bounds.minDate}
+            maxDate={bounds.maxDate}
             invalid={Boolean(errors.date)}
             describedBy={errors.date ? 'error-date' : undefined}
             placeholder={t('placeholders.date')}
@@ -226,7 +259,8 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
 
         <div className="flex flex-col gap-1">
           <label htmlFor="field-note" className="text-sm font-medium">
-            {t('fields.note')}
+            {t('fields.note')}{' '}
+            <span className="font-normal text-gray-500 dark:text-gray-400">{t('optional')}</span>
           </label>
           <textarea
             id="field-note"
@@ -234,7 +268,7 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
             rows={4}
             maxLength={FIELD_LIMITS.note}
             placeholder={t('placeholders.note')}
-            defaultValue={valueOf('note')}
+            defaultValue={request?.note ?? ''}
             aria-invalid={errors.note ? 'true' : undefined}
             aria-describedby={errors.note ? 'error-note' : 'hint-note'}
             className="resize-y rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
@@ -252,10 +286,9 @@ export default function AppointmentForm({ minDate, maxDate }: AppointmentFormPro
         <div className="flex flex-col gap-3 pt-1">
           <button
             type="submit"
-            disabled={isPending}
-            className="cursor-pointer rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
-            {isPending ? t('submitting') : t('submit')}
+            {t('submit')}
           </button>
           <Link href="/#services" className="text-sm underline hover:text-brand self-start">
             {t('backToServices')}

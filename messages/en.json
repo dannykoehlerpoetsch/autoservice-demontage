@@ -69,7 +69,7 @@
   "Services": {
     "dialog": {
       "close": "Close",
-      "book": "Book an appointment for {service} now"
+      "cta": "Fill in a demo request for {service}"
     },
     "items": [
       {
@@ -123,9 +123,12 @@
     ]
   },
   "Appointment": {
-    "title": "Request an appointment",
-    "intro": "Tell us briefly what your vehicle needs – we will get back to you with an appointment proposal. The date is only binding once we confirm it.",
-    "requiredHint": "Fields marked with * are required.",
+    "title": "Demo appointment request",
+    "intro": "Fill in the form and complete the request – this is what the request flow looks like in this portfolio demo.",
+    "demoNotice": "This is an interactive demonstration. No data is sent anywhere and no real appointment is made.",
+    "testDataHint": "Test data is enough: your entries stay in this browser and are gone on the next reload.",
+    "requiredHint": "Fields marked with * are required – you can leave the rest empty.",
+    "optional": "(optional)",
     "backToServices": "Back to the services",
     "fields": {
       "name": "Name",
@@ -144,9 +147,9 @@
       "note": "e.g. warning light on, car model, preferred time of day"
     },
     "hints": {
-      "phone": "Landline or mobile, with country code if you like.",
-      "email": "For questions and the appointment confirmation.",
-      "note": "Everything we should know in advance."
+      "phone": "Optional – appears only in the email preview.",
+      "email": "Optional – appears only in the email preview.",
+      "note": "Anything you would like to share in advance."
     },
     "calendar": {
       "navigation": "Calendar navigation",
@@ -159,8 +162,7 @@
       "hint": "No earlier than today, no later than 12 months ahead."
     },
     "errorSummary": "Please check the following fields:",
-    "submit": "Send appointment request",
-    "submitting": "Sending request …",
+    "submit": "Complete demo request",
     "errors": {
       "required": "Please fill in this field.",
       "tooLong": "Please shorten – maximum {max} characters.",
@@ -176,38 +178,43 @@
     }
   },
   "AppointmentConfirmation": {
-    "title": "Your appointment request has been recorded",
-    "intro": "Please review your entries. From here you can also have the request sent to you by email.",
+    "title": "Demo request completed",
+    "intro": "This is a simulation for a frontend portfolio. Your entries were not handed to a workshop, and no real appointment was booked.",
     "summaryHeading": "Your entries",
+    "notProvided": "Not provided",
     "noNote": "no notes given",
-    "mail": {
-      "heading": "Copy by email",
-      "intro": "Would you like this request in your mailbox as well?",
-      "consent": "Send this request to {email}",
-      "submit": "Send request by email",
-      "submitting": "Sending email …",
-      "sent": "The email was sent to {email}.",
-      "alreadySent": "This request has already been sent by email.",
-      "consentRequired": "Please confirm first that you want to receive the email.",
-      "notConfigured": "Email delivery is not set up in this demo environment. The request was therefore only written to the server log.",
-      "failed": "The email could not be sent. Please try again or call us.",
-      "expired": "This request has expired, so sending an email is not possible."
+    "edit": "Edit entries",
+    "new": "New demo request",
+    "preview": {
+      "heading": "Email preview",
+      "intro": "This is what a confirmation email would look like. The text is generated in the browser – nothing is sent.",
+      "button": "View email preview",
+      "title": "Confirmation email preview",
+      "note": "This message goes nowhere: there is no delivery, no workshop and no appointment.",
+      "close": "Close preview"
     },
-    "expired": {
-      "title": "Request not found",
-      "text": "This appointment request has expired or no longer exists. Please submit it again if needed.",
-      "again": "Start a new appointment request"
+    "missing": {
+      "title": "Demo request is no longer available",
+      "text": "Your demo request is no longer available. This project does not store any data, so you can create a new request at any time.",
+      "again": "Start a new demo request"
     },
     "backHome": "Back to homepage"
   },
-  "Mail": {
-    "subject": "Appointment request: {service} at Bennis Autoservice",
+  "DemoEmail": {
+    "from": "Bennis Garage – demo",
+    "labels": {
+      "from": "From",
+      "to": "To",
+      "subject": "Subject"
+    },
+    "subject": "Your demo appointment request – {service}",
     "greeting": "Hello {name},",
-    "intro": "thank you for your appointment request. Here are your entries once more:",
-    "noNote": "none",
-    "outro": "We will get back to you by phone or email with an appointment proposal. The date is only binding once we confirm it.",
-    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig",
-    "demoNote": "Note: this is a demo project for a developer portfolio. The workshop does not exist in this form, nothing is actually booked."
+    "intro": "thank you for your demo appointment request. Here are your entries once more:",
+    "noNote": "no notes given",
+    "bodyLabel": "Email preview text",
+    "noticeHeading": "Important note",
+    "notice": "This is an automatically generated preview inside a frontend demo project. No email was sent and no workshop appointment was made.",
+    "signature": "Bennis Autoservice · Naumburger Straße 10 · 04229 Leipzig"
   },
   "Map": {
     "heading": "Easy to find in the west of Leipzig",

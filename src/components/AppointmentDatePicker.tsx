@@ -7,18 +7,24 @@ import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { de } from 'react-day-picker/locale/de';
 import { enUS } from 'react-day-picker/locale/en-US';
-import { formatIsoDateLong, fromIsoDate, toIsoDate, type IsoDate } from '@/lib/dates';
+import {
+  formatIsoDateLong,
+  fromIsoDate,
+  intlLocaleFor,
+  toIsoDate,
+  type IsoDate,
+} from '@/lib/dates';
 import 'react-day-picker/style.css';
 
 /**
  * Terminkalender: ein Button als Auslöser, der Kalender selbst in einem Radix-Popover.
  *
- * Auswählbar sind nur Tage zwischen `minDate` und `maxDate`. Beide Grenzen kommen vom
- * Server (Kalendertag in der Zeitzone der Werkstatt), damit "heute" nicht je nach Rechner
- * anders ausfällt und beim Rendern und Hydrieren dasselbe Datum steht.
+ * Auswählbar sind nur Tage zwischen `minDate` und `maxDate`. Beide Grenzen kommen aus
+ * `todayIso()` – gerechnet wird in der Zeitzone der Werkstatt, damit "heute" nicht je nach
+ * Rechner des Besuchers anders ausfällt und beim Rendern und Hydrieren dasselbe Datum steht.
  *
- * Der Formularwert liegt in einem `hidden`-Input – der Kalender selbst wird in ein Portal
- * außerhalb des Formulars gerendert und steuert die Submission nicht bei.
+ * Der Formularwert liegt in einem `hidden`-Input – der Kalender wird in ein Portal außerhalb
+ * des Formulars gerendert und steuert die Übergabe des Formulars nicht bei.
  */
 
 type AppointmentDatePickerProps = {
@@ -55,7 +61,7 @@ export default function AppointmentDatePicker({
   const min = fromIsoDate(minDate);
   const max = fromIsoDate(maxDate);
   const selected = fromIsoDate(value);
-  const intlLocale = locale === 'de' ? 'de-DE' : 'en-US';
+  const intlLocale = intlLocaleFor(locale);
 
   const longDate = (date: Date) =>
     new Intl.DateTimeFormat(intlLocale, { dateStyle: 'full' }).format(date);
@@ -65,9 +71,9 @@ export default function AppointmentDatePicker({
   return (
     <div className="flex items-center gap-2">
       {/*
-       * Trägt den eigentlichen Formularwert (YYYY-MM-DD) – er muss die Serverprüfung passieren.
-       * Der Schlüssel hält Anfangs- und aktuellen Wert gleich, damit der Formular-Zurücksetzen
-       * nach einer Action nicht ausgerechnet den gewählten Termin tilgt.
+       * Trägt den eigentlichen Formularwert (YYYY-MM-DD) – er muss die Schemaprüfung im
+       * Formular passieren. Der Schlüssel hält Anfangs- und aktuellen Wert gleich, damit ein
+       * Zurücksetzen des Formulars nicht ausgerechnet den gewählten Termin tilgt.
        */}
       <input key={value} type="hidden" name={name} value={value} />
 

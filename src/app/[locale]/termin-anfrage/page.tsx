@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import AppointmentForm from '@/components/AppointmentForm';
-import { getAppointmentDateBounds } from '@/lib/appointment/schema';
-import { todayIso } from '@/lib/dates';
 import type { Locale } from '@/i18n/routing';
 
 /**
- * Die Termingrenzen hängen am heutigen Kalendertag – die Seite darf deshalb nicht auf den
- * Build-Zeitpunkt festgeschrieben werden.
+ * Die Seite darf nicht auf den Bauzeitpunkt festgeschrieben werden: der Kalender im Formular
+ * rendert seinen Rahmen aus dem heutigen Kalendertag, und der soll im ausgelieferten HTML
+ * derselbe sein wie im Browser.
  */
 export const dynamic = 'force-dynamic';
 
@@ -22,8 +21,6 @@ export async function generateMetadata({
   return { title: t('title') };
 }
 
-export default async function TerminAnfragePage() {
-  const { minDate, maxDate } = getAppointmentDateBounds(todayIso());
-
-  return <AppointmentForm minDate={minDate} maxDate={maxDate} />;
+export default function TerminAnfragePage() {
+  return <AppointmentForm />;
 }

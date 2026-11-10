@@ -88,7 +88,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         <NextIntlClientProvider>
           {/* Klebt nicht: der Hinweis scrollt weg, der darunterliegende Header bleibt oben stehen. */}
           <DemoBanner />
-          {/* Überlebt die Navigation – trägt die Leistungsauswahl vom Dialog ins Formular. */}
+          {/* Überlebt die Navigation – trägt Serviceauswahl und abgeschlossene Demo-Anfrage. */}
           <BookingProvider>
             <Header />
             <main className="grow flex flex-col">{children}</main>

@@ -18,8 +18,8 @@ vi.mock('@/i18n/navigation', () => ({
 
 /** Spioniert, was der Dialog im Booking-Context hinterlässt. */
 function ServiceProbe() {
-  const { service } = useBookingService();
-  return <span data-testid="probe">{service ? `${service.id}|${service.heading}` : 'leer'}</span>;
+  const { serviceId } = useBookingService();
+  return <span data-testid="probe">{serviceId ?? 'leer'}</span>;
 }
 
 function renderServices() {
@@ -62,7 +62,7 @@ describe('Services', () => {
     expect(screen.getByText(first.details)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Schließen' })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: `Jetzt Termin für ${first.heading} buchen` })
+      screen.getByRole('button', { name: `Demo-Anfrage für ${first.heading} ausfüllen` })
     ).toBeInTheDocument();
     // Kein zweiter Schließen-Button mehr unter dem Text.
     expect(within(dialog).getAllByRole('button')).toHaveLength(2);
@@ -95,10 +95,10 @@ describe('Services', () => {
 
     fireEvent.click(screen.getByText(oilChange.heading));
     fireEvent.click(
-      screen.getByRole('button', { name: `Jetzt Termin für ${oilChange.heading} buchen` })
+      screen.getByRole('button', { name: `Demo-Anfrage für ${oilChange.heading} ausfüllen` })
     );
 
-    expect(screen.getByTestId('probe')).toHaveTextContent(`${oilChange.id}|${oilChange.heading}`);
+    expect(screen.getByTestId('probe')).toHaveTextContent(oilChange.id);
     expect(pushMock).toHaveBeenCalledWith('/termin-anfrage');
     // Der Dialog ist geschlossen, damit hinter der neuen Seite nichts offen bleibt.
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

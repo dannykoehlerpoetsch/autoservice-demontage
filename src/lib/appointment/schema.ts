@@ -3,15 +3,18 @@ import { SERVICE_IDS, type ServiceId } from '@/lib/services';
 import { addIsoDays, type IsoDate } from '@/lib/dates';
 
 /**
- * Schema für die Terminanfrage – der einzige Eingangspunkt für Nutzereingaben.
+ * Schema für die Demo-Terminanfrage – die einzige Prüfstelle für Nutzereingaben.
  *
- * Validiert wird ausschließlich serverseitig (Server Actions), dadurch gilt die Regel
- * auch bei deaktiviertem JavaScript und bei direkten Requests. Die Meldungstexte selbst
- * stehen hier nicht, sondern als Schlüssel in `messages/*.json` (`Appointment.errors.*`),
- * damit der Server locale-frei bleibt.
+ * Geprüft wird im Browser: `AppointmentForm` ruft `parseAppointmentRequest` vor jedem
+ * Weiterreichen auf, danach wandert nichts mehr über eine Netzwerkgrenze. Das Schema ist
+ * bewusst frei von Server- und Umgebungsabhängigkeiten, damit Formulareingaben nicht ein
+ * zweites Mal (und womöglich anders) irgendwoanders geregelt werden.
+ *
+ * Meldungstexte stehen hier nicht, sondern als Schlüssel in `messages/*.json`
+ * (`Appointment.errors.*`) – die Prüfung bleibt so sprachfrei.
  */
 
-/** Maximale Feldlängen – begrenzen Anfragen und halten die Mail lesbar. */
+/** Maximale Feldlängen – begrenzen das Formular und halten die E-Mail-Vorschau lesbar. */
 export const FIELD_LIMITS = {
   name: 60,
   phone: 30,
@@ -19,7 +22,7 @@ export const FIELD_LIMITS = {
   note: 1000,
 } as const;
 
-/** Termine nehmen wir höchstens so weit im Voraus an (≈ 12 Monate). */
+/** Termine nimmt die Demo höchstens so weit im Voraus an (≈ 12 Monate). */
 export const MAX_ADVANCE_DAYS = 365;
 
 /** Fehler-Codes; jeder Wert passt zu einem Schlüssel unter `Appointment.errors`. */
@@ -45,14 +48,19 @@ export const APPOINTMENT_FIELDS = ['name', 'phone', 'email', 'service', 'date', 
 
 export type AppointmentField = (typeof APPOINTMENT_FIELDS)[number];
 
-const REQUIRED_FIELDS: readonly AppointmentField[] = ['name', 'phone', 'email', 'service', 'date'];
+/**
+ * Nichts in diesem Formular wird versendet, deshalb sind nur die Angaben Pflicht, ohne die
+ * die Zusammenfassung keinen Sinn ergibt. E-Mail und Telefonnummer sind freiwillig – sie
+ * erscheinen ausschließlich in der E-Mail-Vorschau.
+ */
+const REQUIRED_FIELDS: readonly AppointmentField[] = ['name', 'service', 'date'];
 
 const FIELD_SET: ReadonlySet<string> = new Set<string>(APPOINTMENT_FIELDS);
 
 /** Rohe Eingaben, Feld für Feld als String (leere Felder als '' – nie `undefined`). */
 export type AppointmentValues = Record<AppointmentField, string>;
 
-/** Geprüfte, normalisierte Eingabe. */
+/** Geprüfte, normalisierte Eingabe. Leere optionale Felder bleiben ''. */
 export type AppointmentInput = {
   name: string;
   phone: string;
@@ -69,7 +77,11 @@ export type AppointmentParseResult =
   | { success: true; data: AppointmentInput }
   | { success: false; errors: AppointmentErrors; values: AppointmentValues };
 
-/** Erlaubter Terminrahmen, abgeleitet vom heutigen Kalendertag der Werkstatt. */
+/**
+ * Erlaubter Terminrahmen. `today` ist der Kalendertag in der Zeitzone der Werkstatt
+ * (`todayIso()` aus `@/lib/dates`) – dieselbe Funktion läuft im Browser wie beim Rendern,
+ * deshalb fällt "heute" nicht je nach Rechneruhr unterschiedlich aus.
+ */
 export function getAppointmentDateBounds(today: IsoDate): { minDate: IsoDate; maxDate: IsoDate } {
   return { minDate: today, maxDate: addIsoDays(today, MAX_ADVANCE_DAYS) };
 }
@@ -96,15 +108,12 @@ const EMAIL_PATTERN =
   /^[a-z0-9._%+-]{1,64}@(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 /**
- * Freitext-Bremse. React escaped beim Rendern und die Mail geht als `text/plain` raus –
- * das hier ist die zweite Schicht, damit aus den Rohdaten nie Markup oder Script-
- * Anweisungen in nachgelagerte Systeme (Mail-Client, Logs, Auswertungen) wandern.
+ * Freitext-Bremse. React escaped beim Rendern, und die E-Mail-Vorschau wird als Text
+ * gesetzt – das hier ist die zweite Schicht, damit aus den Rohdaten nie Markup wird.
  *
  * Verboten: Winkelklammern, Backslash, Backtick, eckige und geschweifte Klammern, Pipe,
  * Steuerzeichen (mit Ausnahme von Umbruch und Tabulator) sowie typische Script-Schemes.
- * Die Steuerzeichen sind kein Textfeature, sondern sollen Header-Anhänge und unsichtbare
- * Trenner abfangen. SQL- und Shell-Injektion sind davon unabhängig ausgeschlossen, weil aus
- * den Eingaben nie eine Query oder ein Kommando gebaut wird.
+ * Die Steuerzeichen sind kein Textfeature, sondern sollen unsichtbare Trenner abfangen.
  */
 const NOTE_FORBIDDEN =
   // eslint-disable-next-line no-control-regex
@@ -113,6 +122,29 @@ const NOTE_FORBIDDEN =
 /** Unsichtbare Zeichen (Zero-Width, Bidi, BOM) dürfen kommentarlos verschwinden. */
 const INVISIBLE_CHARS = /[\u200B-\u200D\u2060\uFEFF]/g;
 
+/** Leer ist erlaubt – was eingetragen wird, muss eine einzelne Adresse sein. */
+export function isValidEmail(value: string): boolean {
+  return value === '' || EMAIL_PATTERN.test(value);
+}
+
+/** Leer ist erlaubt – was eingetragen wird, muss eine erreichbare Rufnummer sein. */
+export function isValidPhone(value: string): boolean {
+  if (value === '') {
+    return true;
+  }
+  if (!PHONE_PATTERN.test(value)) {
+    return false;
+  }
+
+  const digits = value.replace(/\D/g, '').length;
+  return digits >= PHONE_DIGIT_RANGE[0] && digits <= PHONE_DIGIT_RANGE[1];
+}
+
+/** Feld, das leer bleiben darf – Länge gilt trotzdem für das, was eingetragen wurde. */
+function optionalField(max: number) {
+  return z.string().max(max, { message: ERROR_KEYS.tooLong });
+}
+
 export function createAppointmentSchema(bounds: { minDate: IsoDate; maxDate: IsoDate }) {
   return z.object({
     name: z
@@ -120,21 +152,12 @@ export function createAppointmentSchema(bounds: { minDate: IsoDate; maxDate: Iso
       .min(2, { message: ERROR_KEYS.nameTooShort })
       .max(FIELD_LIMITS.name, { message: ERROR_KEYS.tooLong })
       .regex(NAME_PATTERN, { message: ERROR_KEYS.nameInvalid }),
-    phone: z
-      .string()
-      .max(FIELD_LIMITS.phone, { message: ERROR_KEYS.tooLong })
-      .regex(PHONE_PATTERN, { message: ERROR_KEYS.phoneInvalid })
-      .refine(
-        (value) => {
-          const digits = value.replace(/\D/g, '').length;
-          return digits >= PHONE_DIGIT_RANGE[0] && digits <= PHONE_DIGIT_RANGE[1];
-        },
-        { message: ERROR_KEYS.phoneInvalid }
-      ),
-    email: z
-      .string()
-      .max(FIELD_LIMITS.email, { message: ERROR_KEYS.tooLong })
-      .refine((value) => EMAIL_PATTERN.test(value), { message: ERROR_KEYS.emailInvalid }),
+    phone: optionalField(FIELD_LIMITS.phone).refine(isValidPhone, {
+      message: ERROR_KEYS.phoneInvalid,
+    }),
+    email: optionalField(FIELD_LIMITS.email).refine(isValidEmail, {
+      message: ERROR_KEYS.emailInvalid,
+    }),
     service: z.enum(SERVICE_IDS, { message: ERROR_KEYS.serviceInvalid }),
     date: z.iso
       .date({ message: ERROR_KEYS.dateInvalid })
@@ -192,7 +215,10 @@ function toErrorKey(message: string, field: AppointmentField): AppointmentErrorK
   return `${field}Invalid` as AppointmentErrorKey;
 }
 
-/** Eingaben gegen das Schema prüfen. `bounds` kommt vom Server, nie vom Formular. */
+/**
+ * Eingaben gegen das Schema prüfen – reine Funktion, kein Netzwerk, keine Side Effects.
+ * `bounds` kommt aus `getAppointmentDateBounds(todayIso())`, nie aus dem Formular.
+ */
 export function parseAppointmentRequest(
   values: AppointmentValues,
   bounds: { minDate: IsoDate; maxDate: IsoDate }

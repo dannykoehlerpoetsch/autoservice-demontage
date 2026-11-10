@@ -12,12 +12,25 @@
 
 | Aspect | Status of `main` |
 | --- | --- |
-| Unit tests | 123 (Vitest + React Testing Library) |
-| Browser scenarios | 30 — 23 functional incl. axe-core, 7 screenshot comparisons |
+| Unit tests | 138 (Vitest + React Testing Library) |
+| Browser scenarios | 40 — 32 functional incl. axe-core, 8 screenshot comparisons |
 | Pipeline | five stages, ~90 s wall to wall, `main` protected by an active ruleset |
-| Coverage | 77.9 % statements · 67.0 % branches · 77.9 % functions, floor enforced in CI |
-| Accessibility | axe on seven pages/views, exactly one documented colour exception |
+| Coverage | 83.8 % statements · 81.9 % branches · 82.2 % functions, floor enforced in CI |
+| Accessibility | axe on ten pages/views, exactly one documented colour exception |
 | Deployment | Vercel: production on merge, preview per pull request |
+
+## What the demo shows
+
+- service cards with an accessible Radix detail dialog per service
+- service preselection carried into the form across the navigation
+- an interactive appointment form with Zod validation and a react-day-picker calendar
+- a summary view of the completed request, including a personalized email preview
+- German and English, dark and light mode, responsive from 360 px up
+- keyboard operation, focus management and axe-core checks as part of the pipeline
+- one CI pipeline: lint, types, format, unit tests with coverage, production build, E2E,
+  accessibility and visual regression
+
+Every string in that flow says what it is: a portfolio demo. Nothing is booked, nothing is sent.
 
 ## Technologies
 
@@ -26,6 +39,7 @@
 - **Styling:** Tailwind CSS 4
 - **UI-Primitives:** Radix UI (`@radix-ui/react-dialog`, `@radix-ui/react-popover`; accessible service detail dialog and date-picker popover)
 - **i18n:** next-intl (German/English, locale-aware routing)
+- **Validation:** Zod (one schema, used client-side by the appointment form)
 - **Package Manager:** Bun
 - **Linting:** ESLint 9 (Flat Config)
 - **Formatting:** Prettier
@@ -88,11 +102,11 @@ src/
     [locale]/         # Localized routes (layout, home page, impressum, appointment request)
     robots.ts         # robots.txt (disallow all — portfolio demo, not indexed)
     not-found.tsx     # Fallback 404 for invalid locale segments
-  components/         # UI components; __tests__/ holds their Vitest specs
+  components/         # UI components (form, confirmation view, dialogs); __tests__/ holds specs
   i18n/               # next-intl routing, navigation & request config
   lib/
-    appointment/      # Appointment flow: Zod schema, in-memory store, server actions, mail
-    __tests__/        # Date helpers, appointment store and server actions
+    appointment/      # Appointment flow: Zod schema and the pure email-preview builder
+    __tests__/        # Date helpers, schema rules and email preview
     dates.ts          # Time-zone-safe calendar-date helpers
     services.ts       # Stable service IDs shared by dialog, form and validation
 messages/
@@ -111,90 +125,108 @@ The site is available in German (default, no URL prefix) and English (`/en`), po
 [next-intl](https://next-intl.dev). Locale is persisted via cookie and switchable through the
 language dropdown in the header. All page/UI copy lives in `messages/de.json` and `messages/en.json`.
 
-## Appointment requests
+## Appointment request demo
 
 The CTA in the service detail dialog stores the selected service and opens `/termin-anfrage`
 (`BookingProvider` carries the selection across the navigation, the form preselects it). The form
-collects name, phone number, email, requested service, notes and a desired date; submitting stores
-the request and redirects to `/termin-anfrage/bestaetigung?id=<uuid>`, which shows every value
-again and offers to send a copy of the request to the email address on file. Both pages are
-localized and reachable in German and English.
+collects a name, an optional phone number and email address, the requested service, a desired date
+and optional notes; completing it switches to `/termin-anfrage/bestaetigung`, which summarises every
+value and offers an **email preview** — the text a confirmation email would have carried. Both views
+are localized and reachable in German and English.
 
-**Validation.** The form is only a collector — every field is validated by one Zod schema on the
-server (`src/lib/appointment/schema.ts`), so the rules cannot be bypassed by editing the DOM or by
-submitting without JavaScript. That schema is the single place that decides what is allowed:
+**The request never leaves the browser. This is a deliberate architecture decision, not a stub.**
+There is
 
-- name, phone, email, service and date are required; notes are optional
+- no real appointment booking,
+- no email delivery, no email server, no SMTP or provider integration,
+- no backend storage of appointment requests,
+- no API route and no server action that receives the form values.
+
+The form is validated client-side and the values live in React state for as long as the tab lives.
+
+**State architecture.** `BookingProvider` (`src/components/BookingProvider.tsx`) hangs in the locale
+layout and holds exactly two values: `serviceId` (the preselection from the dialog) and `request`
+(the completed request that the confirmation view renders). React context plus React state — no
+state-management library for two values, no `localStorage`, no `sessionStorage`, no cookie, no
+request data in the URL and nothing on the server. Client-side navigation between the two routes
+keeps the state; a full reload drops it. That is intentional: the confirmation view then shows a
+translated notice that the request is gone and links back to the form, instead of pretending that
+something was restored.
+
+**Validation.** One Zod schema (`src/lib/appointment/schema.ts`) is the single source of rules, and
+the form is its only caller — nothing validates the same field twice:
+
+- name, service and date are required; email, phone number and notes are optional
+- an optional field that stays empty produces no error, but whatever is typed in still has to pass
 - name: 2–60 characters, letters (incl. umlauts and accented Latin), spaces, `., -` and apostrophes
 - phone: 6–15 digits with an optional leading `+` and the usual separators
-- email: single address, RFC-shaped, normalized to lowercase
+- email: a single address, RFC-shaped
 - service: one of the stable IDs in `src/lib/services.ts` — free text can never arrive as a service
 - date: real calendar date, today or later, at most 12 months ahead
 - notes: max 1000 characters, line breaks allowed, no markup, control characters or
   `javascript:`-style schemes
 - invisible characters (zero-width, bidi overrides) are stripped from single-line fields
 
-The date picker (react-day-picker in a Radix popover) already disables every day outside that
-window, and the earliest selectable day comes from the server so that "today" does not depend on
-the visitor's clock or time zone. Values that fail validation are echoed back with translated,
-per-field messages.
+The earliest selectable day is today's calendar day in the workshop's time zone
+(`todayIso()` in `src/lib/dates.ts`, `Europe/Berlin`), so "today" does not drift with the visitor's
+clock, and the date picker (react-day-picker in a Radix popover) disables every day outside that
+window. Values that fail validation stay in the form and get translated, per-field messages plus a
+summary with `role="alert"`.
 
-**How submissions are stored.** Requests are kept in a server-side in-memory store
-(`src/lib/appointment/store.ts`): 24 hours, at most 500 entries, cleared on every restart. This is
-deliberately not a database — the demo never books anything. It is also what makes the email
-proposal safe: the confirmation page only carries the request's random UUID, and the mail action
-re-reads the stored request instead of trusting anything from the client, which would otherwise
-turn the endpoint into an open mail relay. Each request can be mailed at most once, and it requires
-an explicit opt-in in the form.
-
-### Email delivery (optional)
-
-Without configuration the page says so openly ("no email delivery configured") and logs the
-message instead of pretending it was sent. To actually send mail, set environment variables —
-Resend wins if both are present:
-
-| Provider | Variables                                                                                                      |
-| -------- | -------------------------------------------------------------------------------------------------------------- |
-| Resend   | `RESEND_API_KEY`, `MAIL_FROM` (`Angaben <antwort@example.com>`), optional `MAIL_REPLY_TO`                      |
-| SMTP     | `SMTP_URL` **or** `SMTP_HOST` (+ `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`), optional `MAIL_FROM`, `MAIL_REPLY_TO` |
-
-Copy `.env.example` to `.env.local` and fill in what you need. Messages are sent as `text/plain`
-only — user input never becomes HTML — and always to the address from the stored request.
+**Email preview.** `buildDemoEmailPreview(appointment, { locale, translate })`
+(`src/lib/appointment/email-preview.ts`) is a pure function: sender, recipient, subject and a
+`text/plain` body, built from the entries and the active locale — no network call, no environment
+variable, no side effect. The dialog renders that body as text (never as HTML), scrolls when the
+notes are long and breaks long inputs instead of overflowing. It has a title, a close button, closes
+on Escape and returns the focus to the button that opened it. There is deliberately no "send"
+button, no fake loading state and no booking number anywhere in the flow.
 
 **Note:** filling the form requires JavaScript, since the date is supplied by the calendar
 component rather than by a plain text field.
 
+## Privacy by scope
+
+Because nothing is sent, nothing can leak: the appointment values never leave the browser context,
+they are not written to storage and they do not appear in server logs (there are none). The only
+third-party request on the site stays the opt-in Google Maps embed on the homepage, which loads
+after an explicit click.
+
 ## Testing
 
-Three layers: 118 unit tests and 29 browser scenarios — 22 functional and accessibility specs, 7
+Three layers: 138 unit tests and 40 browser scenarios — 32 functional and accessibility specs, 8
 screenshot comparisons. Everything below runs unattended in GitHub Actions, no manual clicking.
 
 - **Unit tests** (`src/lib/__tests__`, `src/components/__tests__`) cover presentational components,
   the Header's navigation/scroll logic, the date helpers (time zones, daylight-saving boundaries),
-  the language switcher, theme toggle, footer, the consent-gated map embed and the Zod schema of
-  the appointment request, including injection attempts and the calendar boundaries of the date
-  picker. The appointment server actions and the in-memory store are covered too: only the random
-  ID of the stored copy grants access, and every request can be mailed exactly once.
+  the language switcher, theme toggle, footer, the consent-gated map embed, the Zod schema of the
+  demo request (optional fields, injection attempts, calendar boundaries) and the email-preview
+  builder in both locales. The client-side state is covered too: `BookingProvider` keeps a request
+  across remounts and touches no storage, no cookie and no `fetch` — the same rule asserted for
+  the form.
 - **E2E tests** (`e2e/`) verify cross-page navigation (e.g. clicking a section link from the
   Impressum page correctly lands on the homepage section), language switching, the service detail
-  dialog (opens with the clicked service, closes via button/Escape) and the whole appointment
-  request flow (dialog → form → confirmation → email proposal, including validation messages and
-  the English locale) against a real production build.
+  dialog (opens with the clicked service, closes via button/Escape) and the whole demo request flow
+  (dialog → form → summary → email preview) including validation messages, the notice after a
+  reload, mobile viewports, dark mode, keyboard operation and the English locale — all against a
+  real production build. One spec listens on every request and fails if completing a request
+  triggers a POST or carries a typed value anywhere on the wire.
 - **Accessibility tests** (`e2e/a11y.spec.ts`) run axe-core over the homepage in both locales, the
-  open service dialog, the appointment form, the open calendar popover, the impressum page and the
-  404 page. Any *new* violation fails the pipeline.
+  open service dialog, the appointment form, the open calendar popover, the summary, the open email
+  preview, the notice shown without a request, the impressum page and the 404 page. Any *new*
+  violation fails the pipeline.
 - **Visual regression** (`e2e/visual.spec.ts`, tagged `@visual`) compares one screenshot per core
-  view (home in both locales and both themes, dialog, form, impressum, 404).
+  view (home in both locales and both themes, dialog, form, the no-request notice, impressum,
+  404).
 
 ### Coverage
 
 `bun run test:coverage` fails when coverage drops below the thresholds in `vitest.config.ts`
-(current floor: 75 % statements/lines/functions, 65 % branches). The floor is today's measurement,
+(current floor: 80 % statements/lines/functions, 78 % branches). The floor is today's measurement,
 not a wish — Server Component pages (`layout.tsx`, `page.tsx`, `impressum`, `termin-anfrage`,
 `bestaetigung`) are exercised by the E2E specs in a real browser, so they contribute 0 % to the
 jsdom number. Raise the thresholds when you add tests, never lower them to green.
 
-Measured on `main`: **77.8 % statements, 67.0 % branches, 77.7 % functions**. Where to read it
+Measured with the client-side demo flow: **83.8 % statements, 81.9 % branches, 82.2 % functions**. Where to read it
 without digging through logs: the *Unit-Tests & Abdeckung* check shows a summary table on the run
 page, `coverage/index.html` (artifact of every run) gives the line-by-line view, and the job log
 prints the per-file table. Reporters are `text`, `html` and `json-summary`; output lands in
@@ -276,8 +308,6 @@ way to mangle keys such as `runs-on` into `runs_on` while “fixing” line endi
   `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`.
 - **Vercel** builds the repository: production on merge to `main`, one preview deployment per pull
   request, `NEXT_PUBLIC_SITE_URL` set as a Config variable for Production/Preview/Development.
-- **Mail is deliberately unconfigured** — no `RESEND_API_KEY`, no `SMTP_*`: the app states openly
-  that delivery is off and logs the message instead of pretending to send (see “Email delivery”).
 - **No deploy step in this pipeline.** Vercel pulls from GitHub, so deployment stays a hosting
   decision rather than a code-quality gate.
 

@@ -58,6 +58,16 @@ test.describe('Visuelle Regression @visual', () => {
     await expect(page).toHaveScreenshot('terminformular.png', { fullPage: true });
   });
 
+  test('Hinweis ohne Demo-Anfrage', async ({ page }) => {
+    // Die Zusammenfassung selbst ist kein Referenzbild: ihr Text enthält das Termindatum und
+    // wäre damit jeden Monat ein anderes Bild. Diese Ansicht hier ist zustandslos und deshalb
+    // dauerhaft stabil – und sie ist die Antwort der Seite auf ein Neuladen.
+    await page.goto('/termin-anfrage/bestaetigung');
+    await warteAufStil(page);
+
+    await expect(page).toHaveScreenshot('demo-fehlt.png', { fullPage: true });
+  });
+
   test('Impressum', async ({ page }) => {
     await page.goto('/impressum');
     await warteAufStil(page);

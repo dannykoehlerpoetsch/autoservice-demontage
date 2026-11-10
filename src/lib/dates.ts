@@ -69,7 +69,16 @@ export function todayIso(timeZone: string = WORKSHOP_TIME_ZONE, now: Date = new 
   return `${pick('year')}-${pick('month')}-${pick('day')}`;
 }
 
-/** `2027-05-08` -> `Sonntag, 8. Mai 2027` (bzw. englische Entsprechung) – für UI und Mailtext. */
+/**
+ * Sprachkennung für `Intl`: die App liefert `de`/`en` (next-intl), `Intl` aber will die
+ * vollständige Kennung. Ein Ort dafür, damit Kalender, Zusammenfassung und E-Mail-Vorschau
+ * dasselbe Datum schreiben.
+ */
+export function intlLocaleFor(locale: string): string {
+  return locale.startsWith('de') ? 'de-DE' : 'en-US';
+}
+
+/** `2027-05-08` -> `Sonntag, 8. Mai 2027` (bzw. englische Entsprechung) – für UI und Text. */
 export function formatIsoDateLong(value: IsoDate, locale: string): string {
   const date = fromIsoDate(value);
   if (!date) {

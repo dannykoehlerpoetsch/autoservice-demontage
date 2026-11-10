@@ -12,6 +12,25 @@ import AxeBuilder from '@axe-core/playwright';
  */
 
 /**
+ * Führt eine Demo-Anfrage bis zur Zusammenfassung aus – die Bestätigungsseite gibt es nur mit
+ * Zustand, und der entsteht nun einmal durch den echten Weg.
+ */
+async function demoAnfrageStellen(page: Page) {
+  await page.fill('#field-name', 'Jennifer Krüger');
+  await page.fill('#field-email', 'j.krueger@beispiel.de');
+  await page.selectOption('#field-service', 'bremsen');
+
+  await page.evaluate(() => {
+    document.querySelector('button[data-min-date]')?.scrollIntoView({ block: 'center' });
+  });
+  await page.locator('button[data-min-date]').click();
+  await page.locator('td[data-day] button:not([disabled])').last().click();
+
+  await page.getByRole('button', { name: 'Demo-Anfrage abschließen' }).click();
+  await expect(page).toHaveURL(new RegExp('termin-anfrage/bestaetigung$'));
+}
+
+/**
  * Bewusste, dauerhafte Ausnahme – kein TODO, keine offene Baustelle.
  *
  * Die Markenfarbe #59a305 ist gesetzt und bleibt so. Weiße Schrift darauf erreicht 3.15:1,
@@ -157,6 +176,30 @@ test.describe('Barrierefreiheit', () => {
 
   test('Terminformular', async ({ page }) => {
     await page.goto('/termin-anfrage');
+
+    await keineAxeVerstosse(page);
+  });
+
+  test('Zusammenfassung der Demo-Anfrage', async ({ page }) => {
+    await page.goto('/termin-anfrage');
+    await demoAnfrageStellen(page);
+
+    await keineAxeVerstosse(page);
+  });
+
+  test('E-Mail-Vorschau im geöffneten Zustand', async ({ page }) => {
+    await page.goto('/termin-anfrage');
+    await demoAnfrageStellen(page);
+
+    await page.getByRole('button', { name: 'E-Mail-Vorschau ansehen' }).click();
+    await expect(page.getByRole('dialog', { name: /E-Mail/ })).toBeVisible();
+
+    // Der Dialog liegt in einem Portal – gemessen wird das ganze Dokument.
+    await keineAxeVerstosse(page);
+  });
+
+  test('Hinweis ohne Demo-Anfrage', async ({ page }) => {
+    await page.goto('/termin-anfrage/bestaetigung');
 
     await keineAxeVerstosse(page);
   });

@@ -27,7 +27,7 @@ export default function ServiceDetailDialog({
       return;
     }
 
-    selectService({ id: service.id, heading: service.heading });
+    selectService(service.id);
     onOpenChange(false);
     router.push('/termin-anfrage');
   };
@@ -52,7 +52,7 @@ export default function ServiceDetailDialog({
             onClick={requestAppointment}
           >
             <CalendarPlus size={18} />
-            {t('dialog.book', { service: service?.heading ?? '' })}
+            {t('dialog.cta', { service: service?.heading ?? '' })}
           </button>
 
           <Dialog.Close

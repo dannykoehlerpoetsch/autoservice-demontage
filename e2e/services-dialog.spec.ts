@@ -19,7 +19,7 @@ test.describe('Service detail dialog', () => {
     await expect(dialog.getByRole('heading', { level: 2, name: 'Bremsenservice' })).toBeVisible();
     await expect(dialog.getByText(/Materialstärke/)).toBeVisible();
     await expect(
-      dialog.getByRole('button', { name: 'Jetzt Termin für Bremsenservice buchen' })
+      dialog.getByRole('button', { name: 'Demo-Anfrage für Bremsenservice ausfüllen' })
     ).toBeVisible();
 
     // Kein Layoutshift: Scrollbar-Pfad bleibt reserviert, die Sektion liegt gleich.
@@ -46,7 +46,7 @@ test.describe('Service detail dialog', () => {
       return el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     });
     const ctaBox = await dialog
-      .getByRole('button', { name: 'Jetzt Termin für Bremsenservice buchen' })
+      .getByRole('button', { name: 'Demo-Anfrage für Bremsenservice ausfüllen' })
       .boundingBox();
     expect(Math.abs((ctaBox?.width ?? 0) - expectedCtaWidth)).toBeLessThanOrEqual(1);
     await expect(dialog.getByRole('button', { name: 'Schließen' })).toHaveCount(1);
@@ -81,7 +81,7 @@ test.describe('Service detail dialog', () => {
     await expect(dialog.getByRole('heading', { level: 2, name: 'Ölwechsel' })).toBeVisible();
     await expect(dialog.getByText(/Motoröl und Ölfilter/)).toBeVisible();
     await expect(
-      dialog.getByRole('button', { name: 'Jetzt Termin für Ölwechsel buchen' })
+      dialog.getByRole('button', { name: 'Demo-Anfrage für Ölwechsel ausfüllen' })
     ).toBeVisible();
   });
 
@@ -121,7 +121,7 @@ test.describe('Service detail dialog', () => {
     await expect(dialog.getByRole('heading', { level: 2, name: 'Brake service' })).toBeVisible();
     await expect(dialog.getByRole('button', { name: 'Close', exact: true })).toBeVisible();
     await expect(
-      dialog.getByRole('button', { name: 'Book an appointment for Brake service now' })
+      dialog.getByRole('button', { name: 'Fill in a demo request for Brake service' })
     ).toBeVisible();
   });
 });

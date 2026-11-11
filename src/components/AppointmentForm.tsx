@@ -130,7 +130,7 @@ export default function AppointmentForm() {
       <p className="mb-2 max-w-2xl">{t('intro')}</p>
 
       <div className="mb-2 flex w-full items-start gap-2 rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900/50 dark:text-gray-100">
-        <Info size={18} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
+        <Info size={18} className="mt-0.5 shrink-0 text-brand-line" aria-hidden="true" />
         <p>
           {t('demoNotice')} {t('testDataHint')}
         </p>
@@ -187,7 +187,7 @@ export default function AppointmentForm() {
                     ? `hint-${field.name}`
                     : undefined
               }
-              className="rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
+              className="rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
             />
             {field.hasHint && !errors[field.name] && (
               <p id={`hint-${field.name}`} className="text-xs text-gray-500 dark:text-gray-400">
@@ -218,7 +218,7 @@ export default function AppointmentForm() {
             }}
             aria-invalid={errors.service ? 'true' : undefined}
             aria-describedby={errors.service ? 'error-service' : undefined}
-            className="rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
+            className="rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
           >
             <option value="">{t('placeholders.service')}</option>
             {items.map((item) => (
@@ -271,7 +271,7 @@ export default function AppointmentForm() {
             defaultValue={request?.note ?? ''}
             aria-invalid={errors.note ? 'true' : undefined}
             aria-describedby={errors.note ? 'error-note' : 'hint-note'}
-            className="resize-y rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
+            className="resize-y rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-sm transition-colors hover:border-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line aria-[invalid=true]:border-red-500 dark:border-gray-600 dark:hover:border-gray-500"
           />
           <p id="hint-note" className="text-xs text-gray-500 dark:text-gray-400">
             {t('hints.note')}
@@ -286,11 +286,11 @@ export default function AppointmentForm() {
         <div className="flex flex-col gap-3 pt-1">
           <button
             type="submit"
-            className="cursor-pointer rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="cursor-pointer rounded-md bg-brand-strong px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line"
           >
             {t('submit')}
           </button>
-          <Link href="/#services" className="text-sm underline hover:text-brand self-start">
+          <Link href="/#services" className="text-sm underline hover:text-brand-strong self-start">
             {t('backToServices')}
           </Link>
         </div>

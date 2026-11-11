@@ -45,7 +45,7 @@ async function HomeContent() {
          */}
         <Link
           href="/termin-anfrage"
-          className="text-sm px-3 py-1 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors flex items-center gap-2 self-center"
+          className="text-sm px-3 py-1 rounded-md bg-brand-strong text-white hover:bg-brand-strong/90 transition-colors flex items-center gap-2 self-center"
         >
           <CalendarCheck size={20} aria-hidden="true" />
           {t('hero.demoCta')}

@@ -88,9 +88,9 @@ export default function AppointmentDatePicker({
             aria-invalid={invalid || undefined}
             aria-describedby={describedBy}
             aria-expanded={open}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-left text-sm transition-colors hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-gray-600"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-md border border-gray-300 bg-bg-primary px-3 py-2 text-left text-sm transition-colors hover:border-brand-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:border-gray-600"
           >
-            <CalendarDays size={18} aria-hidden="true" className="shrink-0 text-brand" />
+            <CalendarDays size={18} aria-hidden="true" className="shrink-0 text-brand-line" />
             <span className={selected ? '' : 'text-gray-500 dark:text-gray-400'}>{valueText}</span>
           </button>
         </Popover.Trigger>

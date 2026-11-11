@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { BETREIBER, type BetreiberFeld } from '../legal/operator';
 import de from '../../../messages/de.json';
 import en from '../../../messages/en.json';
 
@@ -136,15 +137,108 @@ describe('Übersetzungen – Marke ohne erfundene Geschäftsdaten', () => {
     }
   });
 
-  it('lässt das Impressum bei Platzhaltern, statt Daten zu erfinden', () => {
+  it('lässt Impressum und Datenschutzerklärung bei Platzhaltern, statt Daten zu erfinden', () => {
     for (const nachrichten of [de, en]) {
-      for (const abschnitt of [
-        nachrichten.Impressum.address,
-        nachrichten.Impressum.contact,
-        nachrichten.Impressum.vat,
-        nachrichten.Impressum.profession,
-      ]) {
-        expect(texte(abschnitt).join(' ')).toContain('[');
+      // Beide Seiten arbeiten mit derselben Platzhalter-Vorlage in eckigen Klammern.
+      expect(nachrichten.Impressum.platzhalter).toContain('[');
+      expect(nachrichten.Datenschutz.platzhalter).toContain('[');
+      expect(nachrichten.Impressum.platzhalter).toContain('{feld}');
+      expect(nachrichten.Datenschutz.platzhalter).toContain('{feld}');
+
+      // Alte Musterangaben sind weg – auch als Rest in einem andern Text.
+      const alle = [...texte(nachrichten.Impressum), ...texte(nachrichten.Datenschutz)].join(' ');
+      for (const muster of [/Max Mustermann/i, /Musterstra/i, /Musterstadt/i]) {
+        expect(alle, muster.toString()).not.toMatch(muster);
+      }
+    }
+  });
+
+  it('zitiert das Digitale-Dienste-Gesetz statt des abgelösten TMG', () => {
+    for (const nachrichten of [de, en]) {
+      const alle = [...texte(nachrichten.Impressum), ...texte(nachrichten.Datenschutz)].join(' ');
+      // Ein Paragrafenverweis auf das TMG wäre falsch: §§ 7 bis 10 TMG haben im DDG keinen
+      // Nachfolger für eine Seite ohne fremde Inhalte. Die Erklärung, dass das TMG abgelöst
+      // ist, darf den Namen nennen – nur nicht als Paragrafenzyat in der Nähe.
+      const alteZitate = /(§{1,2} ?\d+[^.,;\n]{0,25}TMG)|(TMG[^.,;\n]{0,12}§ ?\d+)/;
+      expect(alle, alle).not.toMatch(alteZitate);
+    }
+  });
+
+  it('erklärt die Datenschutzerklärung an der tatsächlichen Technik', () => {
+    for (const nachrichten of [de, en]) {
+      const alle = texte(nachrichten.Datenschutz).join(' ');
+
+      // Was die Seite wirklich einsetzt, muss benannt sein …
+      for (const begriff of ['Vercel', 'NEXT_LOCALE', 'theme', 'Art. 6', 'Art. 77']) {
+        expect(alle, begriff).toContain(begriff);
+      }
+
+      // … und was sie nicht einsetzt, darf nicht behauptet oder alte Last bleiben.
+      for (const muster of [/google.?maps/i, /Datenbank/i, /verschlüsselt/i, /Cookie-Banner/i]) {
+        expect(alle, muster.toString()).not.toMatch(muster);
+      }
+
+      // Keine Pauschalaussage, es fielen überhaupt keine personenbezogenen Daten an.
+      expect(alle).not.toMatch(/keinerlei personenbezogene Daten/i);
+      expect(alle).not.toMatch(/without any personal data/i);
+    }
+  });
+
+  it('hat für jede Betreiberangabe ein Feld in beiden Sprachen', () => {
+    const felder = Object.keys(BETREIBER) as BetreiberFeld[];
+
+    for (const nachrichten of [de, en]) {
+      // Das Impressum kennt jedes Feld der Konfiguration, auch die freiwilligen.
+      for (const feld of felder) {
+        expect(nachrichten.Impressum.felder[feld], feld).toBeTruthy();
+      }
+
+      // Für die Datenschutzerklärung genügen Name, Anschrift und E-Mail-Adresse.
+      for (const feld of ['name', 'strasse', 'ort', 'email'] as const) {
+        expect(nachrichten.Datenschutz.felder[feld], feld).toBeTruthy();
+      }
+
+      // Die Platzhaltertexte beider Seiten sind Vorlagen mit Feldname, keine festen Werte.
+      for (const namespace of ['Impressum', 'Datenschutz'] as const) {
+        expect(nachrichten[namespace].platzhalter, namespace).toContain('{feld}');
+      }
+    }
+
+    // Die Konfiguration traegt echte Angaben – geprueft wird deshalb die Form, nicht der Inhalt:
+    // kein Wert mit Randzeichen, und die E-Mail-Adresse ist eine Adresse.
+    for (const feld of Object.keys(BETREIBER) as BetreiberFeld[]) {
+      const wert = BETREIBER[feld];
+
+      expect(wert, feld).toBe(wert.trim());
+    }
+
+    const email = BETREIBER.email.trim();
+
+    if (email !== '') {
+      expect(email).toMatch(/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/);
+    }
+  });
+
+  it('zeigt Besuchern keine Dateipfade, Zähler oder Prüfpunkte', () => {
+    for (const nachrichten of [de, en]) {
+      const öffentlich = [...texte(nachrichten.Impressum), ...texte(nachrichten.Datenschutz)];
+
+      for (const text of öffentlich) {
+        // Offene Punkte und interne Pfade gehören nicht in die Texte der Seiten.
+        expect(text, text).not.toMatch(/src\/(lib|app|components)|operator\.ts|docs\/[A-Z_]+/);
+        expect(text, text).not.toMatch(/\.tsx?\b/);
+        expect(text, text).not.toMatch(/veröffentlichungsfertig|publish[- ]?ready/i);
+        expect(text, text).not.toMatch(/Noch zu prüfen|to be checked|\{anzahl\}/i);
+      }
+    }
+  });
+
+  it('verweist in keinen Text mehr auf die alte Projekt- oder Vercel-Adresse', () => {
+    const muster = [/bennis/i, /bennis-garage\.vercel\.app/i, /dannykoehlerpoetsch\.github\.io/i];
+
+    for (const text of [...texte(de), ...texte(en)]) {
+      for (const regex of muster) {
+        expect(text, text).not.toMatch(regex);
       }
     }
   });

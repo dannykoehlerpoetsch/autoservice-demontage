@@ -51,7 +51,7 @@ export default function AppointmentConfirmation() {
   return (
     <section className="m-auto flex w-full max-w-xl flex-col items-start px-4 py-8">
       <div className="flex items-center gap-3">
-        <CalendarCheck size={30} className="shrink-0 text-brand" aria-hidden="true" />
+        <CalendarCheck size={30} className="shrink-0 text-brand-line" aria-hidden="true" />
         <h1 className="text-3xl font-bold">{t('title')}</h1>
       </div>
       <p className="mt-3">{t('intro')}</p>
@@ -72,7 +72,7 @@ export default function AppointmentConfirmation() {
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
-          className="flex cursor-pointer items-center gap-2 self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="flex cursor-pointer items-center gap-2 self-start rounded-md bg-brand-strong px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line"
         >
           <Mail size={18} aria-hidden="true" />
           {t('preview.button')}
@@ -83,7 +83,7 @@ export default function AppointmentConfirmation() {
         <button
           type="button"
           onClick={() => router.push('/termin-anfrage')}
-          className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-gray-600"
+          className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:border-brand-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:border-gray-600"
         >
           <Pencil size={16} aria-hidden="true" />
           {t('edit')}
@@ -91,14 +91,17 @@ export default function AppointmentConfirmation() {
         <button
           type="button"
           onClick={neueAnfrage}
-          className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-gray-600"
+          className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:border-brand-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:border-gray-600"
         >
           <Plus size={16} aria-hidden="true" />
           {t('new')}
         </button>
       </div>
 
-      <Link href="/" className="mt-8 flex items-center gap-2 text-sm underline hover:text-brand">
+      <Link
+        href="/"
+        className="mt-8 flex items-center gap-2 text-sm underline hover:text-brand-strong"
+      >
         <ArrowLeft size={16} aria-hidden="true" />
         {t('backHome')}
       </Link>
@@ -126,7 +129,7 @@ function KeineAnfrage() {
       <p className="max-w-md">{t('missing.text')}</p>
       <Link
         href="/termin-anfrage"
-        className="rounded-md bg-brand px-4 py-2 text-sm text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="rounded-md bg-brand-strong px-4 py-2 text-sm text-white transition-colors hover:bg-brand-strong/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line"
       >
         {t('missing.again')}
       </Link>

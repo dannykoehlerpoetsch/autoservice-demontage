@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { toLocale } from '@/i18n/locale';
 import { sans } from '@/lib/fonts';
-import { SITE_URL } from '@/lib/site';
+import { seitenMetadaten } from '@/lib/metadata';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DemoBanner from '@/components/DemoBanner';
@@ -26,38 +26,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Metadata' });
-  const ogLocale = locale === 'de' ? 'de_DE' : 'en_US';
 
-  return {
-    metadataBase: new URL(SITE_URL),
-    title: t('title'),
-    description: t('description'),
-    openGraph: {
-      title: t('title'),
-      description: t('description'),
-      url: locale === routing.defaultLocale ? '/' : `/${locale}`,
-      siteName: t('title'),
-      images: [{ url: '/Heroimage.png' }],
-      locale: ogLocale,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('title'),
-      description: t('description'),
-      images: ['/Heroimage.png'],
-    },
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-      },
-    },
-  };
+  // Das Layout ist die Startseite derselben Locale – Canonical und `og:url` zeigen deshalb
+  // auf `/` bzw. `/en`. Jede Route mit eigenem Titel trägt ihre eigene Adresse nach.
+  return seitenMetadaten({
+    locale,
+    href: '/',
+    titel: t('title'),
+    beschreibung: t('description'),
+    siteName: t('title'),
+  });
 }
 
 type LocaleLayoutProps = {

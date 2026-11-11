@@ -82,7 +82,7 @@ export default function DemoEmailPreviewDialog({
           <div
             tabIndex={0}
             aria-label={t('DemoEmail.bodyLabel')}
-            className="max-h-[45vh] overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand dark:border-gray-700 dark:bg-gray-900"
+            className="max-h-[45vh] overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-line dark:border-gray-700 dark:bg-gray-900"
           >
             <pre className="m-0 break-words font-sans text-sm leading-relaxed whitespace-pre-wrap">
               {preview.body}
@@ -91,7 +91,7 @@ export default function DemoEmailPreviewDialog({
 
           <Dialog.Close
             aria-label={tPreview('close')}
-            className="absolute right-4 top-4 cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            className="absolute right-4 top-4 cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
           >
             <X size={20} aria-hidden="true" />
           </Dialog.Close>

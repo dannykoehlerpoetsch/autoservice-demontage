@@ -10,7 +10,7 @@ export default async function NotFound() {
       <p>{t('description')}</p>
       <Link
         href="/"
-        className="text-sm px-4 py-2 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors"
+        className="text-sm px-4 py-2 rounded-md bg-brand-strong text-white hover:bg-brand-strong/90 transition-colors"
       >
         {t('backHome')}
       </Link>

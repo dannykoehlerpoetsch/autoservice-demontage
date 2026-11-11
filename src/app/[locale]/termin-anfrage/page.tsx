@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import AppointmentForm from '@/components/AppointmentForm';
 import { toLocale } from '@/i18n/locale';
+import { seitenMetadaten } from '@/lib/metadata';
 
 /**
  * Die Seite darf nicht auf den Bauzeitpunkt festgeschrieben werden: der Kalender im Formular
@@ -18,7 +19,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Appointment' });
 
-  return { title: t('title') };
+  return seitenMetadaten({ locale, href: '/termin-anfrage', titel: t('title') });
 }
 
 export default function TerminAnfragePage() {

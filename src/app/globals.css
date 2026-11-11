@@ -4,10 +4,26 @@
 
 @theme {
   --color-bg-primary: #ffffff;
-  --color-bg-header: #59a305;
-  --color-bg-footer: #59a305;
   --color-text-primary: #1f2937;
+
+  /*
+   * Markenfarben als drei Token – eine Regel pro Verwendungsfall, keine verstreuten Werte:
+   *
+   * --color-brand      die Markenfarbe selbst (#59a305). Nur dort, wo sie keine Schrift
+   *                    trägt: Icons, Kalenderakzent, Dekoration. Weiße Schrift auf diesem
+   *                    Ton misst 3,15:1 und erfüllt damit WCAG 1.4.3 für normale Fließtext-
+   *                    größe nicht – deshalb ist er als Flächenfarbe für Buttons, Header und
+   *                    Footer aufgegeben (siehe --color-brand-strong).
+   * --color-brand-strong  derselbe Grünton dunkel genug für weiße Schrift: 6,33:1 im Hell-
+   *                    modus, 6,33:1 im Dunkelmodus. Alle Flächen mit weißer Schrift
+   *                    (Header, Footer, Buttons, Schritt-Marken) laufen über dieses Token.
+   * --color-brand-line    Fokusindicator und Rahmen, die gegen die Seitenfläche bestehen
+   *                    müssen (WCAG 1.4.11, 3:1): 4,36:1 auf Weiß, 8,41:1 auf dem dunklen
+   *                    Seitenhintergrund.
+   */
   --color-brand: #59a305;
+  --color-brand-strong: #3f6b0b;
+  --color-brand-line: #4a8805;
 
   /* Ein-/Ausblenden der Radix-Dialog-Layer (Overlay + Content). Radix hält
      geschlossene Elemente kurz im DOM (data-state="closed"), dadurch laufen
@@ -89,10 +105,14 @@
 
 .dark {
   --color-bg-primary: #0f1511;
-  --color-bg-header: #2c4a08;
-  --color-bg-footer: #2c4a08;
   --color-text-primary: #e5e7eb;
+
+  /* Im Dunkelmodus ist die Markenfarbe bereits so dunkel, dass weiße Schrift darauf
+     besteht (6,33:1) – Markenfläche und Schriftfläche fallen dort zusammen. Der
+     Fokuston wird heller, weil er auf dunklem Grund Kontrast braucht. */
   --color-brand: #3f6b0b;
+  --color-brand-strong: #3f6b0b;
+  --color-brand-line: #7fc11b;
 }
 
 /* Der Terminkalender (react-day-picker) bringt eigene Klassen mit. Seine Farben laufen
@@ -100,7 +120,11 @@
    werden – deshalb braucht die Kalendarioberfläche keine eigenen dunklen Klassen. */
 .rdp-root {
   --rdp-accent-color: var(--color-brand);
-  --rdp-today-color: var(--color-brand);
+  /* Der Kalender übernimmt die Markenfarbe für den Heute-Tag als *Schriftfarbe* – dort
+     gilt 4,5:1, nicht 3:1. Das dunklere Token hält auch auf der Hover-Fläche.
+     Erreichbare 5,65:1 bis 6,33:1. */
+  --rdp-today-color: var(--color-brand-strong);
+  --rdp-selected-border: 2px solid var(--color-brand-strong);
   --rdp-accent-background-color: #edf5e2;
   --rdp-day-height: 38px;
   --rdp-day-width: 38px;
@@ -113,6 +137,10 @@
 
 .dark .rdp-root {
   --rdp-accent-background-color: #22330c;
+  /* Auf dem dunklen Kalendergrund wäre das dunkle Grün der Markenfläche nicht lesbar
+     (2,92:1) – Heute-Tag und Auswahlrand laufen im Dunkelmodus über den hellen Linien-ton. */
+  --rdp-today-color: var(--color-brand-line);
+  --rdp-selected-border: 2px solid var(--color-brand-line);
 }
 
 .rdp-day_button:not(:disabled):hover {
@@ -151,13 +179,14 @@ body {
     color 0.2s ease;
 }
 
+/* Header- und Footerfläche: immer --color-brand-strong, weil dort weiße Schrift steht. */
 .header-bg {
-  background-color: var(--color-bg-header);
+  background-color: var(--color-brand-strong);
   transition: background-color 0.2s ease;
 }
 
 .footer-bg {
-  background-color: var(--color-bg-footer);
+  background-color: var(--color-brand-strong);
   transition: background-color 0.2s ease;
 }
 

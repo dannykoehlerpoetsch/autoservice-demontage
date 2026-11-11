@@ -35,6 +35,8 @@
   "Footer": {
     "rights": "Alle Rechte vorbehalten.",
     "impressum": "Impressum",
+    "datenschutz": "Datenschutzerklärung",
+    "legalNavLabel": "Rechtliche Seiten",
     "demoNote": "Dies ist ein Demo-Projekt für mein Entwickler-Portfolio."
   },
   "Home": {
@@ -241,43 +243,61 @@
   },
   "Impressum": {
     "title": "Impressum",
-    "disclaimer": "Hinweis: Dies ist ein Demo-/Portfolio-Projekt. Die dargestellte Werkstatt „Autoservice Demontage“ ist frei erfunden und wird nicht betrieben. Alle Inhalte dienen ausschließlich der Demonstration von Webentwicklungs-Fähigkeiten.",
-    "placeholderNote": "Die folgenden Abschnitte sind Platzhalter und enthalten bewusst keine echten Angaben. Sie sind vor einer Veröffentlichung durch die tatsächlichen Betreiberangaben zu ersetzen; ob und in welcher Form ein Impressum und eine Datenschutzerklärung erforderlich sind, ist vorab zu klären.",
-    "address": {
-      "heading": "Angaben gemäß § 5 TMG",
-      "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]
+    "fictionalNotice": "Diese Website zeigt ein Portfolio-Projekt. Die dargestellte Kfz-Werkstatt „Autoservice Demontage“ ist frei erfunden; es werden keine Leistungen angeboten und keine Termine vereinbart.",
+    "platzhalter": "[noch eintragen: {feld}]",
+    "felder": {
+      "name": "Name",
+      "strasse": "Straße und Hausnummer",
+      "ort": "Postleitzahl und Ort",
+      "email": "E-Mail-Adresse",
+      "telefon": "Telefon",
+      "ustIdNr": "Umsatzsteuer-Identifikationsnummer"
     },
-    "contact": {
-      "heading": "Kontakt",
-      "lines": ["Telefon: [Telefonnummer]", "E-Mail: [E-Mail-Adresse]"]
+    "anbieter": {
+      "heading": "Diensteanbieter"
     },
-    "vat": {
-      "heading": "Umsatzsteuer-ID",
-      "lines": [
-        "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
-        "[USt-IdNr.]"
-      ]
+    "kontakt": {
+      "heading": "Kontakt"
+    }
+  },
+  "Datenschutz": {
+    "title": "Datenschutzerklärung",
+    "platzhalter": "[noch eintragen: {feld}]",
+    "felder": {
+      "name": "Name",
+      "strasse": "Straße und Hausnummer",
+      "ort": "Postleitzahl und Ort",
+      "email": "E-Mail-Adresse"
     },
-    "profession": {
-      "heading": "Berufsbezeichnung und berufsrechtliche Regelungen",
-      "lines": [
-        "Berufsbezeichnung: [Berufsbezeichnung]",
-        "Zuständige Kammer: [Kammer]",
-        "Verliehen in: [Staat]",
-        "Es gelten folgende berufsrechtliche Regelungen: [Regelungen]",
-        "Regelungen einsehbar unter: [URL]"
-      ]
+    "verantwortlich": {
+      "heading": "Verantwortlich für die Datenverarbeitung",
+      "text": "Verantwortlich im Sinne der DSGVO ist die Person, die diese Website betreibt und im Impressum genannt ist. Anfragen zu den eigenen Daten beantwortet die dort genannte E-Mail-Adresse."
     },
-    "dispute": {
-      "heading": "Verbraucherstreitbeilegung / Universalschlichtungsstelle",
-      "lines": [
-        "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
-      ]
+    "hosting": {
+      "heading": "Hosting und Zugriffsdaten",
+      "text": "Diese Website wird von Vercel gehostet. Beim Aufruf einer Seite verarbeitet der Hosting-Anbieter technische Zugriffsdaten: IP-Adresse, Datum und Uhrzeit des Aufrufs, aufgerufene Adresse, übertragene Datenmenge und Art des Browsers. Ohne diese Daten kann die Seite nicht ausgeliefert werden. Rechtsgrundlage ist Art. 6 Abs. 1 Satz 1 Buchst. f DSGVO; die Einträge werden nach der im Hosting-Projekt eingestellten Frist gelöscht.",
+      "anbieter": "Hosting-Anbieter ist die Vercel Inc. mit Sitz in den Vereinigten Staaten. Einzelheiten zu Verarbeitung, Speicherfristen und Drittstaaten stehen in der Datenschutzerklärung von Vercel.",
+      "schriften": "Die Schriftarten dieser Website werden zur Buildzeit geladen und von derselben Adresse ausgeliefert wie die Website selbst. Beim Lesen einer Seite entsteht keine Verbindung zu einem Schrift-Anbieter."
     },
-    "liability": {
-      "heading": "Haftung für Inhalte",
-      "lines": [
-        "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+    "darstellung": {
+      "heading": "Sprache und Farbschema im Browser",
+      "sprache": "Wer die Sprache über die Auswahl im Kopf- oder Fußbereich wechselt, dessen Wahl wird in einem Cookie mit dem Namen NEXT_LOCALE gespeichert. Es enthält ausschließlich den Sprachcode, also de oder en, gilt für die gesamte Website, hat keine Ablaufzeit und wird mit SameSite=Lax übertragen. In den Browsereinstellungen lässt es sich jederzeit löschen.",
+      "farbe": "Die Entscheidung für das helle oder das dunkle Farbschema wird im lokalen Speicher des Browsers unter dem Schlüssel theme abgelegt und verlässt das Gerät nicht. Ohne eigene Auswahl folgt die Website der Systemeinstellung."
+    },
+    "anfrage": {
+      "heading": "Das Anfrageformular",
+      "text": "Das Anfrageformular gehört zur Demonstration: Die Eingaben bleiben im Browser, werden nicht an einen Server übertragen, nicht gespeichert und nicht versendet. Nach dem Neuladen der Seite sind sie weg. Eine Verarbeitung durch die verantwortliche Person findet dabei nicht statt."
+    },
+    "rechte": {
+      "heading": "Rechte",
+      "text": "Wer von einer Verarbeitung personenbezogener Daten betroffen ist, kann gegenüber der verantwortlichen Person diese Rechte geltend machen:",
+      "items": [
+        "Auskunft über die gespeicherten Daten (Art. 15 DSGVO)",
+        "Berichtigung unrichtiger Daten und Löschung (Art. 16 und 17 DSGVO)",
+        "Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+        "Datenübertragbarkeit (Art. 20 DSGVO)",
+        "Widerspruch gegen eine auf Interessen gestützte Verarbeitung (Art. 21 DSGVO)",
+        "Beschwerde bei einer Datenschutz-Aufsichtsbehörde (Art. 77 DSGVO)"
       ]
     }
   }

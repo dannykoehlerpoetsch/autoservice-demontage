@@ -11,9 +11,9 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       provider: 'v8',
-      // text für den CI-Log, html für den Artefakt-Browser, json-summary als Datenbasis
-      // für die Lauf-Zusammenfassung auf der PR-Seite. Kein lcov: der Reporter schreibt
-      // zusätzlich eine zweite Kopie als coverage/lcov-report/ und niemand liest die Datei.
+      // text for the CI log, html for the artefact browser, json-summary as the data basis for
+      // the run summary on the PR page. No lcov: that reporter writes a second copy as
+      // coverage/lcov-report/ and nobody reads the file.
       reporter: ['text', 'html', 'json-summary'],
       reportsDirectory: './coverage',
       clean: true,
@@ -22,23 +22,23 @@ export default defineConfig({
         'src/**/*.test.{ts,tsx}',
         'src/**/__tests__/**',
         'src/test-utils.ts',
-        // Reine Konfigurations-/Typdateien ohne eigene Logik.
+        // Pure configuration/type files without logic.
         'src/lib/fonts.ts',
         'src/lib/debug-delay.ts',
         'src/i18n/routing.ts',
         'src/proxy.ts',
         'src/**/*.d.ts',
       ],
-      // Boden von heute, nicht Wunschwert: diese Zahlen verhindern, dass die Abdeckung
-      // wieder wegrutscht. Server Pages (layout, page, termin-anfrage, bestaetigung) steuern
-      // hier weiterhin 0 % bei – sie werden in den E2E-Specs im echten Browser geprüft, nicht
-      // in jsdom. Impressum und Datenschutzerklärung sind inzwischen auch in jsdom erfasst
-      // (`src/components/__tests__/Rechtsseiten.test.tsx`) mit ihren Bausteinen, die
-      // Metadatenfabrik (`src/lib/__tests__/metadata.test.ts`), die Betreiberkonfiguration, die
-      // robots.txt, die Basis-URL (`src/lib/__tests__/site.test.ts`) und der Ladezustand.
-      // Angehoben auf den gemessenen Stand (87,82 % Statements · 84,82 % Branches ·
-      // 89,51 % Funktionen · 87,79 % Lines); beim nächsten Anheben zuerst an diese Zahlen denken
-      // – und nie niedriger setzen, um grün zu werden.
+      // The floor of today, not a wish value: these numbers stop the coverage from sliding back
+      // down. Server pages (layout, page, termin-anfrage, bestaetigung) still contribute 0 % here –
+      // they are checked in the E2E specs in a real browser, not in jsdom. The legal notice and the
+      // privacy policy are now covered in jsdom as well
+      // (`src/components/__tests__/Rechtsseiten.test.tsx`) together with their building blocks, the
+      // metadata factory (`src/lib/__tests__/metadata.test.ts`), the operator configuration, the
+      // robots.txt, the base URL (`src/lib/__tests__/site.test.ts`) and the loading state.
+      // Measured on the current tree: 88.04 % statements · 84.95 % branches ·
+      // 89.86 % functions · 88.02 % lines. Raise the thresholds to those numbers next time –
+      // and never lower them just to go green.
       thresholds: {
         lines: 87,
         functions: 89,

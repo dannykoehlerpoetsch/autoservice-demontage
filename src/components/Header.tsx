@@ -77,11 +77,10 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link href="/#home" aria-label={t('homeAriaLabel')} onClick={handleNavClick('#home')}>
             {/*
-             * width/height sind die echten Bildmaße der Datei (2172×724 = exakt 3:1), damit
-             * der Browser das Seitenverhältnis vor dem Laden reservieren kann – verzerrt wird
-             * dadurch nichts, egal welche Klasse die Größe setzt. `sizes` begrenzt die
-             * ausgelieferte Variante auf die tatsächliche Breite (w-40 = 10rem, md:w-56 =
-             * 14rem, bis zu 18 px Grundschrift = 180 px bzw. 252 px).
+             * width/height are the real pixel dimensions of the file (2172×724 = exactly 3:1) so
+             * the browser can reserve the aspect ratio before loading – nothing gets distorted
+             * that way, whichever class sets the size. `sizes` limits the delivered variant to the
+             * actual width (w-40 = 10rem, md:w-56 = 14rem, up to an 18px base font = 180px or 252px).
              */}
             <Image
               src="/Headerlogo.png"
@@ -97,10 +96,10 @@ export default function Header() {
             type="button"
             ref={toggleRef}
             /*
-             * Das Minus am Rand rückt das Symbol bündig nach rechts, genau wie das Logo links
-             * bündig steht. Die Polsterung bleibt als Trefferfläche erhalten – ohne das
-             * `overflow-x-clip` am `header` würde dasselbe Minus die Seite auf schmalen
-             * Viewports um diese Breite über den Viewport hinaus schieben.
+             * The negative margin pulls the icon flush to the right, exactly as the logo stands
+             * flush on the left. The padding remains as a hit target – without the
+             * `overflow-x-clip` on the `header` that same negative margin would push the page past
+             * the viewport by this width on narrow viewports.
              */
             className="md:hidden p-2 -mr-2 hover:bg-black/20 dark:hover:bg-white/10 rounded-lg cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}

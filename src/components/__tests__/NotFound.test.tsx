@@ -5,9 +5,9 @@ import type { ReactNode } from 'react';
 import { makeTranslator } from '@/test-utils';
 
 /**
- * 404-Seiten laufen als Server Components und brauchen dafür den Request-Kontext von
- * next-intl. Der Mock gibt die echten Texte aus `messages/de.json` zurück – gemessen wird
- * also der Text, den Nutzer sehen, nicht eine zweite Übersetzung.
+ * 404 pages run as server components and need next-intl's request context for that. The mock returns
+ * the real texts from `messages/de.json` – what is measured is therefore the text users see, not a
+ * second translation.
  */
 
 vi.mock('next-intl/server', () => ({
@@ -34,10 +34,10 @@ import GlobalNotFound from '../../app/global-not-found';
 import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 import messages from '../../../messages/de.json';
 
-describe('not-found.tsx (Locale-404)', () => {
-  it('nennt die Seite nicht gefunden und führt nach Hause', async () => {
-    const ansicht = await NotFound();
-    render(<>{ansicht}</>);
+describe('not-found.tsx (locale 404)', () => {
+  it('says the page was not found and leads home', async () => {
+    const view = await NotFound();
+    render(<>{view}</>);
 
     expect(
       screen.getByRole('heading', { level: 1, name: messages.NotFound.title })
@@ -49,8 +49,8 @@ describe('not-found.tsx (Locale-404)', () => {
   });
 });
 
-describe('global-not-found.tsx (404 ohne Locale)', () => {
-  it('antwortet auch ohne Locale im Pfad', () => {
+describe('global-not-found.tsx (404 without a locale)', () => {
+  it('responds even without a locale in the path', () => {
     render(<GlobalNotFound />);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Page not found' })).toBeInTheDocument();
@@ -60,9 +60,9 @@ describe('global-not-found.tsx (404 ohne Locale)', () => {
     expect(screen.getByRole('link', { name: 'Back to homepage' })).toHaveAttribute('href', '/');
   });
 
-  it('startet das Theme-Skript mit, damit die 404 nicht hell aufdunkelt', () => {
-    // Static markup: nach dem ersten Mount wirft ThemeInit das <script> selbst aus dem Baum
-    // (siehe ThemeInit.tsx) – hier zählt der Auslieferungszustand.
+  it('runs the theme script so the 404 does not flash light', () => {
+    // Static markup: after the first mount ThemeInit throws the <script> out of the tree itself
+    // (see ThemeInit.tsx) – what counts here is the delivered state.
     const html = renderToStaticMarkup(<GlobalNotFound />);
 
     expect(html).toContain('id="theme-init"');

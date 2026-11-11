@@ -1,18 +1,18 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 /**
- * Die Basis-URL entsteht beim Laden des Moduls, also wird jede Prüfung mit eigenem
- * Umgebungsstand neu geladen. Der Anlass ist ein echter Fehlbuild: die Variable war ohne Schema
- * angegeben, `new URL()` warf `ERR_INVALID_URL` und der Produktionsbuild war rot.
+ * The base URL is created when the module loads, so every check is reloaded with its own
+ * environment state. The reason is a real failed build: the variable was given without a scheme,
+ * `new URL()` threw `ERR_INVALID_URL` and the production build was red.
  */
 
-const URSPRUNG = process.env.NEXT_PUBLIC_SITE_URL;
+const ORIGINAL_ENV_VALUE = process.env.NEXT_PUBLIC_SITE_URL;
 
-async function basis(wert?: string) {
-  if (wert === undefined) {
+async function baseUrl(value?: string) {
+  if (value === undefined) {
     delete process.env.NEXT_PUBLIC_SITE_URL;
   } else {
-    process.env.NEXT_PUBLIC_SITE_URL = wert;
+    process.env.NEXT_PUBLIC_SITE_URL = value;
   }
 
   vi.resetModules();
@@ -23,59 +23,59 @@ async function basis(wert?: string) {
 }
 
 afterEach(() => {
-  if (URSPRUNG === undefined) {
+  if (ORIGINAL_ENV_VALUE === undefined) {
     delete process.env.NEXT_PUBLIC_SITE_URL;
   } else {
-    process.env.NEXT_PUBLIC_SITE_URL = URSPRUNG;
+    process.env.NEXT_PUBLIC_SITE_URL = ORIGINAL_ENV_VALUE;
   }
 });
 
 describe('SITE_URL', () => {
-  it('nutzt die Produktionsadresse, wenn die Variable fehlt', async () => {
-    expect(await basis()).toBe('https://autoservice-demontage.vercel.app');
+  it('uses the production URL when the variable is missing', async () => {
+    expect(await baseUrl()).toBe('https://autoservice-demontage.vercel.app');
   });
 
-  it('nutzt die Produktionsadresse auch fuer leere und reine Leerraum-Angaben', async () => {
-    expect(await basis('')).toBe('https://autoservice-demontage.vercel.app');
-    expect(await basis('   ')).toBe('https://autoservice-demontage.vercel.app');
+  it('uses the production URL even for empty and whitespace-only values', async () => {
+    expect(await baseUrl('')).toBe('https://autoservice-demontage.vercel.app');
+    expect(await baseUrl('   ')).toBe('https://autoservice-demontage.vercel.app');
   });
 
-  it('ergaenzt das fehlende Schema – der Fall des fehlgeschlagenen Builds', async () => {
-    const wert = await basis('autoservice-demontage.vercel.app');
+  it('adds the missing schema – the case of the failed build', async () => {
+    const value = await baseUrl('autoservice-demontage.vercel.app');
 
-    expect(wert).toBe('https://autoservice-demontage.vercel.app');
-    expect(() => new URL(wert)).not.toThrow();
+    expect(value).toBe('https://autoservice-demontage.vercel.app');
+    expect(() => new URL(value)).not.toThrow();
   });
 
-  it('laesst ein gesetztes Schema unveraendert', async () => {
-    expect(await basis('https://preview-abc.vercel.app')).toBe('https://preview-abc.vercel.app');
-    expect(await basis('http://localhost:3000')).toBe('http://localhost:3000');
+  it('leaves a set schema unchanged', async () => {
+    expect(await baseUrl('https://preview-abc.vercel.app')).toBe('https://preview-abc.vercel.app');
+    expect(await baseUrl('http://localhost:3000')).toBe('http://localhost:3000');
   });
 
-  it('raeumt Schraegstriche und Pfade am Ende auf', async () => {
-    expect(await basis('https://autoservice-demontage.vercel.app/')).toBe(
+  it('cleans up trailing slashes and paths', async () => {
+    expect(await baseUrl('https://autoservice-demontage.vercel.app/')).toBe(
       'https://autoservice-demontage.vercel.app'
     );
-    // Ein Pfad in der Variable wuerde sonst Canonical-Links wie /pfad/impressum bauen.
-    expect(await basis('https://autoservice-demontage.vercel.app/impressum/')).toBe(
+    // A path inside the variable would otherwise build canonical links like /path/impressum.
+    expect(await baseUrl('https://autoservice-demontage.vercel.app/impressum/')).toBe(
       'https://autoservice-demontage.vercel.app'
     );
   });
 
-  it('faellt auf die Produktionsadresse zurueck, wenn die Angabe unbrauchbar ist', async () => {
-    const wert = await basis('https://');
+  it('falls back to the production URL when the value is unusable', async () => {
+    const value = await baseUrl('https://');
 
-    expect(wert).toBe('https://autoservice-demontage.vercel.app');
-    expect(() => new URL(wert)).not.toThrow();
+    expect(value).toBe('https://autoservice-demontage.vercel.app');
+    expect(() => new URL(value)).not.toThrow();
   });
 
-  it('haelt die festen Adressen des Moduls gueltig', async () => {
+  it("keeps the module's fixed addresses valid", async () => {
     vi.resetModules();
 
-    const { PRODUKTIONS_URL, PORTFOLIO_URL } = await import('../site');
+    const { PRODUCTION_URL, PORTFOLIO_URL } = await import('../site');
 
-    expect(() => new URL(PRODUKTIONS_URL)).not.toThrow();
-    expect(new URL(PRODUKTIONS_URL).origin).toBe(PRODUKTIONS_URL);
+    expect(() => new URL(PRODUCTION_URL)).not.toThrow();
+    expect(new URL(PRODUCTION_URL).origin).toBe(PRODUCTION_URL);
     expect(new URL(PORTFOLIO_URL).hostname).toBe('dakopo.vercel.app');
   });
 });

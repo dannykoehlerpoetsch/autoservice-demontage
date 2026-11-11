@@ -59,7 +59,7 @@ const eslintConfig = [
     },
   },
   {
-    // In den Tests wird der Link aus next-intl durch einen Anker ersetzt – die Regel gilt dort nicht.
+    // In the tests the link from next-intl is replaced by an anchor – the rule does not apply there.
     files: ['src/**/*.test.{ts,tsx}'],
     rules: {
       '@next/next/no-html-link-for-pages': 'off',

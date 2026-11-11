@@ -3,17 +3,16 @@ import { ArrowRight, Info } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 
 /**
- * „So funktioniert die Demo“ – der Ablauf der Portfolio-Demo in vier Schritten.
+ * "How the demo works" – the flow of the portfolio demo in four steps.
  *
- * Die Sektion erklärt, was die Seite tut, statt einen Standort zu beschreiben: Service
- * entdecken, Anfrage ausfüllen, Zusammenfassung ansehen, E-Mail-Vorschau öffnen. Sie greift
- * denselben Weg auf, den `ServiceDetailDialog`, `AppointmentForm` und
- * `AppointmentConfirmation` technisch gehen – ohne ihn zu wiederholen, wenn er nicht gebraucht
- * wird.
+ * The section explains what the page does instead of describing a location: discover a service,
+ * fill the request, look at the summary, open the email preview. It picks up the same path that
+ * `ServiceDetailDialog`, `AppointmentForm` and `AppointmentConfirmation` take technically –
+ * without repeating it when it is not needed.
  *
- * Kein Client-Component: hier steht nur übersetzter Text, alles läuft im Server-Rendering.
- * Nummer und Liste sind doppelt getragen – `<ol>` trägt die Reihenfolge (auch für
- * Screenreader), die Zahl ist Sehhilfe und deshalb `aria-hidden`.
+ * Not a client component: only translated text stands here, everything runs in server rendering.
+ * Number and list are double-carried – `<ol>` carries the order (also for screen readers), the
+ * number is a visual aid and therefore `aria-hidden`.
  */
 
 type Step = { title: string; text: string };

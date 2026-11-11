@@ -4,42 +4,42 @@ import PageSkeleton from '../PageSkeleton';
 import Loading from '../../app/[locale]/loading';
 
 /**
- * Der Ladezustand einer Locale-Seite. Er zeigt dieselben Anker wie die fertige Startseite, damit
- * Sprungmarken während des Ladens nicht ins Leere laufen – und er darf nicht mit Inhalt
- * verwechselt werden, der schon bedienbar wäre.
+ * The loading state of a locale page. It shows the same anchors as the finished homepage so that jump
+ * targets do not run into the void while loading – and it must not be mistaken for content that was
+ * already operable.
  */
 
 describe('PageSkeleton', () => {
-  it('meldet dem Browser, dass der Inhalt noch kommt', () => {
+  it('tells the browser that content is still coming', () => {
     const { container } = render(<PageSkeleton />);
 
-    const wurzel = container.firstElementChild;
+    const root = container.firstElementChild;
 
-    expect(wurzel?.getAttribute('aria-busy')).toBe('true');
-    expect(wurzel?.getAttribute('aria-live')).toBe('polite');
+    expect(root?.getAttribute('aria-busy')).toBe('true');
+    expect(root?.getAttribute('aria-live')).toBe('polite');
     expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
-  it('setzt die Anker der Startseite', () => {
+  it('matches the anchors of the homepage', () => {
     const { container } = render(<PageSkeleton />);
 
-    for (const anker of ['home', 'services', 'demo']) {
-      expect(container.querySelector(`#${anker}`), `#${anker}`).not.toBeNull();
+    for (const anchor of ['home', 'services', 'demo']) {
+      expect(container.querySelector(`#${anchor}`), `#${anchor}`).not.toBeNull();
     }
   });
 
-  it('ist reine Dekoration ohne jede Bedienung', () => {
+  it('is pure decoration without any operation', () => {
     const { container } = render(<PageSkeleton />);
 
     expect(container.querySelectorAll('button, a, input, select')).toHaveLength(0);
 
-    const balken = Array.from(container.querySelectorAll('[aria-hidden="true"]'));
-    expect(balken.length).toBeGreaterThan(10);
+    const bars = Array.from(container.querySelectorAll('[aria-hidden="true"]'));
+    expect(bars.length).toBeGreaterThan(10);
   });
 });
 
 describe('loading.tsx', () => {
-  it('gibt das Gerüst mit der Einblendklasse weiter', () => {
+  it('passes the skeleton through with its reveal class', () => {
     const { container } = render(<Loading />);
 
     expect(container.querySelector('.fallback-reveal')).not.toBeNull();

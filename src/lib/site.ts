@@ -1,56 +1,45 @@
 /**
- * Öffentliche Basis-URL der Seite – Grundlage für `metadataBase` und damit für `og:url`,
- * `og:image` und die Twitter-Bilder.
+ * Public base URL – feeds `metadataBase` and therefore `og:url`, `og:image` and the Twitter images.
+ * The site is publicly indexable (only the demo request confirmation view is not); this URL also
+ * backs the canonical links, the hreflang alternates, the sitemap and the robots.txt reference.
  *
- * Die Seite ist bewusst nicht indexiert (`noindex`, `robots.txt`); die Basis-URL ist trotzdem
- * gesetzt, damit Metadaten, Canonical-Links und `og:url` eine eindeutige Adresse haben.
- *
- * Die Produktionsadresse ist ein fester Wert, keine Umgebungsvorgabe: sie ist bekannt, und
- * eine fehlende Variable darf nicht länger dazu führen, dass eine öffentliche Seite
- * `localhost` oder – wie nach der ersten Umbenennung – die alte Vercel-Adresse als `og:url`
- * ausliefert.
- * `NEXT_PUBLIC_SITE_URL` überschreibt den Wert für Preview-Deployments und lokale Builds und ist
- * eine *Variable*, kein Secret: `NEXT_PUBLIC_*` wird zur Buildzeit in den öffentlichen Build
- * einliniert. Vollständig mit `https://` angegeben oder als nackte Domain – beides wird
- * verarbeitet; kaputte Angaben fallen auf die Produktionsadresse zurück statt den Build zu
- * verhindern. GitHub-Actions-Variable und Vercel-Config-Variable sollten denselben Wert tragen –
- * oder gar keinen, dann greift der Wert unten.
+ * The production URL is a constant, not an environment value: it is known, and a missing variable
+ * must not make a public page serve `localhost` or – as after the first rename – the old Vercel
+ * host as `og:url`. `NEXT_PUBLIC_SITE_URL` overrides it for preview deployments and local builds.
+ * It is a plain variable, not a secret: `NEXT_PUBLIC_*` is inlined into the client bundle.
  */
-export const PRODUKTIONS_URL = 'https://autoservice-demontage.vercel.app';
+export const PRODUCTION_URL = 'https://autoservice-demontage.vercel.app';
 
 /**
- * Die Basis-URL, so wie sie aus der Umgebung zu holen ist – fehlerfrei.
+ * Base URL as read from the environment, normalised.
  *
- * Drei Dinge korrigiert diese Funktion, weil sie in der Praxis alle schon vorkamen:
+ * Three real-world cases are corrected here: a missing or empty value (fall back to the
+ * production URL), a value without a scheme (the GitHub Actions variable stores the bare host,
+ * which would make `new URL()` throw and break a build that only assembles an address) and a
+ * value carrying a path or trailing slash (only the origin is usable for `og:url` and canonical,
+ * anything else would build canonical links with a duplicated path segment).
  *
- * 1. Die Variable kann fehlen oder leer sein – dann gilt die Produktionsadresse.
- * 2. Die Variable kann ohne Schema dastehen (`autoservice-demontage.vercel.app` – so trägt sie
- *    die GitHub-Actions-Variable). `new URL()` wirft darüber mit `ERR_INVALID_URL`, und ein
- *    Build, der nur eine Adresse zusammenbaut, darf nicht an ihr scheitern: `https://` wird
- *    ergänzt.
- * 3. Die Variable kann Pfade oder einen Schrägstrich am Ende tragen. Für `og:url` und Canonical
- *    ist nur die Herkunft (Schema, Rechner, Port) brauchbar – alles andere würde die
- *    Canonical-Links mit einem doppelten Pfadteil bauen lassen.
- *
- * Ungültiges führt zurück auf die Produktionsadresse, nie auf `localhost` oder eine alte Adresse.
+ * Invalid input returns the production URL – never `localhost` or an old host.
  */
-function basisUrl(): string {
-  const gesetzt = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+function resolveBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
-  if (!gesetzt) {
-    return new URL(PRODUKTIONS_URL).origin;
+  if (!configured) {
+    return new URL(PRODUCTION_URL).origin;
   }
 
-  const mitSchema = /^[a-z][a-z\d+.-]*:\/\//i.test(gesetzt) ? gesetzt : `https://${gesetzt}`;
+  const withScheme = /^[a-z][a-z\d+.-]*:\/\//i.test(configured)
+    ? configured
+    : `https://${configured}`;
 
   try {
-    return new URL(mitSchema).origin;
+    return new URL(withScheme).origin;
   } catch {
-    return new URL(PRODUKTIONS_URL).origin;
+    return new URL(PRODUCTION_URL).origin;
   }
 }
 
-export const SITE_URL = basisUrl();
+export const SITE_URL = resolveBaseUrl();
 
-// Ziel des Demo-Hinweises: die Portfoliowebsite. Feste externe Adresse, keine Umgebungsvariable.
+// Target of the demo notice: the portfolio site. A fixed external URL, not an environment value.
 export const PORTFOLIO_URL = 'https://dakopo.vercel.app/';

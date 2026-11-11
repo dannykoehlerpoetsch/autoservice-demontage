@@ -1,33 +1,33 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Angabe, Anschrift } from '../LegalAngabe';
-import { BETREIBER, type BetreiberFeld } from '@/lib/legal/operator';
+import { FieldValue, OperatorAddress } from '../LegalAngabe';
+import { OPERATOR_DETAILS, type OperatorField } from '@/lib/legal/operator';
 
 /**
- * Die beiden Bausteine der Rechtsseiten. Ihre einzige Aufgabe: einen eingetragenen Wert zeigen,
- * sonst einen eindeutigen Platzhalter – und die Anschrift an beiden Stellen gleich aussehen lassen.
+ * The two building blocks of the legal pages. Their only task: show an entered value, otherwise a
+ * clear placeholder – and make the address look the same in both places.
  */
 
-const platzhalter = (feld: BetreiberFeld) => `[noch eintragen: ${feld}]`;
+const placeholder = (field: OperatorField) => `[noch eintragen: ${field}]`;
 
-const FELDER: BetreiberFeld[] = ['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr'];
+const FIELD_LABELS: OperatorField[] = ['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr'];
 
-// Jede Pruefung beginnt bei leeren Feldern; danach steht der Stand der Datei wieder da.
-const AUSGANGSSTAND: Record<BetreiberFeld, string> = { ...BETREIBER };
+// Every check starts from empty fields; afterwards the file's state stands there again.
+const ORIGINAL_OPERATOR: Record<OperatorField, string> = { ...OPERATOR_DETAILS };
 
 beforeEach(() => {
-  for (const feld of FELDER) {
-    BETREIBER[feld] = '';
+  for (const field of FIELD_LABELS) {
+    OPERATOR_DETAILS[field] = '';
   }
 });
 
 afterAll(() => {
-  Object.assign(BETREIBER, AUSGANGSSTAND);
+  Object.assign(OPERATOR_DETAILS, ORIGINAL_OPERATOR);
 });
 
-describe('Angabe', () => {
-  it('zeigt den Platzhalter, solange das Feld leer ist', () => {
-    render(<Angabe feld="name" platzhalter={platzhalter} />);
+describe('OperatorValue', () => {
+  it('shows the placeholder while the field is empty', () => {
+    render(<FieldValue field="name" placeholder={placeholder} />);
 
     const element = screen.getByText('[noch eintragen: name]');
 
@@ -36,10 +36,10 @@ describe('Angabe', () => {
     expect(element.getAttribute('data-rechts-wert')).toBeNull();
   });
 
-  it('zeigt den eingetragenen Wert ohne jeden Zusatz', () => {
-    BETREIBER.name = 'Erika Beispiel';
+  it('shows the entered value without any addition', () => {
+    OPERATOR_DETAILS.name = 'Erika Beispiel';
 
-    render(<Angabe feld="name" platzhalter={platzhalter} />);
+    render(<FieldValue field="name" placeholder={placeholder} />);
 
     expect(screen.getByText('Erika Beispiel')).toBeInTheDocument();
     expect(screen.getByText('Erika Beispiel').getAttribute('data-rechts-wert')).toBe('true');
@@ -47,32 +47,32 @@ describe('Angabe', () => {
   });
 });
 
-describe('Anschrift', () => {
-  it('steht in einem address-Element und nennt drei Zeilen', () => {
-    const { container } = render(<Anschrift platzhalter={platzhalter} />);
+describe('Address block', () => {
+  it('sits in an address element and names three lines', () => {
+    const { container } = render(<OperatorAddress placeholder={placeholder} />);
 
-    const anschrift = container.querySelector('address');
+    const addressBlock = container.querySelector('address');
 
-    expect(anschrift).not.toBeNull();
-    expect(anschrift?.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(3);
+    expect(addressBlock).not.toBeNull();
+    expect(addressBlock?.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(3);
   });
 
-  it('mischt wertvolle und leere Felder, ohne die Struktur zu ändern', () => {
-    BETREIBER.name = 'Erika Beispiel';
-    BETREIBER.ort = '12345 Beispielstadt';
+  it('mixes filled and empty fields without changing the structure', () => {
+    OPERATOR_DETAILS.name = 'Erika Beispiel';
+    OPERATOR_DETAILS.ort = '12345 Beispielstadt';
 
-    const { container } = render(<Anschrift platzhalter={platzhalter} />);
+    const { container } = render(<OperatorAddress placeholder={placeholder} />);
 
-    const anschrift = container.querySelector('address');
+    const addressBlock = container.querySelector('address');
 
-    expect(anschrift?.querySelectorAll('[data-rechts-wert="true"]')).toHaveLength(2);
-    expect(anschrift?.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(1);
-    expect(anschrift?.textContent).toContain('Erika Beispiel');
-    expect(anschrift?.textContent).toContain('[noch eintragen: strasse]');
+    expect(addressBlock?.querySelectorAll('[data-rechts-wert="true"]')).toHaveLength(2);
+    expect(addressBlock?.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(1);
+    expect(addressBlock?.textContent).toContain('Erika Beispiel');
+    expect(addressBlock?.textContent).toContain('[noch eintragen: strasse]');
   });
 
-  it('setzt die Schrift gegen die kursive Voreinstellung von address', () => {
-    const { container } = render(<Anschrift platzhalter={platzhalter} />);
+  it('overrides the italic default of address', () => {
+    const { container } = render(<OperatorAddress placeholder={placeholder} />);
 
     expect(container.querySelector('address')?.getAttribute('class')).toContain('not-italic');
   });

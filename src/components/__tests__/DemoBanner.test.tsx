@@ -14,7 +14,7 @@ function renderBanner() {
 }
 
 describe('DemoBanner', () => {
-  it('steht als eigene Merkenregion über dem Inhalt', () => {
+  it('sits as its own landmark region above the content', () => {
     renderBanner();
 
     expect(
@@ -22,22 +22,22 @@ describe('DemoBanner', () => {
     ).toBeInTheDocument();
   });
 
-  it('sagt in Klartext, dass die Werkstatt nur demo ist', () => {
+  it('says in plain text that the workshop is only a demo', () => {
     renderBanner();
 
     expect(screen.getByText(messages.DemoBanner.text)).toBeInTheDocument();
   });
 
-  it('verlinkt die Portfoliowebsite als echten externen Link', () => {
+  it('links the portfolio website as a real external link', () => {
     renderBanner();
 
     const link = screen.getByRole('link', { name: /Zum Portfolio/ });
     expect(link).toHaveAttribute('href', PORTFOLIO_URL);
-    // Kein Locale-Prefix: der Link verlässt die App, next-intl-`Link` würde ihn umbauen.
+    // No locale prefix: the link leaves the app, a next-intl `Link` would rewrite it.
     expect(link.getAttribute('href')).toMatch(/^https:\/\//);
   });
 
-  it('kündigt das neue Fenster an, statt es nur zu zeigen', () => {
+  it('announces the new window instead of only showing it', () => {
     renderBanner();
 
     expect(screen.getByRole('link', { name: /Zum Portfolio/ })).toHaveAttribute('target', '_blank');

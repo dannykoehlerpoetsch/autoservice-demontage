@@ -1,33 +1,32 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { toLocale } from '@/i18n/locale';
-import { seitenMetadaten } from '@/lib/metadata';
-import { betreiberAngabe, type BetreiberFeld } from '@/lib/legal/operator';
-import { Angabe, Anschrift } from '@/components/LegalAngabe';
+import { createPageMetadata } from '@/lib/metadata';
+import { operatorValue, type OperatorField } from '@/lib/legal/operator';
+import { FieldValue, OperatorAddress } from '@/components/LegalAngabe';
 
 /**
- * Impressum dieser Portfolio-Seite: die nach § 5 Abs. 1 DDG erforderlichen Angaben der
- * betreibenden Person und ein kurzer Hinweis auf das fiktive Projekt – weiter nichts.
+ * Legal notice of this portfolio page: the details required by § 5 para. 1 DDG of the person
+ * operating the site and a short note about the fictional project – nothing more.
  *
- * Die Werte stehen in `src/lib/legal/operator.ts`. Was dort fehlt, erscheint als eindeutiger
- * Platzhalter; erfunden wird nichts. Freiwillige Angaben (Telefon, USt-IdNr.) werden nur
- * gerendert, wenn sie eingetragen sind.
+ * The values stand in `src/lib/legal/operator.ts`. Whatever is missing there appears as a clear
+ * placeholder; nothing is invented. Optional details (phone, VAT ID) are rendered only when entered.
  */
 
-type ImpressumParams = { params: Promise<{ locale: string }> };
+type LegalNoticeParams = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: ImpressumParams): Promise<Metadata> {
+export async function generateMetadata({ params }: LegalNoticeParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Impressum' });
 
-  return seitenMetadaten({ locale, href: '/impressum', titel: t('title') });
+  return createPageMetadata({ locale, href: '/impressum', title: t('title') });
 }
 
-export default async function Impressum({ params }: ImpressumParams) {
+export default async function LegalNoticePage({ params }: LegalNoticeParams) {
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Impressum' });
 
-  const platzhalter = (feld: BetreiberFeld) => t('platzhalter', { feld: t(`felder.${feld}`) });
+  const placeholder = (field: OperatorField) => t('platzhalter', { field: t(`felder.${field}`) });
 
   return (
     <section className="flex flex-col items-start gap-6 py-4 m-auto md:px-4">
@@ -39,7 +38,7 @@ export default async function Impressum({ params }: ImpressumParams) {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-semibold">{t('anbieter.heading')}</h2>
-        <Anschrift platzhalter={platzhalter} />
+        <OperatorAddress placeholder={placeholder} />
       </section>
 
       <section className="flex flex-col gap-2">
@@ -48,17 +47,17 @@ export default async function Impressum({ params }: ImpressumParams) {
           <div className="flex flex-wrap gap-x-2">
             <dt className="text-gray-500 dark:text-gray-400">{t('felder.email')}:</dt>
             <dd>
-              <Angabe feld="email" platzhalter={platzhalter} />
+              <FieldValue field="email" placeholder={placeholder} />
             </dd>
           </div>
 
           {(['telefon', 'ustIdNr'] as const)
-            .filter((feld) => betreiberAngabe(feld) !== null)
-            .map((feld) => (
-              <div className="flex flex-wrap gap-x-2" key={feld}>
-                <dt className="text-gray-500 dark:text-gray-400">{t(`felder.${feld}`)}:</dt>
+            .filter((field) => operatorValue(field) !== null)
+            .map((field) => (
+              <div className="flex flex-wrap gap-x-2" key={field}>
+                <dt className="text-gray-500 dark:text-gray-400">{t(`felder.${field}`)}:</dt>
                 <dd>
-                  <Angabe feld={feld} platzhalter={platzhalter} />
+                  <FieldValue field={field} placeholder={placeholder} />
                 </dd>
               </div>
             ))}

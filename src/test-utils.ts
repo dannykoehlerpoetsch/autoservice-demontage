@@ -1,11 +1,11 @@
 import { vi } from 'vitest';
 
 /**
- * jsdom kennt `window.matchMedia` nicht. ThemeToggle und die Fehlerseiten fragen dort nach
- * der Systemeinstellung – ohne Stub laufen sie stumm in den try/catch-Fallback, und ein Test
- * hätte geprüft, dass nichts passiert, statt das echte Verhalten zu prüfen.
+ * jsdom does not know `window.matchMedia`. ThemeToggle and the error pages ask it for the system
+ * setting – without a stub they silently run into the try/catch fallback, and a test would have
+ * checked that nothing happens instead of checking the real behaviour.
  *
- * Aufruf in Tests, die ein dunkles System vorgeben wollen: `stubSystemTheme(true)`.
+ * Called in tests that want to pretend a dark system: `stubSystemTheme(true)`.
  */
 export function stubSystemTheme(prefersDark: boolean) {
   const matchMedia = (query: string) => ({
@@ -21,34 +21,34 @@ export function stubSystemTheme(prefersDark: boolean) {
 }
 
 /**
- * Übersetzer für Tests, die Übersetzungen messbar brauchen, ohne React und ohne
- * Request-Kontext: Server Components rufen `getTranslations` aus `next-intl/server` auf (dort
- * mockbar, aber nicht ausführbar), und die E-Mail-Vorschau bekommt ihre Übersetzerin als
- * Argument – beides lässt sich mit diesem Übersetzer prüfen.
+ * Translator for tests that need translations measurable, without React and without a request
+ * context: server components call `getTranslations` from `next-intl/server` (mockable there, but
+ * not executable), and the email preview receives its translator as an argument – both can be
+ * tested with this translator.
  *
- * Liest die echten Werte aus `messages/*.json`, damit Tests an den Texten messen, die auch
- * Nutzer sehen – nicht an einer zweiten, frei erfundenen Übersetzung. Ein leerer Namespace
- * bedeutet „Wurzel“, die Schlüssel sind dann absolut ("Appointment.fields.name").
+ * Reads the real values from `messages/*.json` so tests measure against the texts users actually
+ * see – not against a second, invented translation. An empty namespace means "root", the keys are
+ * then absolute ("Appointment.fields.name").
  */
 export function makeTranslator(messages: Record<string, unknown>, namespace: string) {
   function lookup(path: string): unknown {
-    return path.split('.').reduce<unknown>((aktuell, schritt) => {
-      if (aktuell && typeof aktuell === 'object' && schritt in (aktuell as object)) {
-        return (aktuell as Record<string, unknown>)[schritt];
+    return path.split('.').reduce<unknown>((current, step) => {
+      if (current && typeof current === 'object' && step in (current as object)) {
+        return (current as Record<string, unknown>)[step];
       }
       return undefined;
     }, messages);
   }
 
   const t = (key: string, values?: Record<string, string | number>) => {
-    // Leerer Namespace = Wurzel: dann sind die Schlüssel absolut ("Appointment.fields.name").
+    // Empty namespace = root: then the keys are absolute ("Appointment.fields.name").
     const text = lookup(namespace ? `${namespace}.${key}` : key);
     if (typeof text !== 'string') {
-      throw new Error(`Übersetzung fehlt: ${namespace}.${key}`);
+      throw new Error(`translation missing: ${namespace}.${key}`);
     }
 
     return Object.entries(values ?? {}).reduce(
-      (ergebnis, [name, wert]) => ergebnis.replaceAll(`{${name}}`, String(wert)),
+      (result, [name, value]) => result.replaceAll(`{${name}}`, String(value)),
       text
     );
   };

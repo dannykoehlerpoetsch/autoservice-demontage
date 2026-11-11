@@ -2,25 +2,25 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
- * Barrierefreiheit ist Teil des Angebots: Detaildialog, Kalender-Popover, Formular und die
- * Sprachumschaltung müssen mit Screenreader und Tastatur bedienbar bleiben. Diese Specs lassen
- * axe über die Seiten laufen, damit eine kaputte Semantik (fehlender Label, leerer
- * Button-Name, falsche Rolle) nicht mehr per Handklick gesucht werden muss.
+ * Accessibility is part of the offer: the detail dialog, the calendar popover, the form and the
+ * language switch must stay operable with screen reader and keyboard. These specs run axe over the
+ * pages so that broken semantics (missing label, empty button name, wrong role) no longer have to be
+ * hunted by manual clicking.
  *
- * Bewusst ohne Consent-Klick: die Seite fragt niemanden nach einer Einwilligung, und axe käme
- * in ein Cross-Origin-Iframe ohnehin nicht hinein – Iframes gibt es hier nicht.
+ * Deliberately without a consent click: the page never asks anyone for consent, and axe could not
+ * reach into a cross-origin iframe anyway – there are no iframes here.
  *
- * Früher gab es in dieser Datei eine Ausnahme für Kontrastverstöße auf der Markenfarbe. Sie ist
- * weg, weil der Grund behoben ist: Flächen mit weißer Schrift laufen über `--color-brand-strong`
- * (6,33:1), Schrift auf der Markenfarbe über dunkle Schrift bzw. das dunklere Token. Gemessen
- * wird jetzt ohne jede Freigabe – ein neuer Verstoß lässt die Pipeline laufen oder still scheitern.
+ * This file used to carry an exception for contrast violations on the brand colour. It is gone
+ * because the cause is fixed: surfaces with white text run over `--color-brand-strong` (6.33:1),
+ * text on the brand colour over dark text respectively the darker token. Measuring now happens
+ * without any waiver – a new violation makes the pipeline fail.
  */
 
 /**
- * Führt eine Demo-Anfrage bis zur Zusammenfassung aus – die Bestätigungsseite gibt es nur mit
- * Zustand, und der entsteht nun einmal durch den echten Weg.
+ * Runs a demo request through to the summary – the confirmation page only exists with state, and
+ * that state comes from taking the real path.
  */
-async function demoAnfrageStellen(page: Page) {
+async function submitDemoRequest(page: Page) {
   await page.fill('#field-name', 'Jennifer Krüger');
   await page.fill('#field-email', 'j.krueger@beispiel.de');
   await page.selectOption('#field-service', 'bremsen');
@@ -36,7 +36,7 @@ async function demoAnfrageStellen(page: Page) {
 }
 
 type Knoten = { target: string[]; failureSummary?: string };
-type Verstoss = {
+type Violation = {
   id: string;
   impact?: string;
   help: string;
@@ -45,11 +45,11 @@ type Verstoss = {
 };
 
 /**
- * Farbmessungen sind nur aussagekräftig, wenn Fonts da und Animationen durch sind. Weh tut das
- * nicht: die kurzen Einblendungen der App sind alle endlich, und läuft doch etwas endlos
- * weiter, misst axe eben mitten drin.
+ * Colour measurements only mean something when the fonts are there and the animations are done.
+ * Waiting does no harm: the app's short reveals are all finite, and if something does run endlessly
+ * then axe simply measures in the middle of it.
  */
-async function warteAufRuhigeSeite(page: Page) {
+async function waitForSettledPage(page: Page) {
   await page.evaluate(() => document.fonts?.ready);
 
   await page
@@ -59,114 +59,114 @@ async function warteAufRuhigeSeite(page: Page) {
     .catch(() => {});
 }
 
-async function keineAxeVerstosse(page: Page, bereich?: string) {
-  await warteAufRuhigeSeite(page);
+async function noAxeViolations(page: Page, region?: string) {
+  await waitForSettledPage(page);
 
-  const prüfung = new AxeBuilder({ page });
-  if (bereich) {
-    prüfung.include(bereich);
+  const audit = new AxeBuilder({ page });
+  if (region) {
+    audit.include(region);
   }
 
-  const { violations } = await prüfung.analyze();
-  const neue = violations as Verstoss[];
+  const { violations } = await audit.analyze();
+  const newViolations = violations as Violation[];
 
-  const meldung = neue
+  const message = newViolations
     .map(
-      (verstoss) =>
-        `[${verstoss.impact ?? '?'}] ${verstoss.id}: ${verstoss.help}\n` +
-        `  ${verstoss.helpUrl}\n` +
-        verstoss.nodes
+      (violation) =>
+        `[${violation.impact ?? '?'}] ${violation.id}: ${violation.help}\n` +
+        `  ${violation.helpUrl}\n` +
+        violation.nodes
           .slice(0, 5)
-          .map((knoten) => `   ${knoten.target.join(' ')} – ${knoten.failureSummary ?? ''}`)
+          .map((node) => `   ${node.target.join(' ')} – ${node.failureSummary ?? ''}`)
           .join('\n')
     )
     .join('\n\n');
 
-  expect(neue, meldung || 'keine Verstösse').toEqual([]);
+  expect(newViolations, message || 'no violations').toEqual([]);
 }
 
-test.describe('Barrierefreiheit', () => {
-  test('Startseite auf Deutsch', async ({ page }) => {
+test.describe('Accessibility', () => {
+  test('Homepage in German', async ({ page }) => {
     await page.goto('/');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Startseite auf Englisch', async ({ page }) => {
+  test('Homepage in English', async ({ page }) => {
     await page.goto('/en');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Leistungsdialog im geöffneten Zustand', async ({ page }) => {
+  test('Service dialog in the open state', async ({ page }) => {
     await page.goto('/');
 
     await page.locator('#services button').first().click();
 
-    // Der Titel muss nachweislich am Dialog hängen, bevor gemessen wird: Radix setzt
-    // `aria-labelledby` erst nach dem Mount des Titels, und axe würde in diesem
+    // The title has to verifiably hang on the dialog before measuring: Radix sets
+    // `aria-labelledby` only after the title mounts, and axe would run into this
     // Moment einen leeren Namen melden.
     await expect(page.getByRole('dialog', { name: /Inspektion und Wartung/ })).toBeVisible();
 
-    // Der Dialog liegt in einem Portal – geprüft wird das ganze Dokument, damit Overlay,
-    // Fokusfalle und Titel mitgeprüft werden.
-    await keineAxeVerstosse(page);
+    // The dialog sits in a portal – the whole document is checked so that overlay,
+    // focus trap and title are checked along.
+    await noAxeViolations(page);
   });
 
-  test('Terminformular', async ({ page }) => {
+  test('Appointment form', async ({ page }) => {
     await page.goto('/termin-anfrage');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Zusammenfassung der Demo-Anfrage', async ({ page }) => {
+  test('Summary of the demo request', async ({ page }) => {
     await page.goto('/termin-anfrage');
-    await demoAnfrageStellen(page);
+    await submitDemoRequest(page);
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('E-Mail-Vorschau im geöffneten Zustand', async ({ page }) => {
+  test('Email preview in the open state', async ({ page }) => {
     await page.goto('/termin-anfrage');
-    await demoAnfrageStellen(page);
+    await submitDemoRequest(page);
 
     await page.getByRole('button', { name: 'E-Mail-Vorschau ansehen' }).click();
     await expect(page.getByRole('dialog', { name: /E-Mail/ })).toBeVisible();
 
-    // Der Dialog liegt in einem Portal – gemessen wird das ganze Dokument.
-    await keineAxeVerstosse(page);
+    // The dialog sits in a portal – the whole document is measured.
+    await noAxeViolations(page);
   });
 
-  test('Hinweis ohne Demo-Anfrage', async ({ page }) => {
+  test('Notice without a demo request', async ({ page }) => {
     await page.goto('/termin-anfrage/bestaetigung');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Impressum', async ({ page }) => {
+  test('Legal notice', async ({ page }) => {
     await page.goto('/impressum');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Datenschutzerklärung', async ({ page }) => {
+  test('Privacy policy', async ({ page }) => {
     await page.goto('/datenschutz');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('Kalender-Popover im Formular', async ({ page }) => {
+  test('Calendar popover inside the form', async ({ page }) => {
     await page.goto('/termin-anfrage');
 
     await page.locator('button[data-min-date]').click();
     await expect(page.getByRole('grid')).toBeVisible();
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 
-  test('404-Seite', async ({ page }) => {
+  test('404 page', async ({ page }) => {
     await page.goto('/es-gibt-hier-nichts');
 
-    await keineAxeVerstosse(page);
+    await noAxeViolations(page);
   });
 });

@@ -1,53 +1,51 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { BETREIBER, betreiberAngabe, type BetreiberFeld } from '../legal/operator';
+import { OPERATOR_DETAILS, operatorValue, type OperatorField } from '../legal/operator';
 
 /**
- * Die Betreiberdaten sind die Angaben der Person, die diese Website betreibt. Die Prüfung verlässt
- * sich deshalb nicht auf ihren Inhalt, sondern nur auf das Verhalten: Ein leeres Feld und ein Feld
- * aus nichts als Leerraum gelten als „fehlt“ – davon hängt der Platzhalter auf beiden Seiten ab –
- * und ein eingetragener Wert kommt ohne Randzeichen heraus. Jede Prüfung beginnt darum bei leeren
- * Feldern; nach dem Lauf stehen die Daten wieder so da, wie sie in der Datei stehen.
+ * The operator details are the details of the person who operates this website. The checks therefore
+ * do not rely on their content but only on the behaviour: an empty field and a field of nothing but
+ * whitespace count as "missing" – the placeholder on both legal pages depends on that.
  */
 
-const FELDER = Object.keys(BETREIBER) as BetreiberFeld[];
+const FIELD_LABELS = Object.keys(OPERATOR_DETAILS) as OperatorField[];
 
-const AUSGANGSSTAND: Record<BetreiberFeld, string> = { ...BETREIBER };
+const ORIGINAL_OPERATOR: Record<OperatorField, string> = { ...OPERATOR_DETAILS };
 
 beforeEach(() => {
-  for (const feld of FELDER) {
-    BETREIBER[feld] = '';
+  for (const field of FIELD_LABELS) {
+    OPERATOR_DETAILS[field] = '';
   }
 });
 
 afterAll(() => {
-  Object.assign(BETREIBER, AUSGANGSSTAND);
+  Object.assign(OPERATOR_DETAILS, ORIGINAL_OPERATOR);
 });
 
-describe('Betreiberdaten', () => {
-  it('kennt genau sechs Felder', () => {
-    expect(FELDER).toEqual(['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr']);
+describe('Operator details', () => {
+  it('knows exactly six fields', () => {
+    expect(FIELD_LABELS).toEqual(['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr']);
   });
 
-  it('hält ein leeres Feld für nicht eingetragen', () => {
-    expect(betreiberAngabe('name')).toBeNull();
+  it('treats an empty field as not entered', () => {
+    expect(operatorValue('name')).toBeNull();
   });
 
-  it('hält Leerraum für nicht eingetragen', () => {
-    BETREIBER.email = '   \n ';
+  it('treats whitespace as not entered', () => {
+    OPERATOR_DETAILS.email = '   \n ';
 
-    expect(betreiberAngabe('email')).toBeNull();
+    expect(operatorValue('email')).toBeNull();
   });
 
-  it('gibt einen eingetragenen Wert ohne Randzeichen zurück', () => {
-    BETREIBER.name = '  Erika Beispiel  ';
+  it('returns an entered value without surrounding whitespace', () => {
+    OPERATOR_DETAILS.name = '  Erika Beispiel  ';
 
-    expect(betreiberAngabe('name')).toBe('Erika Beispiel');
+    expect(operatorValue('name')).toBe('Erika Beispiel');
   });
 
-  it('prüft jedes Feld einzeln', () => {
-    BETREIBER.telefon = '+49 30 1234567';
+  it('checks every field individually', () => {
+    OPERATOR_DETAILS.telefon = '+49 30 1234567';
 
-    expect(betreiberAngabe('telefon')).toBe('+49 30 1234567');
-    expect(betreiberAngabe('name')).toBeNull();
+    expect(operatorValue('telefon')).toBe('+49 30 1234567');
+    expect(operatorValue('name')).toBeNull();
   });
 });

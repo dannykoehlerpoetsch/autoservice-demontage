@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { CalendarPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { useBookingService } from './BookingProvider';
+import { useBooking } from './BookingProvider';
 import type { ServiceItem } from './Services';
 
 type ServiceDetailDialogProps = {
@@ -18,10 +18,10 @@ export default function ServiceDetailDialog({
 }: ServiceDetailDialogProps) {
   const t = useTranslations('Services');
   const router = useRouter();
-  const { selectService } = useBookingService();
+  const { selectService } = useBooking();
 
-  // Die Auswahl wandert in den BookingProvider (Layout-Context) und überlebt dadurch die
-  // Navigation: das Formular auf /termin-anfrage wählt den Service damit voraus.
+  // The selection moves into the BookingProvider (layout context) and therefore survives
+  // navigation: the form on /termin-anfrage preselects the service with it.
   const requestAppointment = () => {
     if (!service) {
       return;

@@ -6,8 +6,8 @@ import { useTranslations } from 'next-intl';
 import type { ServiceId } from '@/lib/services';
 import ServiceDetailDialog from './ServiceDetailDialog';
 
-/** Bild pro Leistung – an der ID festgemacht, nicht an der Listenposition. */
-const serviceImages: Record<ServiceId, string> = {
+/** Image per service – pinned to the id, not to the list position. */
+const SERVICE_IMAGES: Record<ServiceId, string> = {
   inspektion: '/inspektion.jpg',
   reparatur: '/reparatur.jpg',
   diagnose: '/diagnose.jpg',
@@ -31,9 +31,9 @@ export default function Services() {
   const [selected, setSelected] = useState<ServiceItem | null>(null);
   const [open, setOpen] = useState(false);
 
-  // Beim Schließen wird `selected` bewusst nicht zurückgesetzt: Radix hält den
-  // Content für die Out-Animation im DOM, die Texte sollen bis zum Schluss
-  // sichtbar bleiben statt kurz leer zu werden.
+  // On close, `selected` is deliberately not reset: Radix keeps the
+  // content in the DOM for the out animation, and the texts should stay
+  // visible until the end instead of going blank for a moment.
   const openService = (service: ServiceItem) => {
     setSelected(service);
     setOpen(true);
@@ -49,7 +49,7 @@ export default function Services() {
           className="group relative flex min-h-50 cursor-pointer items-end justify-center overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-line focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary"
         >
           <Image
-            src={serviceImages[item.id]}
+            src={SERVICE_IMAGES[item.id]}
             alt={item.heading}
             fill
             className="object-cover"

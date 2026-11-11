@@ -59,38 +59,38 @@ describe('Header', () => {
 
     expect(logo).toHaveAttribute('alt', messages.Header.logoAlt);
     expect(logo?.getAttribute('alt')).toContain('Autoservice Demontage');
-    // next/image liefert den Pfad verschlüsselt in der Loader-Adresse aus. Geprüft wird die
-    // Datei dahinter – ob ausgeliefert oder optimiert, entscheidet die Auslieferung.
+    // next/image delivers the path encoded inside the loader URL. What is checked is the
+    // File behind it – whether served or optimised is decided by the delivery.
     expect(decodeURIComponent(logo?.getAttribute('src') ?? '')).toContain('/Headerlogo.png');
   });
 
-  // Die Bilddatei misst 2172×724 – genau 3:1. Weichen die Attribute davon ab, dehnt der
-  // Browser das Logo (sichtbar vor dem ersten Laden der Datei).
-  it('gibt die echten Bildmaße des Logos an, ohne jede Rundung', () => {
+  // The image file measures 2172×724 – exactly 3:1. If the attributes deviate from that, the
+  // browser stretches the logo (visible before the file loads for the first time).
+  it('reports the real logo image dimensions without any rounding', () => {
     renderHeader();
 
     const logo = screen.getByRole('link', { name: 'Zur Startseite' }).querySelector('img');
-    const breite = Number(logo?.getAttribute('width'));
-    const hoehe = Number(logo?.getAttribute('height'));
+    const width = Number(logo?.getAttribute('width'));
+    const height = Number(logo?.getAttribute('height'));
 
-    expect(breite).toBe(2172);
-    expect(hoehe).toBe(724);
-    expect(breite / hoehe).toBeCloseTo(3, 10);
+    expect(width).toBe(2172);
+    expect(height).toBe(724);
+    expect(width / height).toBeCloseTo(3, 10);
   });
 
-  it('steuert die Logo-Größe über die Breite und lässt die Höhe frei', () => {
+  it('controls the logo size by width and leaves the height free', () => {
     renderHeader();
 
     const logo = screen.getByRole('link', { name: 'Zur Startseite' }).querySelector('img');
-    const klassen = (logo?.getAttribute('class') ?? '').split(/\s+/);
+    const classes = (logo?.getAttribute('class') ?? '').split(/\s+/);
 
-    // h-auto statt einer festen Höhe: eine Höhe mit falscher Breite wäre ein gezerrtes Logo.
-    expect(klassen).toContain('h-auto');
-    expect(klassen).toContain('w-40');
-    expect(klassen).toContain('md:w-56');
-    expect(klassen.some((k) => /^h-\d+$/.test(k))).toBe(false);
+    // h-auto instead of a fixed height: a height with the wrong width would be a stretched logo.
+    expect(classes).toContain('h-auto');
+    expect(classes).toContain('w-40');
+    expect(classes).toContain('md:w-56');
+    expect(classes.some((k) => /^h-\d+$/.test(k))).toBe(false);
 
-    // Die ausgelieferte Variante bleibt an der tatsächlichen Breite begrenzt.
+    // The delivered variant stays limited to the actual width.
     expect(logo).toHaveAttribute('sizes', expect.stringContaining('252px'));
   });
 

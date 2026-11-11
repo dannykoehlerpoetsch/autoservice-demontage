@@ -5,13 +5,12 @@ import deMessages from '../../../messages/de.json';
 import enMessages from '../../../messages/en.json';
 
 /**
- * Die E-Mail-Vorschau ist der einzige Ort, an dem aus den Eingaben ein Fließtext wird. Sie
- * darf dabei nichts nach draußen schicken und nichts erfinden – geprüft werden hier beide
- * Sprachen, die Personalisierung, fehlende freiwillige Angaben und die Frage, ob die Funktion
- * wirklich rein rechnet.
+ * The email preview is the only place where the input becomes running text. While doing so it may
+ * send nothing outwards and invent nothing – checked here are both languages, the personalisation,
+ * missing optional details and whether the function really computes purely.
  */
 
-function anfrage(abweichungen: Partial<DemoEmailAppointment> = {}): DemoEmailAppointment {
+function appointment(overrides: Partial<DemoEmailAppointment> = {}): DemoEmailAppointment {
   return {
     name: 'Jennifer Krüger',
     phone: '+49 170 1234567',
@@ -19,40 +18,40 @@ function anfrage(abweichungen: Partial<DemoEmailAppointment> = {}): DemoEmailApp
     note: 'Bremsen quietschen beim Anhalten.',
     date: '2026-11-20',
     serviceHeading: 'Bremsenservice',
-    ...abweichungen,
+    ...overrides,
   };
 }
 
-function vorschau(
-  nachrichten: Record<string, unknown>,
-  abweichungen: Partial<DemoEmailAppointment> = {},
+function buildPreview(
+  messages: Record<string, unknown>,
+  overrides: Partial<DemoEmailAppointment> = {},
   locale: 'de' | 'en' = 'de'
 ) {
-  return buildDemoEmailPreview(anfrage(abweichungen), {
+  return buildDemoEmailPreview(appointment(overrides), {
     locale,
-    translate: makeTranslator(nachrichten, ''),
+    translate: makeTranslator(messages, ''),
   });
 }
 
-describe('E-Mail-Vorschau – Deutsch', () => {
-  it('nennt Absender, Empfänger und Betreff mit der gewählten Leistung', () => {
-    const preview = vorschau(deMessages);
+describe('Email preview – German', () => {
+  it('names sender, recipient and subject with the chosen service', () => {
+    const preview = buildPreview(deMessages);
 
     expect(preview.from).toBe(deMessages.DemoEmail.from);
     expect(preview.to).toBe('j.krueger@beispiel.de');
     expect(preview.subject).toBe('Deine Demo-Terminanfrage – Bremsenservice');
   });
 
-  it('spricht die Person mit dem eingetragenen Namen an', () => {
-    const preview = vorschau(deMessages, { name: 'Max Mustermann' });
+  it('addresses the person with the entered name', () => {
+    const preview = buildPreview(deMessages, { name: 'Max Mustermann' });
 
     expect(preview.body.startsWith('Hallo Max Mustermann,')).toBe(true);
-    // Der Name steht nur in der Anrede – eine erfundene Anrede gibt es nicht.
+    // The name only stands in the salutation – there is no invented salutation.
     expect(preview.body).not.toContain('Sehr geehrte');
   });
 
-  it('zeigt Service, Terminwunsch und alle Angaben mit den übersetzten Feldnamen', () => {
-    const preview = vorschau(deMessages);
+  it('shows service, requested date and all details with the translated field names', () => {
+    const preview = buildPreview(deMessages);
 
     expect(preview.body).toContain('Gewünschter Service: Bremsenservice');
     expect(preview.body).toContain('Terminwunsch: Freitag, 20. November 2026');
@@ -62,16 +61,16 @@ describe('E-Mail-Vorschau – Deutsch', () => {
     expect(preview.body).toContain('Bemerkung: Bremsen quietschen beim Anhalten.');
   });
 
-  it('weist ausdrücklich darauf hin, dass nichts versendet wurde', () => {
-    const preview = vorschau(deMessages);
+  it('explicitly states that nothing was sent', () => {
+    const preview = buildPreview(deMessages);
 
     expect(preview.body).toContain('Wichtiger Hinweis');
     expect(preview.body).toContain('Es wurde keine E-Mail versendet');
     expect(preview.body).toContain('kein Werkstatttermin vereinbart');
   });
 
-  it('benennt fehlende freiwillige Angaben, statt Zeilen wegzulassen', () => {
-    const preview = vorschau(deMessages, { phone: '', email: '', note: '' });
+  it('names missing optional details instead of dropping rows', () => {
+    const preview = buildPreview(deMessages, { phone: '', email: '', note: '' });
 
     expect(preview.to).toBeNull();
     expect(preview.body).toContain('Telefonnummer: Nicht angegeben');
@@ -80,9 +79,9 @@ describe('E-Mail-Vorschau – Deutsch', () => {
   });
 });
 
-describe('E-Mail-Vorschau – Englisch', () => {
-  it('nutzt die englischen Texte inklusive Datum', () => {
-    const preview = vorschau(enMessages, { serviceHeading: 'Brake service' }, 'en');
+describe('Email preview – English', () => {
+  it('uses the English texts including the date', () => {
+    const preview = buildPreview(enMessages, { serviceHeading: 'Brake service' }, 'en');
 
     expect(preview.from).toBe(enMessages.DemoEmail.from);
     expect(preview.subject).toBe('Your demo appointment request – Brake service');
@@ -92,69 +91,69 @@ describe('E-Mail-Vorschau – Englisch', () => {
     expect(preview.body).toContain('No email was sent');
   });
 
-  it('übersetzt die Servicebezeichnung nicht selbst, sondern nimmt die mitgebrachte', () => {
-    const preview = vorschau(enMessages, { serviceHeading: 'Tire service' }, 'en');
+  it('does not translate the service name itself but takes the one brought along', () => {
+    const preview = buildPreview(enMessages, { serviceHeading: 'Tire service' }, 'en');
 
     expect(preview.subject).toContain('Tire service');
     expect(preview.body).toContain('Requested service: Tire service');
-    // Die interne Kennung taucht nirgends auf.
+    // The internal identifier does not appear anywhere.
     expect(preview.body).not.toContain('reifen');
   });
 });
 
-describe('E-Mail-Vorschau – lange Eingaben und Reinheit', () => {
-  it('gibt lange Bemerkungen vollständig wieder, ohne sie zu kürzen', () => {
-    const lang = 'Bremsen quietschen. '.repeat(40);
-    const preview = vorschau(deMessages, { note: lang });
+describe('Email preview – long input and cleanliness', () => {
+  it('renders long notes in full without truncating them', () => {
+    const longNote = 'Bremsen quietschen. '.repeat(40);
+    const preview = buildPreview(deMessages, { note: longNote });
 
-    expect(preview.body).toContain(lang.trim());
-    expect(preview.body.length).toBeGreaterThan(lang.length);
+    expect(preview.body).toContain(longNote.trim());
+    expect(preview.body.length).toBeGreaterThan(longNote.length);
   });
 
-  it('behandelt Eingaben als Text und nicht als Markup', () => {
-    const preview = vorschau(deMessages, { name: '<b>Max</b>', note: '<img src=x>' });
+  it('treats input as text and not as markup', () => {
+    const preview = buildPreview(deMessages, { name: '<b>Max</b>', note: '<img src=x>' });
 
-    // Der Rumpf bleibt ein String; die spitzen Klammern stehen darin als Zeichen.
+    // The body stays a string; the angle brackets stand inside it as characters.
     expect(typeof preview.body).toBe('string');
     expect(preview.body).toContain('<b>Max</b>');
     expect(preview.body).toContain('<img src=x>');
   });
 
-  it('rechnet rein: gleicher Eingang, gleicher Ausgang, kein Aufruf nach draußen', () => {
+  it('computes purely: same input, same output, no call outside', () => {
     const fetchSpy = vi.fn();
     const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
     vi.stubGlobal('fetch', fetchSpy);
 
-    const erster = vorschau(deMessages);
-    const zweiter = vorschau(deMessages);
+    const erster = buildPreview(deMessages);
+    const again = buildPreview(deMessages);
 
-    expect(zweiter).toEqual(erster);
+    expect(again).toEqual(erster);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(storageSpy).not.toHaveBeenCalled();
   });
 
-  it('ignoriert Umgebungsvariablen, auch alte Mail-Zugänge', () => {
+  it('ignores environment variables, including old mail credentials', () => {
     vi.stubEnv('RESEND_API_KEY', 're_test_123');
     vi.stubEnv('MAIL_FROM', 'Werkstatt <terms@example.com>');
 
-    expect(vorschau(deMessages)).toEqual(vorschau(deMessages));
-    expect(vorschau(deMessages).subject).toBe('Deine Demo-Terminanfrage – Bremsenservice');
+    expect(buildPreview(deMessages)).toEqual(buildPreview(deMessages));
+    expect(buildPreview(deMessages).subject).toBe('Deine Demo-Terminanfrage – Bremsenservice');
   });
 });
 
-describe('E-Mail-Vorschau – Feldlabels', () => {
-  it('nimmt die Feldnamen aus dem Formular, damit sie nur einmal übersetzt sind', () => {
+describe('Email preview – field labels', () => {
+  it('takes the field names from the form so they are translated only once', () => {
     const paare = [
       [deMessages, 'de'],
       [enMessages, 'en'],
     ] as const;
 
-    for (const [nachrichten, locale] of paare) {
-      const preview = vorschau(nachrichten, {}, locale);
-      const felder = Object.values(nachrichten.Appointment.fields as Record<string, string>);
+    for (const [messages, locale] of paare) {
+      const preview = buildPreview(messages, {}, locale);
+      const fieldTexts = Object.values(messages.Appointment.fields as Record<string, string>);
 
-      for (const feld of felder) {
-        expect(preview.body, feld).toContain(`${feld}:`);
+      for (const field of fieldTexts) {
+        expect(preview.body, field).toContain(`${field}:`);
       }
     }
   });

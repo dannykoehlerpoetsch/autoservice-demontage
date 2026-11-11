@@ -12,8 +12,8 @@ if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
 
-// Helles System als Ausgangslage; Tests, die Dunkelmodus wollen, rufen später im Testkörper
-// `stubSystemTheme(true)` auf und überschreiben damit diesen Stub.
+// Light system as the starting point; tests that want dark mode call `stubSystemTheme(true)`
+// later inside the test body and thereby override this stub.
 beforeEach(() => {
   stubSystemTheme(false);
 });

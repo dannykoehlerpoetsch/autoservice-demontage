@@ -17,20 +17,20 @@ import {
 import 'react-day-picker/style.css';
 
 /**
- * Terminkalender: ein Button als Auslöser, der Kalender selbst in einem Radix-Popover.
+ * Appointment calendar: a button as the trigger, the calendar itself inside a Radix popover.
  *
- * Auswählbar sind nur Tage zwischen `minDate` und `maxDate`. Beide Grenzen kommen aus
- * `todayIso()` – gerechnet wird in der Zeitzone der Werkstatt, damit "heute" nicht je nach
- * Rechner des Besuchers anders ausfällt und beim Rendern und Hydrieren dasselbe Datum steht.
+ * Only days between `minDate` and `maxDate` can be picked. Both bounds come from `todayIso()` –
+ * arithmetic runs in the workshop's timezone so "today" does not differ depending on the
+ * visitor's machine and rendering and hydration see the same date.
  *
- * Der Formularwert liegt in einem `hidden`-Input – der Kalender wird in ein Portal außerhalb
- * des Formulars gerendert und steuert die Übergabe des Formulars nicht bei.
+ * The form value lives in a `hidden` input – the calendar is rendered into a portal outside the
+ * form and does not contribute to the form submission.
  */
 
 type AppointmentDatePickerProps = {
   name: string;
   id: string;
-  /** Zugreifbarer Name des Auslösers, ohne sichtbaren Beschriftungstext. */
+  /** Accessible name of the trigger, without visible label text. */
   label: string;
   value: IsoDate;
   onChange: (value: IsoDate) => void;
@@ -57,7 +57,7 @@ export default function AppointmentDatePicker({
   const locale = useLocale();
   const [open, setOpen] = useState(false);
 
-  // react-day-picker will Date-Objekte, der Kalender-String bleibt die Wahrheit.
+  // react-day-picker wants Date objects, the calendar string stays the source of truth.
   const min = fromIsoDate(minDate);
   const max = fromIsoDate(maxDate);
   const selected = fromIsoDate(value);
@@ -71,9 +71,9 @@ export default function AppointmentDatePicker({
   return (
     <div className="flex items-center gap-2">
       {/*
-       * Trägt den eigentlichen Formularwert (YYYY-MM-DD) – er muss die Schemaprüfung im
-       * Formular passieren. Der Schlüssel hält Anfangs- und aktuellen Wert gleich, damit ein
-       * Zurücksetzen des Formulars nicht ausgerechnet den gewählten Termin tilgt.
+       * Carries the actual form value (YYYY-MM-DD) – it has to pass the schema check in the
+       * form. The key keeps the initial and the current value equal so that resetting the form
+       * does not wipe exactly the chosen appointment.
        */}
       <input key={value} type="hidden" name={name} value={value} />
 
@@ -100,9 +100,9 @@ export default function AppointmentDatePicker({
             align="start"
             sideOffset={6}
             /*
-             * Radix meldet den Popover-Inhalt als `role="dialog"`; ohne Namen fragt ein
-             * Screenreader ins Leere. Der Name ist derselbe wie am Auslöser – der Kalender
-             * ist ja genau dieses Feld.
+             * Radix reports the popover content as `role="dialog"`; without a name a screen
+             * reader asks into the void. The name is the same as on the trigger – the calendar
+             * is exactly this field.
              */
             aria-label={label}
             className="z-100 rounded-lg border border-gray-200 bg-bg-primary p-2 shadow-xl outline-none data-[state=open]:animate-pop-in data-[state=closed]:animate-pop-out motion-reduce:animate-none dark:border-gray-700"
@@ -111,7 +111,7 @@ export default function AppointmentDatePicker({
               mode="single"
               selected={selected ?? undefined}
               defaultMonth={selected ?? min ?? undefined}
-              // Matcher arbeiten exklusiv: minDate und maxDate bleiben dadurch wählbar.
+              // Matchers work exclusively: minDate and maxDate stay selectable because of that.
               disabled={min && max ? [{ before: min }, { after: max }] : undefined}
               locale={locale === 'de' ? de : enUS}
               onSelect={(date) => {

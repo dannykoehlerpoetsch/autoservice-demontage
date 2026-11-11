@@ -2,12 +2,11 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import AppointmentForm from '@/components/AppointmentForm';
 import { toLocale } from '@/i18n/locale';
-import { seitenMetadaten } from '@/lib/metadata';
+import { createPageMetadata } from '@/lib/metadata';
 
 /**
- * Die Seite darf nicht auf den Bauzeitpunkt festgeschrieben werden: der Kalender im Formular
- * rendert seinen Rahmen aus dem heutigen Kalendertag, und der soll im ausgelieferten HTML
- * derselbe sein wie im Browser.
+ * The page must not be pinned to the build time: the calendar in the form renders its window from
+ * today's calendar day, and that should be the same in the delivered HTML as in the browser.
  */
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +18,9 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Appointment' });
 
-  return seitenMetadaten({ locale, href: '/termin-anfrage', titel: t('title') });
+  return createPageMetadata({ locale, href: '/termin-anfrage', title: t('title') });
 }
 
-export default function TerminAnfragePage() {
+export default function AppointmentRequestPage() {
   return <AppointmentForm />;
 }

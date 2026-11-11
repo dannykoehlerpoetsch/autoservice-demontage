@@ -1,7 +1,7 @@
 {
   "name": "autoservice-demontage",
   "version": "1.0.0",
-  "description": "Portfolio demo of a fictional independent auto repair shop: Next.js 16 App Router, next-intl, Radix UI, Zod-validated demo appointment flow with an in-browser email preview, Vitest, Playwright, axe-core and visual regression testing.",
+  "description": "Portfolio demo of a fictional independent auto repair shop: Next.js 16 App Router, next-intl, Radix UI, Zod-validated demo appointment flow with an in-browser email preview, Vitest unit tests, Playwright E2E with axe-core accessibility and responsive checks, indexable production pages with sitemap and canonical URLs.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

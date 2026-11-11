@@ -1,37 +1,38 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { toLocale } from '@/i18n/locale';
-import { seitenMetadaten } from '@/lib/metadata';
-import { type BetreiberFeld } from '@/lib/legal/operator';
-import { Angabe, Anschrift } from '@/components/LegalAngabe';
+import { createPageMetadata } from '@/lib/metadata';
+import { type OperatorField } from '@/lib/legal/operator';
+import { FieldValue, OperatorAddress } from '@/components/LegalAngabe';
 
 /**
- * Datenschutzerklärung dieser Seite. Sie beschreibt ausschließlich, was diese Website tatsächlich
- * tut: ausgeliefert von Vercel, zwei Dinge im Browser gespeichert (Sprache und Farbschema), ein
- * Anfrageformular ohne jede Übertragung. Verantwortliche Person, Rechte und Rechtsgrundlagen
- * sind genannt; was nur die betreibende Person klären kann, steht bewusst nicht auf dieser Seite.
+ * Privacy policy of this page. It describes exclusively what this website actually does: served by
+ * Vercel, two things stored in the browser (language and colour scheme), a request form without any
+ * transmission. The responsible person, rights and legal bases are named; whatever only the person
+ * operating the site can clarify deliberately does not stand on this page.
  */
 
-type DatenschutzParams = { params: Promise<{ locale: string }> };
+type PrivacyPolicyParams = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: DatenschutzParams): Promise<Metadata> {
+export async function generateMetadata({ params }: PrivacyPolicyParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Datenschutz' });
 
-  return seitenMetadaten({ locale, href: '/datenschutz', titel: t('title') });
+  return createPageMetadata({ locale, href: '/datenschutz', title: t('title') });
 }
 
-export default async function Datenschutz({ params }: DatenschutzParams) {
+export default async function PrivacyPolicyPage({ params }: PrivacyPolicyParams) {
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Datenschutz' });
 
-  const feldNamen: Partial<Record<BetreiberFeld, string>> = {
+  const fieldLabels: Partial<Record<OperatorField, string>> = {
     name: t('felder.name'),
     strasse: t('felder.strasse'),
     ort: t('felder.ort'),
     email: t('felder.email'),
   };
-  const platzhalter = (feld: BetreiberFeld) => t('platzhalter', { feld: feldNamen[feld] ?? feld });
+  const placeholder = (field: OperatorField) =>
+    t('platzhalter', { field: fieldLabels[field] ?? field });
 
   return (
     <section className="flex flex-col items-start gap-6 py-4 m-auto md:px-4">
@@ -40,10 +41,10 @@ export default async function Datenschutz({ params }: DatenschutzParams) {
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-semibold">{t('verantwortlich.heading')}</h2>
         <p className="text-sm leading-relaxed">{t('verantwortlich.text')}</p>
-        <Anschrift platzhalter={platzhalter} />
+        <OperatorAddress placeholder={placeholder} />
         <div className="flex flex-wrap gap-x-2 text-sm">
           <span className="text-gray-500 dark:text-gray-400">{t('felder.email')}:</span>
-          <Angabe feld="email" platzhalter={platzhalter} />
+          <FieldValue field="email" placeholder={placeholder} />
         </div>
       </section>
 

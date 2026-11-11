@@ -31,19 +31,19 @@ describe('LanguageSwitcher', () => {
     replaceMock.mockClear();
   });
 
-  it('bietet genau die konfigurierten Locales an', () => {
+  it('offers exactly the configured locales', () => {
     renderSwitcher('de');
 
     const select = screen.getByRole('combobox', { name: 'Sprache' });
-    const optionen = within(select).getAllByRole('option');
+    const options = within(select).getAllByRole('option');
 
-    expect(optionen.map((option) => option.getAttribute('value'))).toEqual([...routing.locales]);
-    expect(optionen.map((option) => option.textContent)).toEqual(
+    expect(options.map((option) => option.getAttribute('value'))).toEqual([...routing.locales]);
+    expect(options.map((option) => option.textContent)).toEqual(
       routing.locales.map((locale) => locale.toUpperCase())
     );
   });
 
-  it('zeigt die aktuelle Sprache an, nicht die Standardsprache', () => {
+  it('shows the current language, not the default language', () => {
     renderSwitcher('de');
     expect(screen.getByRole('combobox')).toHaveValue('de');
 
@@ -51,21 +51,21 @@ describe('LanguageSwitcher', () => {
     expect(screen.getAllByRole('combobox')[1]).toHaveValue('en');
   });
 
-  it('ist beschriftet, auch für Screenreader ohne Sehende', () => {
+  it('is labelled, also for screen readers without sighted users', () => {
     renderSwitcher('de');
 
-    // Einmal für die Bedienung sichtbar, einmal als `sr-only`-Text für Assistenz.
+    // Once visible for operation, once as `sr-only` text for assistive technology.
     expect(screen.getByRole('combobox')).toHaveAccessibleName('Sprache');
     expect(screen.getByText('Sprache')).toBeInTheDocument();
   });
 
-  it('wechselt die Sprache auf derselben Seite ohne Scrollen', () => {
+  it('switches the language on the same page without scrolling', () => {
     renderSwitcher('de');
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'en' } });
 
-    // Der Wechsel muss auf der aktuellen Seite passieren – sonst landet der Nutzer
-    // nach dem Umschalten auf der Startseite.
+    // The switch has to happen on the current page – otherwise the user
+    // lands on the homepage after switching.
     expect(replaceMock).toHaveBeenCalledWith('/termin-anfrage', {
       locale: 'en',
       scroll: false,

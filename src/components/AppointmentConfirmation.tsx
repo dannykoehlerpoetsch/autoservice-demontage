@@ -6,15 +6,15 @@ import { ArrowLeft, CalendarCheck, Mail, Pencil, Plus } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { formatIsoDateLong, intlLocaleFor } from '@/lib/dates';
 import { findServiceHeading, type ServiceListing } from '@/lib/services';
-import { useBookingService } from './BookingProvider';
+import { useBooking } from './BookingProvider';
 import DemoEmailPreviewDialog from './DemoEmailPreviewDialog';
 
 /**
- * Zusammenfassung der abgeschlossenen Demo-Anfrage.
+ * Summary of the finished demo request.
  *
- * Gezeigt wird, was im `BookingProvider` liegt – also nichts nach einem Neuladen. Die Seite
- * behauptet deshalb an keiner Stelle, es sei etwas versendet oder ein Termin gebucht: Sie
- * fasst zusammen, erklärt die Simulation und bietet die E-Mail-Vorschau als Text an.
+ * Shown is whatever sits in the `BookingProvider` – so nothing after a reload. The page therefore
+ * never claims that something was sent or an appointment booked: it summarises, explains the
+ * simulation and offers the email preview as text.
  */
 
 export default function AppointmentConfirmation() {
@@ -23,27 +23,27 @@ export default function AppointmentConfirmation() {
   const tServices = useTranslations('Services');
   const locale = useLocale();
   const router = useRouter();
-  const { request, startNewRequest } = useBookingService();
+  const { request, startNewRequest } = useBooking();
 
   const [previewOpen, setPreviewOpen] = useState(false);
 
   if (!request) {
-    return <KeineAnfrage />;
+    return <MissingRequestNotice />;
   }
 
   const items = tServices.raw('items') as ServiceListing[];
   const serviceHeading = findServiceHeading(items, request.service);
 
-  const zeilen = [
-    { label: tField('name'), wert: request.name },
-    { label: tField('service'), wert: serviceHeading },
-    { label: tField('date'), wert: formatIsoDateLong(request.date, intlLocaleFor(locale)) },
-    { label: tField('email'), wert: request.email || t('notProvided') },
-    { label: tField('phone'), wert: request.phone || t('notProvided') },
-    { label: tField('note'), wert: request.note || t('noNote') },
+  const rows = [
+    { label: tField('name'), value: request.name },
+    { label: tField('service'), value: serviceHeading },
+    { label: tField('date'), value: formatIsoDateLong(request.date, intlLocaleFor(locale)) },
+    { label: tField('email'), value: request.email || t('notProvided') },
+    { label: tField('phone'), value: request.phone || t('notProvided') },
+    { label: tField('note'), value: request.note || t('noNote') },
   ];
 
-  const neueAnfrage = () => {
+  const handleNewRequest = () => {
     startNewRequest();
     router.push('/termin-anfrage');
   };
@@ -58,10 +58,10 @@ export default function AppointmentConfirmation() {
 
       <h2 className="mt-8 text-xl font-semibold">{t('summaryHeading')}</h2>
       <dl className="mt-3 w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-        {zeilen.map((zeile) => (
-          <div key={zeile.label} className="grid gap-1 py-2 sm:grid-cols-[10rem_1fr]">
-            <dt className="font-medium text-gray-600 dark:text-gray-300">{zeile.label}</dt>
-            <dd className="break-words whitespace-pre-line">{zeile.wert}</dd>
+        {rows.map((row) => (
+          <div key={row.label} className="grid gap-1 py-2 sm:grid-cols-[10rem_1fr]">
+            <dt className="font-medium text-gray-600 dark:text-gray-300">{row.label}</dt>
+            <dd className="break-words whitespace-pre-line">{row.value}</dd>
           </div>
         ))}
       </dl>
@@ -90,7 +90,7 @@ export default function AppointmentConfirmation() {
         </button>
         <button
           type="button"
-          onClick={neueAnfrage}
+          onClick={handleNewRequest}
           className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:border-brand-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:border-gray-600"
         >
           <Plus size={16} aria-hidden="true" />
@@ -117,10 +117,10 @@ export default function AppointmentConfirmation() {
 }
 
 /**
- * Ohne Zustand gibt es nichts zusammenzufassen – nach einem Neuladen wie beim direkten
- * Aufruf. Die Meldung erklärt den Grund, statt eine Anfrage vorzuspielen.
+ * Without state there is nothing to summarise – after a reload just like on a direct call. The
+ * message explains the reason instead of pretending a request.
  */
-function KeineAnfrage() {
+function MissingRequestNotice() {
   const t = useTranslations('AppointmentConfirmation');
 
   return (

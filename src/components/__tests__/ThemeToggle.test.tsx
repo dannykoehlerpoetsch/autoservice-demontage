@@ -6,9 +6,9 @@ import { stubSystemTheme } from '@/test-utils';
 import ThemeToggle from '../ThemeToggle';
 
 /**
- * Der Dark-Mode wird außerhalb von React auf dem <html>-Element gesetzt (siehe
- * `src/lib/theme-script.ts`). Geprüft wird hier also nicht die Klasse eines Knopfes, sondern
- * dass der Knopf das globale <html> und den Speicherplatz korrekt erwischt.
+ * Dark mode is set on the <html> element outside of React (see `src/lib/theme-script.ts`). What is
+ * checked here is therefore not the class of a button but that the button correctly hits the global
+ * <html> and the storage slot.
  */
 
 function renderToggle(locale: 'de' | 'en' = 'de') {
@@ -25,66 +25,66 @@ describe('ThemeToggle', () => {
     document.documentElement.classList.remove('dark');
   });
 
-  it('startet hell und verspricht den Dunkelmodus', () => {
+  it('starts light and promises dark mode', () => {
     renderToggle();
 
     expect(screen.getByRole('button', { name: 'Dunkelmodus aktivieren' })).toBeInTheDocument();
     expect(document.documentElement).not.toHaveClass('dark');
   });
 
-  it('setzt die dunkle Klasse aufs <html>-Element und merkt sich die Wahl', () => {
+  it('sets the dark class on the <html> element and remembers the choice', () => {
     renderToggle();
 
     fireEvent.click(screen.getByRole('button', { name: 'Dunkelmodus aktivieren' }));
 
     expect(document.documentElement).toHaveClass('dark');
     expect(localStorage.getItem('theme')).toBe('dark');
-    // Der Knopf muss jetzt das Zurückschalten ankündigen – sonst ist er für
-    // Screenreader-Nutzer ein Rätsel.
+    // The button now has to announce switching back – otherwise it is a
+    // riddle for screen reader users.
     expect(screen.getByRole('button', { name: 'Hellmodus aktivieren' })).toBeInTheDocument();
   });
 
-  it('schaltet in zwei Klicken zurück auf hell', () => {
+  it('switches back to light in two clicks', () => {
     renderToggle();
-    const knopf = () => screen.getByRole('button');
+    const button = () => screen.getByRole('button');
 
-    fireEvent.click(knopf());
-    fireEvent.click(knopf());
+    fireEvent.click(button());
+    fireEvent.click(button());
 
     expect(document.documentElement).not.toHaveClass('dark');
     expect(localStorage.getItem('theme')).toBe('light');
   });
 
-  it('überschreibt die zurückgesetzte <html>-Klasse nach einem Locale-Wechsel', () => {
+  it('overrides the reset <html> class after a locale change', () => {
     localStorage.setItem('theme', 'dark');
 
     renderToggle('de');
     expect(document.documentElement).toHaveClass('dark');
 
-    // Der Root-Render beim Locale-Wechsel klebt die Klasse neu – der Effekt muss sie
-    // erneut setzen, sonst ist der Dark-Mode nach der Sprachumschaltung weg.
+    // The root render on a locale change sticks the class back on – the effect has to
+    // set it again, otherwise dark mode is gone after the language switch.
     document.documentElement.classList.remove('dark');
     renderToggle('de');
 
     expect(document.documentElement).toHaveClass('dark');
   });
 
-  it('folgt dem System, wenn nichts gespeichert ist', async () => {
+  it('follows the system when nothing is stored', async () => {
     stubSystemTheme(true);
 
     renderToggle();
 
     await screen.findByRole('button', { name: 'Hellmodus aktivieren' });
     expect(document.documentElement).toHaveClass('dark');
-    // Die Systemeinstellung wird nicht als eigene Speicherung deklariert.
+    // The system setting is not declared as its own storage.
     expect(localStorage.getItem('theme')).toBeNull();
   });
 
-  it('ist trotz blockiertem localStorage präsent', () => {
-    // Private Modi werfen beim Lesen; der try/catch in `applyStoredOrSystemTheme` muss
-    // das abfangen, sonst hängt der ganze Header in einem Fehler-Boundary.
+  it('is present despite blocked localStorage', () => {
+    // Private modes throw when reading; the try/catch in `applyStoredOrSystemTheme` has
+    // to catch that, otherwise the whole header hangs in an error boundary.
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new Error('Storage blockiert');
+      throw new Error('storage blocked');
     });
 
     renderToggle();

@@ -1,11 +1,11 @@
 /**
- * Debug-Helfer: künstliche Verzögerung für Server-Content, damit man
- * Loading-/Suspense-Skeletons lokal überhaupt zu sehen bekommt.
+ * Debug helper: an artificial delay for server content so the loading / suspense skeletons can
+ * actually be seen locally.
  *
- * Nur aktiv, wenn `SLOW_CONTENT_MS` gesetzt ist, z. B.:
- *   SLOW_CONTENT_MS=1500 npm run dev
+ * Only active when `SLOW_CONTENT_MS` is set, for example:
+ *   SLOW_CONTENT_MS=1500 bun run dev
  *
- * In Produktion ohne gesetzte Variable ein No-Op.
+ * A no-op in production when the variable is not set.
  */
 export async function debugDelay(): Promise<void> {
   const raw = process.env.SLOW_CONTENT_MS;

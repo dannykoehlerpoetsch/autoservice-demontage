@@ -7,22 +7,21 @@ import { buildDemoEmailPreview, type Translate } from '@/lib/appointment/email-p
 import type { AppointmentInput } from '@/lib/appointment/schema';
 
 /**
- * Vorschau der Bestätigungs-E-Mail – Text, der im Browser entsteht, ohne jeden Versand.
+ * Preview of the confirmation email – text that is produced in the browser, without any sending.
  *
- * Der Dialog zeigt, wie eine E-Mail aussähe, wäre ein Versand gebaut: Absender, Empfänger,
- * Betreff und Rumpf. Es gibt bewusst keinen "Senden"-Knopf, keinen Wartezustand und keine
- * Erfolgsmeldung – es geht nichts nach draußen.
+ * The dialog shows what an email would look like if sending were built: sender, recipient,
+ * subject and body. There is deliberately no "send" button, no waiting state and no success
+ * message – nothing goes out.
  *
- * Der Rumpf kommt als Klartext aus `buildDemoEmailPreview` und wird als Text gerendert: Auch
- * lange Eingaben brechen um, statt die Box zu sprengen – `dangerouslySetInnerHTML` kommt hier
- * nicht vor.
+ * The body arrives as plain text from `buildDemoEmailPreview` and is rendered as text: even long
+ * input wraps instead of bursting the box – `dangerouslySetInnerHTML` does not appear here.
  */
 
 type DemoEmailPreviewDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   appointment: AppointmentInput;
-  /** Übersetzte Bezeichnung der gewählten Leistung – steht in Betreff und Rumpf. */
+  /** Translated name of the chosen service – stands in subject and body. */
   serviceHeading: string;
 };
 
@@ -32,27 +31,27 @@ export default function DemoEmailPreviewDialog({
   appointment,
   serviceHeading,
 }: DemoEmailPreviewDialogProps) {
-  // Wurzelnamespace: die Vorschau braucht Schlüssel aus `DemoEmail` *und* aus
-  // `Appointment.fields` und spricht deshalb absolute Namen an. next-intl prüft Schlüssel
-  // zur Compilezeit, die Vorschau setzt sie aus Feldnamen zusammen – die Übersetzerin läuft
-  // zur Laufzeit mit jedem Schlüssel und bekommt hier ihre schlichte Form.
+  // Root namespace: the preview needs keys from `DemoEmail` *and* from
+  // `Appointment.fields` and therefore addresses absolute names. next-intl checks keys at
+  // compile time, the preview assembles them from field names – the translator runs at runtime
+  // with any key and gets its plain form here.
   const t = useTranslations() as unknown as Translate;
   const tPreview = useTranslations('AppointmentConfirmation.preview');
   const locale = useLocale();
 
-  // Reine Funktion ohne Seiteneffekte – ein Merken wäre teurer als der Bau des Textes.
+  // Pure function without side effects – memoising would cost more than building the text.
   const preview = buildDemoEmailPreview(
     { ...appointment, serviceHeading },
     { locale, translate: t }
   );
 
-  const zeilen = [
-    { label: t('DemoEmail.labels.from'), wert: preview.from },
+  const rows = [
+    { label: t('DemoEmail.labels.from'), value: preview.from },
     {
       label: t('DemoEmail.labels.to'),
-      wert: preview.to ?? t('AppointmentConfirmation.notProvided'),
+      value: preview.to ?? t('AppointmentConfirmation.notProvided'),
     },
-    { label: t('DemoEmail.labels.subject'), wert: preview.subject },
+    { label: t('DemoEmail.labels.subject'), value: preview.subject },
   ];
 
   return (
@@ -71,10 +70,10 @@ export default function DemoEmailPreviewDialog({
           </Dialog.Description>
 
           <dl className="mb-4 divide-y divide-gray-200 text-sm dark:divide-gray-700">
-            {zeilen.map((zeile) => (
-              <div key={zeile.label} className="grid gap-1 py-1.5 sm:grid-cols-[6rem_1fr]">
-                <dt className="font-medium text-gray-600 dark:text-gray-300">{zeile.label}</dt>
-                <dd className="break-words">{zeile.wert}</dd>
+            {rows.map((row) => (
+              <div key={row.label} className="grid gap-1 py-1.5 sm:grid-cols-[6rem_1fr]">
+                <dt className="font-medium text-gray-600 dark:text-gray-300">{row.label}</dt>
+                <dd className="break-words">{row.value}</dd>
               </div>
             ))}
           </dl>

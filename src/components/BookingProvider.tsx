@@ -5,32 +5,31 @@ import type { ServiceId } from '@/lib/services';
 import type { AppointmentInput } from '@/lib/appointment/schema';
 
 /**
- * Clientseitiger Zustand der Demo-Terminanfrage – der einzige Ort, an dem die Eingaben stehen.
+ * Client-side state of the demo appointment request – the only place the input lives.
  *
- * Zwei Werte, beide React-State in einem Provider. Der Provider hängt im Layout und überlebt
- * deshalb die clientseitige Navigation:
+ * Two values, both React state in one provider. The provider sits in the layout and therefore
+ * survives client-side navigation:
  *
- * 1. `serviceId` – die Leistung, deren CTA im Detaildialog geklickt wurde. Das Formular
- *    wählt sie daraufhin voraus.
- * 2. `request` – die abgeschlossene Anfrage, die die Bestätigungsseite zusammenfasst.
+ * 1. `serviceId` – the service whose CTA was clicked in the detail dialog. The form preselects it.
+ * 2. `request` – the finished request that the confirmation page summarises.
  *
- * Bewusst kein Storage, kein Cookie, kein Server: Die Daten liegen nur im Arbeitsspeicher des
- * laufenden Browserkontextes. Ein Neuladen der Seite – oder der direkte Aufruf der
- * Bestätigungsseite – trifft deshalb die leere Variante, die den Verlust erklärt, statt zu
- * tun, als käme etwas zurück. Für eine Portfolio-Demo, die nichts versendet und nichts bucht,
- * ist das die kürzeste ehrliche Architektur: zwei Werte brauchen keine State-Bibliothek.
+ * Deliberately no storage, no cookie, no server: the data only lies in the memory of the running
+ * browser context. Reloading the page – or calling the confirmation page directly – therefore hits
+ * the empty variant, which explains the loss instead of acting as if something came back. For a
+ * portfolio demo that sends nothing and books nothing this is the shortest honest architecture:
+ * two values need no state library.
  */
 
 type BookingContextValue = {
-  /** Vorauswahl für das Formular, `null`, bis eine Leistung gewählt wurde. */
+  /** Preselection for the form, `null` until a service was chosen. */
   serviceId: ServiceId | null;
-  /** Abgeschlossene Anfrage für die Bestätigungsseite, `null`, solange nichts abgeschlossen ist. */
+  /** Finished request for the confirmation page, `null` while nothing was finished. */
   request: AppointmentInput | null;
   /** Auswahl aus dem Detaildialog oder aus dem Servicefeld des Formulars. */
   selectService: (id: ServiceId | null) => void;
-  /** Anfrage abschließen: macht die Zusammenfassung möglich und bleibt fürs Nachbearbeiten stehen. */
+  /** Finishes the request: makes the summary possible and stays for editing. */
   completeRequest: (input: AppointmentInput) => void;
-  /** Für eine frische Anfrage: Zusammenfassung und Vorauswahl zurücknehmen. */
+  /** For a fresh request: undo the summary and the preselection. */
   startNewRequest: () => void;
 };
 
@@ -44,8 +43,8 @@ export default function BookingProvider({ children }: { children: ReactNode }) {
 
   const completeRequest = useCallback((input: AppointmentInput) => {
     setRequest(input);
-    // Die Leistung der Anfrage bleibt die Vorauswahl – wer zurückkehrt und nachbearbeitet,
-    // sieht genau das, was in der Zusammenfassung steht.
+    // The service of the request stays the preselection – whoever returns and edits
+    // sees exactly what the summary shows.
     setServiceId(input.service);
   }, []);
 
@@ -62,10 +61,10 @@ export default function BookingProvider({ children }: { children: ReactNode }) {
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
 }
 
-export function useBookingService(): BookingContextValue {
+export function useBooking(): BookingContextValue {
   const context = useContext(BookingContext);
   if (!context) {
-    throw new Error('useBookingService muss innerhalb von <BookingProvider> benutzt werden.');
+    throw new Error('useBookingService must be used inside <BookingProvider>.');
   }
   return context;
 }

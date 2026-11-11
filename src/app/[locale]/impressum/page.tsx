@@ -1,67 +1,68 @@
-import { Fragment } from 'react';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { toLocale } from '@/i18n/locale';
+import { seitenMetadaten } from '@/lib/metadata';
+import { betreiberAngabe, type BetreiberFeld } from '@/lib/legal/operator';
+import { Angabe, Anschrift } from '@/components/LegalAngabe';
 
-function Lines({ lines }: { lines: string[] }) {
-  return (
-    <p className="leading-relaxed">
-      {lines.map((line, index) => (
-        <Fragment key={index}>
-          {index > 0 && <br />}
-          {line}
-        </Fragment>
-      ))}
-    </p>
-  );
+/**
+ * Impressum dieser Portfolio-Seite: die nach § 5 Abs. 1 DDG erforderlichen Angaben der
+ * betreibenden Person und ein kurzer Hinweis auf das fiktive Projekt – weiter nichts.
+ *
+ * Die Werte stehen in `src/lib/legal/operator.ts`. Was dort fehlt, erscheint als eindeutiger
+ * Platzhalter; erfunden wird nichts. Freiwillige Angaben (Telefon, USt-IdNr.) werden nur
+ * gerendert, wenn sie eingetragen sind.
+ */
+
+type ImpressumParams = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: ImpressumParams): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: toLocale(locale), namespace: 'Impressum' });
+
+  return seitenMetadaten({ locale, href: '/impressum', titel: t('title') });
 }
 
-export default async function Impressum() {
-  const t = await getTranslations('Impressum');
+export default async function Impressum({ params }: ImpressumParams) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: toLocale(locale), namespace: 'Impressum' });
+
+  const platzhalter = (feld: BetreiberFeld) => t('platzhalter', { feld: t(`felder.${feld}`) });
 
   return (
-    <section className="flex flex-col items-start md:px-4 py-4 m-auto">
-      <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
+    <section className="flex flex-col items-start gap-6 py-4 m-auto md:px-4">
+      <h1 className="text-3xl font-bold">{t('title')}</h1>
 
-      <p className="mb-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-800 text-sm leading-relaxed">
-        {t('disclaimer')}
+      <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+        {t('fictionalNotice')}
       </p>
 
-      {/*
-       * Die Platzhalter unten sind keine Angaben, sondern Lücken: wer diese Seite
-       * veröffentlicht, muss sie durch die echten Betreiberangaben ersetzen. Der Hinweis
-       * bleibt im Text, damit niemand die eckigen Klammern für Daten hält.
-       */}
-      <p className="mb-6 p-4 rounded-lg border border-gray-200 text-sm leading-relaxed dark:border-gray-700">
-        {t('placeholderNote')}
-      </p>
-
-      <section className="mb-4">
-        <h2 className="text-xl font-semibold mb-1">{t('address.heading')}</h2>
-        <Lines lines={t.raw('address.lines') as string[]} />
+      <section className="flex flex-col gap-2">
+        <h2 className="text-xl font-semibold">{t('anbieter.heading')}</h2>
+        <Anschrift platzhalter={platzhalter} />
       </section>
 
-      <section className="mb-4">
-        <h2 className="text-xl font-semibold mb-1">{t('contact.heading')}</h2>
-        <Lines lines={t.raw('contact.lines') as string[]} />
-      </section>
+      <section className="flex flex-col gap-2">
+        <h2 className="text-xl font-semibold">{t('kontakt.heading')}</h2>
+        <dl className="flex flex-col gap-1 text-sm">
+          <div className="flex flex-wrap gap-x-2">
+            <dt className="text-gray-500 dark:text-gray-400">{t('felder.email')}:</dt>
+            <dd>
+              <Angabe feld="email" platzhalter={platzhalter} />
+            </dd>
+          </div>
 
-      <section className="mb-4">
-        <h2 className="text-xl font-semibold mb-1">{t('vat.heading')}</h2>
-        <Lines lines={t.raw('vat.lines') as string[]} />
-      </section>
-
-      <section className="mb-4">
-        <h2 className="text-xl font-semibold mb-1">{t('profession.heading')}</h2>
-        <Lines lines={t.raw('profession.lines') as string[]} />
-      </section>
-
-      <section className="mb-4">
-        <h2 className="text-xl font-semibold mb-1">{t('dispute.heading')}</h2>
-        <Lines lines={t.raw('dispute.lines') as string[]} />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-1">{t('liability.heading')}</h2>
-        <Lines lines={t.raw('liability.lines') as string[]} />
+          {(['telefon', 'ustIdNr'] as const)
+            .filter((feld) => betreiberAngabe(feld) !== null)
+            .map((feld) => (
+              <div className="flex flex-wrap gap-x-2" key={feld}>
+                <dt className="text-gray-500 dark:text-gray-400">{t(`felder.${feld}`)}:</dt>
+                <dd>
+                  <Angabe feld={feld} platzhalter={platzhalter} />
+                </dd>
+              </div>
+            ))}
+        </dl>
       </section>
     </section>
   );

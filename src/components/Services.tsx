@@ -46,7 +46,7 @@ export default function Services() {
           key={item.heading}
           type="button"
           onClick={() => openService(item)}
-          className="group relative flex min-h-50 cursor-pointer items-end justify-center overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary"
+          className="group relative flex min-h-50 cursor-pointer items-end justify-center overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-line focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary"
         >
           <Image
             src={serviceImages[item.id]}

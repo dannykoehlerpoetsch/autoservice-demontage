@@ -59,11 +59,39 @@ describe('Header', () => {
 
     expect(logo).toHaveAttribute('alt', messages.Header.logoAlt);
     expect(logo?.getAttribute('alt')).toContain('Autoservice Demontage');
-    // Seitenverhältnis der Datei (2172×724): gedehnt würde das Logo sofort aussehen.
-    expect(Number(logo?.getAttribute('width')) / Number(logo?.getAttribute('height'))).toBeCloseTo(
-      2172 / 724,
-      1
-    );
+    // next/image liefert den Pfad verschlüsselt in der Loader-Adresse aus. Geprüft wird die
+    // Datei dahinter – ob ausgeliefert oder optimiert, entscheidet die Auslieferung.
+    expect(decodeURIComponent(logo?.getAttribute('src') ?? '')).toContain('/Headerlogo.png');
+  });
+
+  // Die Bilddatei misst 2172×724 – genau 3:1. Weichen die Attribute davon ab, dehnt der
+  // Browser das Logo (sichtbar vor dem ersten Laden der Datei).
+  it('gibt die echten Bildmaße des Logos an, ohne jede Rundung', () => {
+    renderHeader();
+
+    const logo = screen.getByRole('link', { name: 'Zur Startseite' }).querySelector('img');
+    const breite = Number(logo?.getAttribute('width'));
+    const hoehe = Number(logo?.getAttribute('height'));
+
+    expect(breite).toBe(2172);
+    expect(hoehe).toBe(724);
+    expect(breite / hoehe).toBeCloseTo(3, 10);
+  });
+
+  it('steuert die Logo-Größe über die Breite und lässt die Höhe frei', () => {
+    renderHeader();
+
+    const logo = screen.getByRole('link', { name: 'Zur Startseite' }).querySelector('img');
+    const klassen = (logo?.getAttribute('class') ?? '').split(/\s+/);
+
+    // h-auto statt einer festen Höhe: eine Höhe mit falscher Breite wäre ein gezerrtes Logo.
+    expect(klassen).toContain('h-auto');
+    expect(klassen).toContain('w-40');
+    expect(klassen).toContain('md:w-56');
+    expect(klassen.some((k) => /^h-\d+$/.test(k))).toBe(false);
+
+    // Die ausgelieferte Variante bleibt an der tatsächlichen Breite begrenzt.
+    expect(logo).toHaveAttribute('sizes', expect.stringContaining('252px'));
   });
 
   it('smooth-scrolls instead of navigating when already on the homepage', () => {

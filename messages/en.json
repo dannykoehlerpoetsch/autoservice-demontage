@@ -35,6 +35,8 @@
   "Footer": {
     "rights": "All rights reserved.",
     "impressum": "Legal Notice",
+    "datenschutz": "Privacy Policy",
+    "legalNavLabel": "Legal pages",
     "demoNote": "This is a demo project for my developer portfolio."
   },
   "Home": {
@@ -241,40 +243,61 @@
   },
   "Impressum": {
     "title": "Legal Notice",
-    "disclaimer": "Note: This is a demo/portfolio project. The repair shop shown here, \"Autoservice Demontage\", is entirely fictional and is not in operation. All content exists solely to demonstrate web development skills.",
-    "placeholderNote": "The sections below are placeholders and deliberately contain no real details. Before publishing, they have to be replaced with the actual operator's details; whether a legal notice and a privacy policy are required at all, and in what form, has to be clarified beforehand.",
-    "address": {
-      "heading": "Information pursuant to § 5 TMG",
-      "lines": ["[Max Mustermann]", "[Musterstraße 1]", "[12345 Musterstadt]"]
+    "fictionalNotice": "This website shows a portfolio project. The repair shop “Autoservice Demontage” is invented; no services are offered and no appointments are made.",
+    "platzhalter": "[to be added: {feld}]",
+    "felder": {
+      "name": "Name",
+      "strasse": "Street and house number",
+      "ort": "Postal code and city",
+      "email": "Email address",
+      "telefon": "Phone",
+      "ustIdNr": "VAT identification number"
     },
-    "contact": {
-      "heading": "Contact",
-      "lines": ["Phone: [Phone number]", "Email: [Email address]"]
+    "anbieter": {
+      "heading": "Service provider"
     },
-    "vat": {
-      "heading": "VAT ID",
-      "lines": ["VAT identification number pursuant to § 27a of the German VAT Act:", "[VAT ID]"]
+    "kontakt": {
+      "heading": "Contact"
+    }
+  },
+  "Datenschutz": {
+    "title": "Privacy Policy",
+    "platzhalter": "[to be added: {feld}]",
+    "felder": {
+      "name": "Name",
+      "strasse": "Street and house number",
+      "ort": "Postal code and city",
+      "email": "Email address"
     },
-    "profession": {
-      "heading": "Professional title and professional regulations",
-      "lines": [
-        "Professional title: [Professional title]",
-        "Competent chamber: [Chamber]",
-        "Awarded in: [Country]",
-        "The following professional regulations apply: [Regulations]",
-        "Regulations available at: [URL]"
-      ]
+    "verantwortlich": {
+      "heading": "Responsible for data processing",
+      "text": "The controller within the meaning of the GDPR is the person who operates this website and is named in the legal notice. Requests about one’s own data are answered through the email address given there."
     },
-    "dispute": {
-      "heading": "Consumer dispute resolution / universal arbitration board",
-      "lines": [
-        "We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board."
-      ]
+    "hosting": {
+      "heading": "Hosting and access data",
+      "text": "This website is hosted by Vercel. When a page is requested, the hosting provider processes technical access data: the IP address, the date and time of the request, the address requested, the amount of data transferred and the type of browser. Without this data the page cannot be delivered. The legal basis is Art. 6(1)(f) GDPR; the entries are deleted once the period configured in the hosting project has passed.",
+      "anbieter": "The hosting provider is Vercel Inc., based in the United States. Details on processing, retention periods and third-country transfers are given in Vercel’s privacy policy.",
+      "schriften": "The fonts of this website are fetched at build time and served from the same address as the website itself. Reading a page opens no connection to a font provider."
     },
-    "liability": {
-      "heading": "Liability for content",
-      "lines": [
-        "As a service provider, we are responsible for our own content on these pages in accordance with § 7 para. 1 TMG under general law. However, according to §§ 8 to 10 TMG, we as a service provider are not obliged to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information under general law remain unaffected. However, liability in this regard is only possible from the point in time at which a specific infringement becomes known. If we become aware of any such infringements, we will remove the relevant content immediately."
+    "darstellung": {
+      "heading": "Language and colour scheme in the browser",
+      "sprache": "Anyone who switches the language using the selection in the header or the footer has that choice stored in a cookie named NEXT_LOCALE. It holds nothing but the language code, that is de or en, it applies to the whole website, it has no expiry time and it is sent with SameSite=Lax. It can be deleted at any time in the browser settings.",
+      "farbe": "The choice between the light and the dark colour scheme is kept in the browser’s local storage under the key theme and does not leave the device. Without a personal choice the website follows the setting of the operating system."
+    },
+    "anfrage": {
+      "heading": "The request form",
+      "text": "The request form is part of the demonstration: the entries stay in the browser, are not transmitted to a server, are not stored and are not sent. After reloading the page they are gone. No processing by the controller takes place in doing so."
+    },
+    "rechte": {
+      "heading": "Rights",
+      "text": "Anyone affected by the processing of personal data may assert these rights towards the controller:",
+      "items": [
+        "Information about the data stored (Art. 15 GDPR)",
+        "Rectification of incorrect data and erasure (Art. 16 and 17 GDPR)",
+        "Restriction of processing (Art. 18 GDPR)",
+        "Data portability (Art. 20 GDPR)",
+        "Objection to processing based on interests (Art. 21 GDPR)",
+        "Complaint to a data protection supervisory authority (Art. 77 GDPR)"
       ]
     }
   }

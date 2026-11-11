@@ -72,19 +72,23 @@ export default function Header() {
   }, [pathname]);
 
   return (
-    <header className="header-bg text-white sticky top-0 z-50 h-3/4">
+    <header className="header-bg text-white sticky top-0 z-50 h-3/4 overflow-x-clip">
       <div className="relative">
         <div className="flex items-center justify-between">
           <Link href="/#home" aria-label={t('homeAriaLabel')} onClick={handleNavClick('#home')}>
             {/*
-             * width/height folgen dem Seitenverhältnis der Datei (2172×724), damit das Logo
-             * nie gedehnt wird, egal welche Klasse die Größe am Ende setzt.
+             * width/height sind die echten Bildmaße der Datei (2172×724 = exakt 3:1), damit
+             * der Browser das Seitenverhältnis vor dem Laden reservieren kann – verzerrt wird
+             * dadurch nichts, egal welche Klasse die Größe setzt. `sizes` begrenzt die
+             * ausgelieferte Variante auf die tatsächliche Breite (w-40 = 10rem, md:w-56 =
+             * 14rem, bis zu 18 px Grundschrift = 180 px bzw. 252 px).
              */}
             <Image
               src="/Headerlogo.png"
               alt={t('logoAlt')}
-              width={217}
-              height={72}
+              width={2172}
+              height={724}
+              sizes="(min-width: 768px) 252px, 180px"
               className="h-auto w-40 md:w-56"
               priority
             />
@@ -92,7 +96,13 @@ export default function Header() {
           <button
             type="button"
             ref={toggleRef}
-            className="md:hidden p-2 -mr-2 hover:bg-green-400 dark:hover:bg-green-800 rounded-lg cursor-pointer"
+            /*
+             * Das Minus am Rand rückt das Symbol bündig nach rechts, genau wie das Logo links
+             * bündig steht. Die Polsterung bleibt als Trefferfläche erhalten – ohne das
+             * `overflow-x-clip` am `header` würde dasselbe Minus die Seite auf schmalen
+             * Viewports um diese Breite über den Viewport hinaus schieben.
+             */
+            className="md:hidden p-2 -mr-2 hover:bg-black/20 dark:hover:bg-white/10 rounded-lg cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? t('menuClose') : t('menuOpen')}
           >
@@ -126,7 +136,7 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="block py-2 px-3 hover:bg-green-400 dark:hover:bg-green-800 rounded-lg"
+                    className="block py-2 px-3 hover:bg-black/20 dark:hover:bg-white/10 rounded-lg"
                     onClick={(e) => {
                       handleNavClick(link.hash)(e);
                       setIsOpen(false);

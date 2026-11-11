@@ -30,7 +30,7 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={isDark ? t('themeLight') : t('themeDark')}
-      className="p-2 rounded-md hover:bg-green-400 dark:hover:bg-green-800 transition-colors cursor-pointer"
+      className="p-2 rounded-md hover:bg-black/20 dark:hover:bg-white/10 transition-colors cursor-pointer"
     >
       {isDark ? <Sun size={20} /> : <Moon size={20} />}
     </button>

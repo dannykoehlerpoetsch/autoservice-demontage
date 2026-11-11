@@ -7,8 +7,13 @@ import AxeBuilder from '@axe-core/playwright';
  * axe über die Seiten laufen, damit eine kaputte Semantik (fehlender Label, leerer
  * Button-Name, falsche Rolle) nicht mehr per Handklick gesucht werden muss.
  *
- * Bewusst ohne Consent-Klick: das Google-Embed lädt in diesen Tests nicht, und axe käme dort
- * ohnehin nicht in ein Cross-Origin-iframe hinein.
+ * Bewusst ohne Consent-Klick: die Seite fragt niemanden nach einer Einwilligung, und axe käme
+ * in ein Cross-Origin-Iframe ohnehin nicht hinein – Iframes gibt es hier nicht.
+ *
+ * Früher gab es in dieser Datei eine Ausnahme für Kontrastverstöße auf der Markenfarbe. Sie ist
+ * weg, weil der Grund behoben ist: Flächen mit weißer Schrift laufen über `--color-brand-strong`
+ * (6,33:1), Schrift auf der Markenfarbe über dunkle Schrift bzw. das dunklere Token. Gemessen
+ * wird jetzt ohne jede Freigabe – ein neuer Verstoß lässt die Pipeline laufen oder still scheitern.
  */
 
 /**
@@ -30,34 +35,7 @@ async function demoAnfrageStellen(page: Page) {
   await expect(page).toHaveURL(new RegExp('termin-anfrage/bestaetigung$'));
 }
 
-/**
- * Bewusste, dauerhafte Ausnahme – kein TODO, keine offene Baustelle.
- *
- * Die Markenfarbe #59a305 ist gesetzt und bleibt so. Weiße Schrift darauf erreicht 3.15:1,
- * `text-white/70` 2.29:1 (gefordert sind 4.5:1 nach WCAG 1.4.3). Toleriert wird deshalb
- * ausschließlich ein `color-contrast`-Befund, dessen gemessener Hintergrund diese Marke ist.
- * Alles andere – grauer Text auf grauem Grund, halbtransparente Overlay-Beschriftung, eine neue
- * Fläche in einer neuen Farbe – lässt die Pipeline weiterhin scheitern.
- */
-const MARKE: [number, number, number] = [0x59, 0xa3, 0x05];
-const MARKE_HEX = '#59a305';
-
-/**
- * Axe misst im Browser gerenderte Farben. Während einer Einblend-Animation (hier 90–180 ms) kann
- * aus #59a305 ein #5aa207 werden – dasselbe Grün, andere Messstelle. Ein exakter Vergleich machte
- * den Lauf deshalb flaky; pro Kanal wird eine kleine Breite toleriert. Grautöne bleiben davon
- * weit entfernt (#bdbdbd ist im Blau-Kanal 200 Punkte weg).
- */
-const KANAL_BREITE = 12;
-
-type Check = { data?: { bgColor?: string } };
-type Knoten = {
-  target: string[];
-  failureSummary?: string;
-  any?: Check[];
-  all?: Check[];
-  none?: Check[];
-};
+type Knoten = { target: string[]; failureSummary?: string };
 type Verstoss = {
   id: string;
   impact?: string;
@@ -66,30 +44,10 @@ type Verstoss = {
   nodes: Knoten[];
 };
 
-/** Ist der gemessene Hintergrund dasselbe Marken-Grün? */
-function kontrastAufMarke(knoten: Knoten): boolean {
-  const checks = [...(knoten.any ?? []), ...(knoten.all ?? []), ...(knoten.none ?? [])];
-
-  return checks.some((check) => {
-    const hex = check.data?.bgColor?.toLowerCase();
-    if (!hex?.startsWith('#') || hex.length !== 7) {
-      return false;
-    }
-
-    const kanäle: [number, number, number] = [
-      Number.parseInt(hex.slice(1, 3), 16),
-      Number.parseInt(hex.slice(3, 5), 16),
-      Number.parseInt(hex.slice(5, 7), 16),
-    ];
-
-    return kanäle.every((kanal, i) => Math.abs(kanal - MARKE[i]) <= KANAL_BREITE);
-  });
-}
-
 /**
- * Farbmesungen sind nur aussagekräftig, wenn Fonts da und Animationen durch sind. Weh tut das
- * nicht: die kurzen Einblendungen der App sind alle endlich, und läuft doch mal etwas endlos
- * weiter, misst axe danach eben mitten drin – die Kanaltoleranz oben fängt das ab.
+ * Farbmessungen sind nur aussagekräftig, wenn Fonts da und Animationen durch sind. Weh tut das
+ * nicht: die kurzen Einblendungen der App sind alle endlich, und läuft doch etwas endlos
+ * weiter, misst axe eben mitten drin.
  */
 async function warteAufRuhigeSeite(page: Page) {
   await page.evaluate(() => document.fonts?.ready);
@@ -110,26 +68,7 @@ async function keineAxeVerstosse(page: Page, bereich?: string) {
   }
 
   const { violations } = await prüfung.analyze();
-  const alle = violations as Verstoss[];
-
-  // Nur die Markenflächen herausrechnen, jede andere Ursache bleibt stehen.
-  const tolerierteStellen = alle
-    .filter((v) => v.id === 'color-contrast')
-    .reduce((sum, v) => sum + v.nodes.filter(kontrastAufMarke).length, 0);
-
-  const neue = alle
-    .map((v) =>
-      v.id === 'color-contrast'
-        ? { ...v, nodes: v.nodes.filter((knoten) => !kontrastAufMarke(knoten)) }
-        : v
-    )
-    .filter((v) => v.nodes.length > 0);
-
-  if (tolerierteStellen > 0) {
-    console.info(
-      `Kontrast auf Marke ${MARKE_HEX}: ${tolerierteStellen} Stellen – bewusst so gesetzt, alles andere prüft weiter`
-    );
-  }
+  const neue = violations as Verstoss[];
 
   const meldung = neue
     .map(
@@ -143,7 +82,7 @@ async function keineAxeVerstosse(page: Page, bereich?: string) {
     )
     .join('\n\n');
 
-  expect(neue, meldung || 'keine neuen Verstösse').toEqual([]);
+  expect(neue, meldung || 'keine Verstösse').toEqual([]);
 }
 
 test.describe('Barrierefreiheit', () => {
@@ -206,6 +145,12 @@ test.describe('Barrierefreiheit', () => {
 
   test('Impressum', async ({ page }) => {
     await page.goto('/impressum');
+
+    await keineAxeVerstosse(page);
+  });
+
+  test('Datenschutzerklärung', async ({ page }) => {
+    await page.goto('/datenschutz');
 
     await keineAxeVerstosse(page);
   });

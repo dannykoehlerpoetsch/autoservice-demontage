@@ -48,7 +48,7 @@ export default function ServiceDetailDialog({
 
           <button
             type="button"
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-brand-strong px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line"
             onClick={requestAppointment}
           >
             <CalendarPlus size={18} />
@@ -57,7 +57,7 @@ export default function ServiceDetailDialog({
 
           <Dialog.Close
             aria-label={t('dialog.close')}
-            className="absolute right-4 top-4 cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            className="absolute right-4 top-4 cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
           >
             <X size={20} aria-hidden="true" />
           </Dialog.Close>

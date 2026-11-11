@@ -32,7 +32,7 @@ export default function DemoFlow() {
           >
             <span
               aria-hidden="true"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-strong text-sm font-semibold text-white"
             >
               {index + 1}
             </span>
@@ -45,13 +45,13 @@ export default function DemoFlow() {
       </ol>
 
       <p className="mt-4 flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm leading-relaxed dark:border-yellow-800 dark:bg-yellow-950/40">
-        <Info size={18} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
+        <Info size={18} className="mt-0.5 shrink-0 text-brand-line" aria-hidden="true" />
         {t('note')}
       </p>
 
       <Link
         href="/termin-anfrage"
-        className="mt-4 inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="mt-4 inline-flex items-center gap-2 rounded-md bg-brand-strong px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-line"
       >
         <ArrowRight size={18} aria-hidden="true" />
         {t('cta')}

@@ -3,6 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * In CI liegt der Production-Build schon als Artefakt aus dem Job "build" – dort startet der
  * Server ohne erneut zu bauen. Lokal bleibt der Komfortweg: bauen und dann starten.
+ *
+ * Verglichen wird ausschließlich im DOM: Rollen, Texte, Geometrien und Farbwerte. Es gibt keine
+ * Bildvergleiche und damit keine pflegebedürftigen Referenzbilder mehr.
  */
 const serverCommand = process.env.CI
   ? 'bun run start -- -p 3100'
@@ -16,14 +19,6 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   // Der HTML-Report ist der Grund, warum der Artifact-Upload in CI überhaupt etwas findet.
   reporter: [['list'], ['html', { open: 'never' }]],
-  expect: {
-    toHaveScreenshot: {
-      animations: 'disabled',
-      // Schriftkanten unterscheiden sich zwischen Plattformen; 1 % deckt Rendering ab,
-      // nicht Layout-Änderungen.
-      maxDiffPixelRatio: 0.01,
-    },
-  },
   use: {
     baseURL: 'http://localhost:3100',
     trace: 'on-first-retry',

@@ -24,7 +24,7 @@ export default function GlobalNotFound() {
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global-not-found renders outside the router, next/link is unavailable here */}
         <a
           href="/"
-          className="text-sm px-4 py-2 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors"
+          className="text-sm px-4 py-2 rounded-md bg-brand-strong text-white hover:bg-brand-strong/90 transition-colors"
         >
           Back to homepage
         </a>

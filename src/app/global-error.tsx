@@ -38,12 +38,12 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           <button
             type="button"
             onClick={reset}
-            className="text-sm px-4 py-2 rounded-md bg-brand text-white hover:bg-brand/90 transition-colors cursor-pointer"
+            className="text-sm px-4 py-2 rounded-md bg-brand-strong text-white hover:bg-brand-strong/90 transition-colors cursor-pointer"
           >
             Try again
           </button>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global-error renders outside the router, next/link is unavailable here */}
-          <a href="/" className="text-sm underline hover:text-brand">
+          <a href="/" className="text-sm underline hover:text-brand-strong">
             Back to homepage
           </a>
         </div>

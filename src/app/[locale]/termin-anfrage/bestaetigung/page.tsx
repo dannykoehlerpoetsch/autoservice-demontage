@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import AppointmentConfirmation from '@/components/AppointmentConfirmation';
 import { toLocale } from '@/i18n/locale';
+import { seitenMetadaten } from '@/lib/metadata';
 
 /**
  * Bestätigungsansicht der Demo-Anfrage.
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: ConfirmationParams): Promise<
     namespace: 'AppointmentConfirmation',
   });
 
-  return { title: t('title') };
+  return seitenMetadaten({ locale, href: '/termin-anfrage/bestaetigung', titel: t('title') });
 }
 
 export default function TerminAnfrageBestaetigungPage() {

@@ -8,8 +8,9 @@
 > **Nothing invented anywhere on the site.** The workshop is a fiction, so it gets no address, no
 > phone number and no owner. The legal pages carry only the details of the person who publishes
 > this repository — name, address and email address, entered by hand in one file. A value that is
-> missing renders as an unmistakable placeholder and nothing else stands out. Every open legal
-> point lives in **[docs/LEGAL_SETUP.md](docs/LEGAL_SETUP.md)**, never on the pages.
+> missing renders as an unmistakable placeholder and nothing else stands out. Questions that
+> only the operator can answer are not documented on the site either — they appear nowhere on
+> the pages.
 >
 > **Live:** <https://autoservice-demontage.vercel.app> — German at the root, English under `/en`.
 > `main` deploys through Vercel; every pull request gets its own preview URL. The old
@@ -24,10 +25,10 @@
 
 | Aspect | Status of this branch |
 | --- | --- |
-| Unit tests | 195 in 26 files (Vitest + React Testing Library) |
+| Unit tests | 202 in 27 files (Vitest + React Testing Library) |
 | Browser scenarios | 75 — functional flows, axe-core on eleven views, responsive layout checks (no screenshot baselines) |
 | Pipeline | four stages, ~90 s wall to wall, `main` protected by an active ruleset |
-| Coverage | 87.52 % statements · 84.54 % branches · 89.43 % functions · 87.50 % lines, floor enforced in CI |
+| Coverage | 87.82 % statements · 84.82 % branches · 89.51 % functions · 87.79 % lines, floor enforced in CI |
 | Accessibility | axe on eleven pages/views with **no exceptions at all**, plus measured contrast specs |
 | Legal pages | Impressum (§ 5 DDG) and privacy policy — as short as the site needs them, operator's details entered by hand |
 | Deployment | Vercel: production on merge, preview per pull request |
@@ -133,8 +134,6 @@ src/
     site.ts           # The production URL and the portfolio URL, in one place
 messages/
   de.json, en.json    # Translated content, per locale
-docs/
-  LEGAL_SETUP.md      # Which legal details are missing and what only a human can decide
 e2e/
   *.spec.ts           # Playwright: navigation, i18n, dialog, form, legal, SEO, header, responsive, axe
 .github/workflows/ci.yml      # The four pipeline stages described below
@@ -227,8 +226,8 @@ Two pages, one source of personal data, and both as short as a portfolio site ne
   it is ever typed by hand. `name`, `strasse`, `ort` and `email` carry the details § 5 Abs. 1 Nr. 1
   and Nr. 2 DDG asks for; `telefon` and `ustIdNr` are rendered only when filled in. Details that
   would need a real business (register entry, legal representation, supervisory authority,
-  § 18 Abs. 2 MStV) are not part of the page at all — `docs/LEGAL_SETUP.md` says when they would
-  have to be added.
+  § 18 Abs. 2 MStV) are not part of the page at all: each of them needs a real precondition this
+  project does not have.
 - **`src/app/[locale]/impressum/page.tsx`** — one sentence about the fictional project, the
   operator's address and the contact email. Nothing else: no warnings, no counters, no explanations
   of legal cases that do not apply here, no liability sections carried over from the repealed TMG.
@@ -253,11 +252,12 @@ What an empty field does, automatically:
 Entered in the file right now: name, street, city and email address of the person publishing this
 repository; `telefon` and `ustIdNr` are open and therefore absent from the pages.
 
-Everything that is still open — the data-processing agreement with the host, log retention and
-region, third-country transfer, the § 25 Abs. 1 TDDDG assessment for the language cookie, the
-§ 18 Abs. 2 MStV question, the not-legally-reviewed status of the texts — lives in
-[docs/LEGAL_SETUP.md](docs/LEGAL_SETUP.md). None of it appears in the public prose: the specs assert
-that the rendered legal texts contain no file paths, no counters and no open-item lists.
+What is still open is not a repository matter, and this project documents it nowhere on purpose:
+the data-processing agreement with the host, log retention and region, third-country transfer,
+the § 25 Abs. 1 TDDDG assessment for the language cookie, the § 18 Abs. 2 MStV question and the
+review of these texts are for the operator to settle. What the repository does carry is the
+other half: the specs assert that the rendered legal texts contain no file paths, no counters
+and no open-item lists, so any such note has to be added by hand and cannot leak in by accident.
 
 ## Not indexed — and still crawlable
 
@@ -319,12 +319,12 @@ instead of being denied:
   for cookie consent anywhere
 
 Whether the language cookie and the local theme entry need a consent banner (§ 25 Abs. 1 TDDDG) is
-an open legal item; it is worked off in `docs/LEGAL_SETUP.md` and deliberately absent from the
-public texts.
+an open question for the operator to answer — and it is deliberately absent from the public
+texts.
 
 ## Testing
 
-Three layers: 195 unit tests and 75 browser scenarios — functional flows, axe-core over eleven
+Three layers: 202 unit tests and 75 browser scenarios — functional flows, axe-core over eleven
 views and responsive layout checks, every one of them against a real production build. Everything
 below runs unattended in GitHub Actions, no manual clicking.
 
@@ -333,8 +333,8 @@ below runs unattended in GitHub Actions, no manual clicking.
   daylight-saving boundaries), the language switcher, theme toggle, footer, the demo-flow section,
   the Zod schema of the demo request (optional fields, injection attempts, calendar boundaries),
   the email-preview builder in both locales, the metadata factory (canonical, `og:url`, robots,
-  OG image), the operator configuration, the robots.txt and the loading state. The client-side state
-  is covered too: `BookingProvider` keeps a
+  OG image), the operator configuration, the base URL built from the environment, the robots.txt and
+  the loading state. The client-side state is covered too: `BookingProvider` keeps a
   request across remounts and touches no storage, no cookie and no `fetch` — the same rule asserted
   for the form.
 - **Legal page tests** (`src/components/__tests__/Rechtsseiten.test.tsx`) render both pages as
@@ -363,12 +363,12 @@ below runs unattended in GitHub Actions, no manual clicking.
 ### Coverage
 
 `bun run test:coverage` fails when coverage drops below the thresholds in `vitest.config.ts`
-(current floor: 87 % statements/lines, 88 % functions, 84 % branches). The floor is today's measurement,
+(current floor: 87 % statements/lines, 89 % functions, 84 % branches). The floor is today's measurement,
 not a wish — Server Component pages (`layout.tsx`, `page.tsx`, `termin-anfrage`, `bestaetigung`)
 are still exercised by the E2E specs in a real browser, so they contribute 0 % to the jsdom number.
 Raise the thresholds when you add tests, never lower them to green.
 
-Measured now: **87.52 % statements, 84.54 % branches, 89.43 % functions, 87.50 % lines.** Where to
+Measured now: **87.82 % statements, 84.82 % branches, 89.51 % functions, 87.79 % lines.** Where to
 read it without digging through logs: the *Unit-Tests & Abdeckung* check shows a summary table on
 the run page, `coverage/index.html` (artifact of every run) gives the line-by-line view, and the job
 log prints the per-file table. Reporters are `text`, `html` and `json-summary`; output lands in
@@ -469,13 +469,21 @@ way to mangle keys such as `runs-on` into `runs_on` while “fixing” line endi
   >
   > Afterwards `E2E & Barrierefreiheit` is the only browser check in the gate, and the three
   > remaining jobs plus it make the four required checks.
-- **Actions variable** `NEXT_PUBLIC_SITE_URL = https://autoservice-demontage.vercel.app`
-  (Settings → Secrets and variables → Actions → **Variables**). A *variable*, not a secret:
-  `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`. The same value is now
-  also the compiled-in default in `src/lib/site.ts`, so a missing variable can no longer make a
-  page publish `localhost` or an old address as its canonical URL.
+- **Actions variable** `NEXT_PUBLIC_SITE_URL` (Settings → Secrets and variables → Actions →
+  **Variables**), currently `autoservice-demontage.vercel.app`. A *variable*, not a secret:
+  `NEXT_PUBLIC_*` is inlined at build time and ends up publicly in `og:url`. Set it as a full
+  URL (`https://autoservice-demontage.vercel.app`) for the clearest entry; `src/lib/site.ts`
+  accepts the bare host as well, adds the missing scheme and ignores any path, and anything it
+  cannot parse falls back to the compiled-in production address.
+
+  That tolerance is not decoration. The variable has held the bare host since 2026-11-10, and
+  the moment `src/lib/metadata.ts` started calling `new URL(SITE_URL)` the pipeline went red:
+  `TypeError: Invalid URL`, `ERR_INVALID_URL`, `input: 'autoservice-demontage.vercel.app'`,
+  thrown while prerendering `/de` — a build failing over how an address was spelled. A missing
+  variable can likewise no longer make a page publish `localhost` or an old address.
 - **Vercel** builds the repository: production on merge to `main`, one preview deployment per pull
-  request, `NEXT_PUBLIC_SITE_URL` set as a Config variable for Production/Preview/Development.
+  request, `NEXT_PUBLIC_SITE_URL` set as a Config variable for Production/Preview/Development —
+  the same value as the Actions variable, since a preview build resolves `og:url` from it.
 - **No deploy step in this pipeline.** Vercel pulls from GitHub, so deployment stays a hosting
   decision rather than a code-quality gate.
 

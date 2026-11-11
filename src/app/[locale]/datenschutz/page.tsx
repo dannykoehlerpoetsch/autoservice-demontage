@@ -9,7 +9,7 @@ import { Angabe, Anschrift } from '@/components/LegalAngabe';
  * Datenschutzerklärung dieser Seite. Sie beschreibt ausschließlich, was diese Website tatsächlich
  * tut: ausgeliefert von Vercel, zwei Dinge im Browser gespeichert (Sprache und Farbschema), ein
  * Anfrageformular ohne jede Übertragung. Verantwortliche Person, Rechte und Rechtsgrundlagen
- * sind genannt; offene Punkte stehen in `docs/LEGAL_SETUP.md`, nicht auf dieser Seite.
+ * sind genannt; was nur die betreibende Person klären kann, steht bewusst nicht auf dieser Seite.
  */
 
 type DatenschutzParams = { params: Promise<{ locale: string }> };

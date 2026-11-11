@@ -10,8 +10,8 @@
  * `telefon` und `ustIdNr` sind freiwillig beziehungsweise nur bei tatsächlicher Voraussetzung
  * erforderlich: sie werden nur gerendert, wenn ein Wert eingetragen ist. Weitere Angaben
  * (Register, Vertretungsberechtigung, Aufsichtsbehörde, § 18 Abs. 2 MStV) sind hier nicht
- * vorgesehen, weil sie für dieses Projekt nicht eintreten – nötig wären und wie sie dann
- * einzutragen sind, steht in `docs/LEGAL_SETUP.md`.
+ * vorgesehen – sie setzen eine echte Voraussetzung voraus, die für dieses Projekt nicht
+ * eintritt.
  */
 
 export type BetreiberFeld = 'name' | 'strasse' | 'ort' | 'email' | 'telefon' | 'ustIdNr';

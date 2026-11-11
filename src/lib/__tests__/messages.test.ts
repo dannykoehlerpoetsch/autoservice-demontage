@@ -224,7 +224,7 @@ describe('Übersetzungen – Marke ohne erfundene Geschäftsdaten', () => {
       const öffentlich = [...texte(nachrichten.Impressum), ...texte(nachrichten.Datenschutz)];
 
       for (const text of öffentlich) {
-        // Offene Punkte gehören in docs/LEGAL_SETUP.md, nicht in die Texte der Seiten.
+        // Offene Punkte und interne Pfade gehören nicht in die Texte der Seiten.
         expect(text, text).not.toMatch(/src\/(lib|app|components)|operator\.ts|docs\/[A-Z_]+/);
         expect(text, text).not.toMatch(/\.tsx?\b/);
         expect(text, text).not.toMatch(/veröffentlichungsfertig|publish[- ]?ready/i);

@@ -24,7 +24,6 @@ export default defineConfig({
         'src/test-utils.ts',
         // Reine Konfigurations-/Typdateien ohne eigene Logik.
         'src/lib/fonts.ts',
-        'src/lib/site.ts',
         'src/lib/debug-delay.ts',
         'src/i18n/routing.ts',
         'src/proxy.ts',
@@ -36,13 +35,13 @@ export default defineConfig({
       // in jsdom. Impressum und Datenschutzerklärung sind inzwischen auch in jsdom erfasst
       // (`src/components/__tests__/Rechtsseiten.test.tsx`) mit ihren Bausteinen, die
       // Metadatenfabrik (`src/lib/__tests__/metadata.test.ts`), die Betreiberkonfiguration, die
-      // robots.txt und der Ladezustand. Angehoben auf den gemessenen Stand
-      // (87,52 % Statements · 84,54 % Branches · 89,43 % Funktionen · 87,50 % Lines); beim
-      // nächsten Anheben zuerst an diese Zahlen denken – und nie niedriger setzen, um grün zu
-      // werden.
+      // robots.txt, die Basis-URL (`src/lib/__tests__/site.test.ts`) und der Ladezustand.
+      // Angehoben auf den gemessenen Stand (87,82 % Statements · 84,82 % Branches ·
+      // 89,51 % Funktionen · 87,79 % Lines); beim nächsten Anheben zuerst an diese Zahlen denken
+      // – und nie niedriger setzen, um grün zu werden.
       thresholds: {
         lines: 87,
-        functions: 88,
+        functions: 89,
         branches: 84,
         statements: 87,
       },

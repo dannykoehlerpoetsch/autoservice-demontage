@@ -1,38 +1,36 @@
 /**
- * Betreiberangaben – die eine Stelle, in die die persönlichen Daten für Impressum und
- * Datenschutzerklärung eingetragen werden.
+ * Operator details – the single place where the personal data for the legal notice and the
+ * privacy policy is entered.
  *
- * Inhaber der Website ist die natürliche Person, die dieses Repository veröffentlicht – nicht
- * die frei erfundene Kfz-Werkstatt, deren Name auf der Seite steht. In einem Feld steht nur, was
- * für die betroffene Person zutrifft; was fehlt, erscheint an der betroffenen Stelle als
- * eindeutiger Platzhalter.
+ * The owner of the website is the natural person publishing this repository – not the entirely
+ * invented car workshop whose name appears on the site. A field only holds what is true for the
+ * person concerned; whatever is missing shows up at that spot as a clear placeholder.
  *
- * `telefon` und `ustIdNr` sind freiwillig beziehungsweise nur bei tatsächlicher Voraussetzung
- * erforderlich: sie werden nur gerendert, wenn ein Wert eingetragen ist. Weitere Angaben
- * (Register, Vertretungsberechtigung, Aufsichtsbehörde, § 18 Abs. 2 MStV) sind hier nicht
- * vorgesehen – sie setzen eine echte Voraussetzung voraus, die für dieses Projekt nicht
- * eintritt.
+ * `phone` and `vatId` are optional respectively only required with an actual precondition: they
+ * are rendered only when a value is entered. Further details (commercial register,
+ * representation authority, supervisory authority, § 18 para. 2 MStV) are not provided here – they
+ * presuppose a real condition that does not apply to this project.
  */
 
-export type BetreiberFeld = 'name' | 'strasse' | 'ort' | 'email' | 'telefon' | 'ustIdNr';
+export type OperatorField = 'name' | 'strasse' | 'ort' | 'email' | 'telefon' | 'ustIdNr';
 
-export const BETREIBER: Record<BetreiberFeld, string> = {
-  /** Vor- und Nachname. */
+export const OPERATOR_DETAILS: Record<OperatorField, string> = {
+  /** First and last name. */
   name: 'Danny Köhler-Poetsch',
-  /** Straße und Hausnummer. */
+  /** Street and house number. */
   strasse: 'Erich-Zeigner-Allee 89',
-  /** Postleitzahl und Ort. */
+  /** Postal code and city. */
   ort: '04229 Leipzig',
-  /** Erreichbare E-Mail-Adresse. */
+  /** Reachable email address. */
   email: 'dakopo-coding@gmx.net',
-  /** Optional – erscheint nur mit Wert auf der Seite. */
+  /** Optional – appears on the page only with a value. */
   telefon: '',
-  /** Optional – nur mit Wert, wenn eine USt-IdNr. vergeben ist. */
+  /** Optional – only with a value, when a VAT ID has been issued. */
   ustIdNr: '',
 };
 
-/** Wert eines Feldes, oder `null`, wenn das Feld leer geblieben ist. */
-export function betreiberAngabe(feld: BetreiberFeld): string | null {
-  const wert = BETREIBER[feld]?.trim();
-  return wert ? wert : null;
+/** Value of a field, or `null` when the field stayed empty. */
+export function operatorValue(field: OperatorField): string | null {
+  const value = OPERATOR_DETAILS[field]?.trim();
+  return value ? value : null;
 }

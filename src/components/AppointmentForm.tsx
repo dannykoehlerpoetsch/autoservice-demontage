@@ -15,25 +15,25 @@ import {
 } from '@/lib/appointment/schema';
 import { todayIso, type IsoDate } from '@/lib/dates';
 import { isServiceId, type ServiceListing } from '@/lib/services';
-import { useBookingService } from './BookingProvider';
+import { useBooking } from './BookingProvider';
 import AppointmentDatePicker from './AppointmentDatePicker';
 
 /**
- * Formular für die Demo-Terminanfrage.
+ * Form for the demo appointment request.
  *
- * Geprüft wird hier, im Browser: `parseAppointmentRequest` gegen dasselbe Zod-Schema, das
- * auch die Feldlängen und den Terminrahmen setzt. Eine Server Action gibt es nicht – was
- * gültig ist, wandert in den `BookingProvider` und von dort auf die Bestätigungsseite.
+ * Validation happens here, in the browser: `parseAppointmentRequest` against the same Zod schema
+ * that also sets the field lengths and the appointment window. There is no server action –
+ * whatever is valid moves into the `BookingProvider` and from there onto the confirmation page.
  *
- * Die Felder bleiben ungesteuert (`defaultValue` statt `value`): nach einem Fehlversuch
- * stehen die Eingaben noch im Formular, ohne dass jeder Anschlag durch React muss. Nur die
- * Serviceauswahl ist gesteuert, weil der Detaildialog sie mitsetzen kann.
+ * The fields stay uncontrolled (`defaultValue` instead of `value`): after a failed attempt the
+ * input still stands in the form without every keystroke going through React. Only the service
+ * choice is controlled because the detail dialog can preset it.
  *
- * Native Browservalidierung ist per `noValidate` aus, damit immer die übersetzten Meldungen
- * des Schemas erscheinen und nicht die des Browsers.
+ * Native browser validation is off via `noValidate` so that always the translated messages of the
+ * schema appear and not the browser's.
  */
 
-/** Reihenfolge und Eingabetypen der drei Textfelder. */
+/** Order and input types of the three text fields. */
 const TEXT_FIELDS = [
   { name: 'name', type: 'text', autoComplete: 'name', required: true, hasHint: false },
   {
@@ -65,14 +65,14 @@ export default function AppointmentForm() {
   const t = useTranslations('Appointment');
   const tServices = useTranslations('Services');
   const router = useRouter();
-  const { serviceId, request, selectService, completeRequest } = useBookingService();
+  const { serviceId, request, selectService, completeRequest } = useBooking();
 
   const [errors, setErrors] = useState<AppointmentErrors>({});
   const [date, setDate] = useState<IsoDate>(request?.date ?? '');
 
-  // Der Terminrahmen hängt am heutigen Kalendertag – `todayIso()` rechnet dabei in der
-  // Zeitzone der Werkstatt, nicht in der des Rechners. Dieselbe Funktion liefert beim
-  // Rendern und im Browser dasselbe Datum, eine Servervorgabe ist nicht nötig.
+  // The appointment window hangs on today's calendar day – `todayIso()` computes in the
+  // workshop's timezone, not the computer's. The same function delivers the same date when
+  // rendering and in the browser, so no server-side value is needed.
   const bounds = useMemo(() => getAppointmentDateBounds(todayIso()), []);
 
   const items = tServices.raw('items') as ServiceListing[];
@@ -96,7 +96,7 @@ export default function AppointmentForm() {
     router.push('/termin-anfrage/bestaetigung');
   }
 
-  // Explizite Zuordnung statt dynamischer Schlüssel: die Meldungstexte bleiben typisiert.
+  // Explicit mapping instead of dynamic keys: the message texts stay typed.
   function errorLabel(field: AppointmentField, key: AppointmentErrorKey): string {
     switch (key) {
       case 'required':
@@ -212,8 +212,8 @@ export default function AppointmentForm() {
             required
             value={serviceId ?? ''}
             onChange={(event) => {
-              // Das Feld kann nur die bekannten Kennungen liefern; geprüft wird trotzdem
-              // erst wieder durch das Schema.
+              // The field can only deliver the known identifiers; validation still happens
+              // only through the schema.
               selectService(isServiceId(event.target.value) ? event.target.value : null);
             }}
             aria-invalid={errors.service ? 'true' : undefined}

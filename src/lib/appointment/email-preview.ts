@@ -1,32 +1,30 @@
 import { formatIsoDateLong, intlLocaleFor, type IsoDate } from '@/lib/dates';
 
 /**
- * E-Mail-Vorschau für die Demo-Terminanfrage – reine Textfabrik, kein Versand.
+ * Email preview for the demo appointment request – a plain text factory, no sending.
  *
- * Die Funktion erzeugt den Text, den eine Bestätigungs-E-Mail *hätte*: aus den Eingaben des
- * Formulars und den Übersetzungen der aktiven Sprache. Es gibt keinen Endpunkt, keine
- * Umgebungsvariable und keinen Aufruf nach draußen – `buildDemoEmailPreview` gibt einen
- * String zurück und sonst nichts.
+ * The function produces the text a confirmation email *would have* had: from the form's input and
+ * the translations of the active language. There is no endpoint, no environment variable and no
+ * call outwards – `buildDemoEmailPreview` returns a string and nothing else.
  *
- * Die Übersetzungen kommen als `translate` hinein: im Formular `useTranslations()` aus
- * next-intl, in den Tests der Übersetzer aus `src/test-utils.ts`. So bleibt die Funktion ohne
- * React-Baum und ohne Request-Kontext aufrufbar. Alle Schlüssel sind absolute Namen aus
- * `messages/*.json`; Feldbeschriftungen kommen aus `Appointment.fields` und stehen damit nur
- * einmal im Projekt.
+ * Translations come in as `translate`: `useTranslations()` from next-intl inside the form, the
+ * translator from `src/test-utils.ts` in tests. That keeps the function callable without a React
+ * tree and without a request context. Every key is an absolute name from `messages/*.json`; field
+ * labels come from `Appointment.fields` and therefore exist only once in the project.
  */
 
-/** Rückgabe der Vorschau – die Felder, wie sie in einem E-Mail-Header stehen würden. */
+/** Preview result – the fields as they would stand in an email header. */
 export type DemoEmailPreview = {
   /** Anzeigename des fiktionalen Absenders. */
   from: string;
-  /** Eingetragene Empfängeradresse, `null`, wenn das Feld leer geblieben ist. */
+  /** Entered recipient address, `null` when the field stayed empty. */
   to: string | null;
   subject: string;
-  /** Rumpf als Klartext – der Wert wird gerendert, nicht als HTML interpretiert. */
+  /** Body as plain text – the value is rendered, not interpreted as HTML. */
   body: string;
 };
 
-/** Wie die Felder einer E-Mail, plus die übersetzte Leistungsbezeichnung. */
+/** Like the fields of an email, plus the translated service name. */
 export type DemoEmailAppointment = {
   name: string;
   phone: string;
@@ -36,11 +34,11 @@ export type DemoEmailAppointment = {
   serviceHeading: string;
 };
 
-/** Ausschnitt der next-intl-Übersetzerfunktion, den diese Funktion braucht. */
+/** The slice of the next-intl translation function this function needs. */
 export type Translate = (key: string, values?: Readonly<Record<string, string | number>>) => string;
 
 export type DemoEmailOptions = {
-  /** `de` oder `en` – bestimmt Sprache der Feldlabels und des Datums. */
+  /** `de` or `en` – decides the language of the field labels and the date. */
   locale: string;
   translate: Translate;
 };
@@ -48,17 +46,17 @@ export type DemoEmailOptions = {
 const FIELD_KEYS = ['name', 'phone', 'email', 'service', 'date', 'note'] as const;
 
 /**
- * Leere optionale Felder werden nicht ausgelassen, sondern ausdrücklich benannt – sonst sieht
- * die Vorschau aus wie eine unvollständige Nachricht. Die Bemerkung behält ihren eigenen Text,
- * weil "keine Bemerkung angegeben" dort besser passt als "Nicht angegeben".
+ * Empty optional fields are not left out but named explicitly – otherwise the preview looks like
+ * an incomplete message. The note keeps its own text because "no note given" fits there better
+ * than "Not given".
  */
 function fallbackFor(key: (typeof FIELD_KEYS)[number], t: Translate, notProvided: string): string {
   return key === 'note' ? t('DemoEmail.noNote') : notProvided;
 }
 
 /**
- * Vorschau bauen. Keine Seiteneffekte, keine Netzwerkanfragen, keine Umgebungsvariablen:
- * dieselbe Eingabe, dieselbe Sprache, derselbe Text.
+ * Builds the preview. No side effects, no network requests, no environment variables: same input,
+ * same language, same text.
  */
 export function buildDemoEmailPreview(
   appointment: DemoEmailAppointment,
@@ -67,7 +65,7 @@ export function buildDemoEmailPreview(
   const t = translate;
   const notProvided = t('AppointmentConfirmation.notProvided');
 
-  const werte: Record<(typeof FIELD_KEYS)[number], string> = {
+  const fieldValues: Record<(typeof FIELD_KEYS)[number], string> = {
     name: appointment.name,
     phone: appointment.phone,
     email: appointment.email,
@@ -76,10 +74,10 @@ export function buildDemoEmailPreview(
     note: appointment.note,
   };
 
-  const zeilen = FIELD_KEYS.map((key) => {
-    const wert = werte[key].trim();
+  const rows = FIELD_KEYS.map((key) => {
+    const value = fieldValues[key].trim();
 
-    return `${t(`Appointment.fields.${key}`)}: ${wert === '' ? fallbackFor(key, t, notProvided) : wert}`;
+    return `${t(`Appointment.fields.${key}`)}: ${value === '' ? fallbackFor(key, t, notProvided) : value}`;
   });
 
   return {
@@ -91,7 +89,7 @@ export function buildDemoEmailPreview(
       '',
       t('DemoEmail.intro'),
       '',
-      ...zeilen,
+      ...rows,
       '',
       `${t('DemoEmail.noticeHeading')}:`,
       '',

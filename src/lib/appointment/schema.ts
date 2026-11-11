@@ -3,18 +3,18 @@ import { SERVICE_IDS, type ServiceId } from '@/lib/services';
 import { addIsoDays, type IsoDate } from '@/lib/dates';
 
 /**
- * Schema für die Demo-Terminanfrage – die einzige Prüfstelle für Nutzereingaben.
+ * Schema for the demo appointment request – the single validation point for user input.
  *
- * Geprüft wird im Browser: `AppointmentForm` ruft `parseAppointmentRequest` vor jedem
- * Weiterreichen auf, danach wandert nichts mehr über eine Netzwerkgrenze. Das Schema ist
- * bewusst frei von Server- und Umgebungsabhängigkeiten, damit Formulareingaben nicht ein
- * zweites Mal (und womöglich anders) irgendwoanders geregelt werden.
+ * Validation runs in the browser: `AppointmentForm` calls `parseAppointmentRequest` before
+ * handing anything on, and nothing crosses a network boundary afterwards. The schema is
+ * deliberately free of server and environment dependencies so form input is never regulated a
+ * second time (and possibly differently) somewhere else.
  *
- * Meldungstexte stehen hier nicht, sondern als Schlüssel in `messages/*.json`
- * (`Appointment.errors.*`) – die Prüfung bleibt so sprachfrei.
+ * Message texts do not live here but as keys in `messages/*.json` (`Appointment.errors.*`) –
+ * that keeps the validation language-free.
  */
 
-/** Maximale Feldlängen – begrenzen das Formular und halten die E-Mail-Vorschau lesbar. */
+/** Maximum field lengths – they bound the form and keep the email preview readable. */
 export const FIELD_LIMITS = {
   name: 60,
   phone: 30,
@@ -22,10 +22,10 @@ export const FIELD_LIMITS = {
   note: 1000,
 } as const;
 
-/** Termine nimmt die Demo höchstens so weit im Voraus an (≈ 12 Monate). */
+/** The demo accepts appointments no more than this far ahead (~12 months). */
 export const MAX_ADVANCE_DAYS = 365;
 
-/** Fehler-Codes; jeder Wert passt zu einem Schlüssel unter `Appointment.errors`. */
+/** Error codes; every value matches a key under `Appointment.errors`. */
 export const ERROR_KEYS = {
   required: 'required',
   tooLong: 'tooLong',
@@ -49,24 +49,23 @@ export const APPOINTMENT_FIELDS = ['name', 'phone', 'email', 'service', 'date', 
 export type AppointmentField = (typeof APPOINTMENT_FIELDS)[number];
 
 /**
- * Nichts in diesem Formular wird versendet, deshalb sind nur die Angaben Pflicht, ohne die
- * die Zusammenfassung keinen Sinn ergibt. E-Mail und Telefonnummer sind freiwillig – sie
- * erscheinen ausschließlich in der E-Mail-Vorschau.
+ * Nothing in this form is sent anywhere, so only the details without which the summary makes no
+ * sense are required. Email and phone number are optional – they appear in the email preview only.
  */
 const REQUIRED_FIELDS: readonly AppointmentField[] = ['name', 'service', 'date'];
 
 const FIELD_SET: ReadonlySet<string> = new Set<string>(APPOINTMENT_FIELDS);
 
-/** Rohe Eingaben, Feld für Feld als String (leere Felder als '' – nie `undefined`). */
+/** Raw input, field by field as a string (empty fields as '' – never `undefined`). */
 export type AppointmentValues = Record<AppointmentField, string>;
 
-/** Geprüfte, normalisierte Eingabe. Leere optionale Felder bleiben ''. */
+/** Validated, normalised input. Empty optional fields stay ''. */
 export type AppointmentInput = {
   name: string;
   phone: string;
   email: string;
   service: ServiceId;
-  /** Gewünschter Termin als `YYYY-MM-DD`. */
+  /** Requested appointment as `YYYY-MM-DD`. */
   date: IsoDate;
   note: string;
 };
@@ -78,56 +77,56 @@ export type AppointmentParseResult =
   | { success: false; errors: AppointmentErrors; values: AppointmentValues };
 
 /**
- * Erlaubter Terminrahmen. `today` ist der Kalendertag in der Zeitzone der Werkstatt
- * (`todayIso()` aus `@/lib/dates`) – dieselbe Funktion läuft im Browser wie beim Rendern,
- * deshalb fällt "heute" nicht je nach Rechneruhr unterschiedlich aus.
+ * Allowed appointment window. `today` is the calendar day in the workshop's timezone
+ * (`todayIso()` from `@/lib/dates`) – the same function runs in the browser as during
+ * rendering, so "today" never differs depending on the machine's clock.
  */
 export function getAppointmentDateBounds(today: IsoDate): { minDate: IsoDate; maxDate: IsoDate } {
   return { minDate: today, maxDate: addIsoDays(today, MAX_ADVANCE_DAYS) };
 }
 
 /**
- * Name: Buchstaben beliebiger Schrift (inkl. Umlauten/Akzenten) plus Leer-, Punkt-,
- * Komma-, Binde- und Apostrophzeichen, Anfang und Ende ein Buchstabe.
- * `<`, `>`, `/`, `\`, `"` und Klammern sind damit strukturell ausgeschlossen.
+ * Name: letters of any script (including umlauts and accents) plus space, dot, comma, hyphen
+ * and apostrophe, starting and ending with a letter. `<`, `>`, `/`, `\`, `"` and brackets are
+ * therefore structurally excluded.
  */
 const NAME_PATTERN = /^[\p{L}][\p{L}. ,'’-]*[\p{L}]$/u;
 
-/** Telefon: Ziffern, optional führendes `+`, dazu Leer-/Klammer-/Bindestriche. */
+/** Phone: digits, an optional leading `+`, plus spaces, brackets and hyphens. */
 const PHONE_PATTERN = /^(?:\+|\()?\d[\d ().-]*\d$/;
 
-/** E.164: höchstens 15 Ziffern, unter 6 ist nichts anzufangen. */
+/** E.164: at most 15 digits, under 6 there is nothing to start with. */
 const PHONE_DIGIT_RANGE: readonly [number, number] = [6, 15];
 
 /**
- * E-Mail auf eine Adresse: der lokale Teil kennt kein Komma (sonst ließe sich über ein
- * Feld eine zweite Empfangsadresse einschleusen) und keine Winkelklammern; die Domäne
- * braucht mindestens ein Punkt und eine zweistellige TLD.
+ * Email for exactly one address: the local part knows no comma (otherwise a second receiving
+ * address could be smuggled through one field) and no angle brackets; the domain needs at least
+ * one dot and a two-letter TLD.
  */
 const EMAIL_PATTERN =
   /^[a-z0-9._%+-]{1,64}@(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 /**
- * Freitext-Bremse. React escaped beim Rendern, und die E-Mail-Vorschau wird als Text
- * gesetzt – das hier ist die zweite Schicht, damit aus den Rohdaten nie Markup wird.
+ * Free-text brake. React escapes when rendering and the email preview is set as text – this is
+ * the second layer so the raw data never becomes markup.
  *
- * Verboten: Winkelklammern, Backslash, Backtick, eckige und geschweifte Klammern, Pipe,
- * Steuerzeichen (mit Ausnahme von Umbruch und Tabulator) sowie typische Script-Schemes.
- * Die Steuerzeichen sind kein Textfeature, sondern sollen unsichtbare Trenner abfangen.
+ * Forbidden: angle brackets, backslash, backtick, square and curly brackets, pipe, control
+ * characters (except line break and tab) and typical script schemes. The control characters are
+ * not a text feature, they are there to catch invisible separators.
  */
 const NOTE_FORBIDDEN =
   // eslint-disable-next-line no-control-regex
   /[<>\\`|{}[\]]|[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]|\b(?:javascript|vbscript|data)\s*:/i;
 
-/** Unsichtbare Zeichen (Zero-Width, Bidi, BOM) dürfen kommentarlos verschwinden. */
+/** Invisible characters (zero-width, bidi, BOM) may disappear without a comment. */
 const INVISIBLE_CHARS = /[\u200B-\u200D\u2060\uFEFF]/g;
 
-/** Leer ist erlaubt – was eingetragen wird, muss eine einzelne Adresse sein. */
+/** Allowed to stay empty – whatever is entered must be a single address. */
 export function isValidEmail(value: string): boolean {
   return value === '' || EMAIL_PATTERN.test(value);
 }
 
-/** Leer ist erlaubt – was eingetragen wird, muss eine erreichbare Rufnummer sein. */
+/** Allowed to stay empty – whatever is entered must be a reachable phone number. */
 export function isValidPhone(value: string): boolean {
   if (value === '') {
     return true;
@@ -140,7 +139,7 @@ export function isValidPhone(value: string): boolean {
   return digits >= PHONE_DIGIT_RANGE[0] && digits <= PHONE_DIGIT_RANGE[1];
 }
 
-/** Feld, das leer bleiben darf – Länge gilt trotzdem für das, was eingetragen wurde. */
+/** Field that may stay empty – the length still applies to whatever was entered. */
 function optionalField(max: number) {
   return z.string().max(max, { message: ERROR_KEYS.tooLong });
 }
@@ -161,7 +160,7 @@ export function createAppointmentSchema(bounds: { minDate: IsoDate; maxDate: Iso
     service: z.enum(SERVICE_IDS, { message: ERROR_KEYS.serviceInvalid }),
     date: z.iso
       .date({ message: ERROR_KEYS.dateInvalid })
-      // ISO-Daten sind nullgestellt, darum vergleicht der Stringvergleich korrekt.
+      // ISO dates are zero-padded, which is why comparing them as strings works correctly.
       .refine((value) => value >= bounds.minDate, { message: ERROR_KEYS.dateInPast })
       .refine((value) => value <= bounds.maxDate, { message: ERROR_KEYS.dateTooFar }),
     note: z
@@ -171,16 +170,16 @@ export function createAppointmentSchema(bounds: { minDate: IsoDate; maxDate: Iso
   });
 }
 
-/** String-Teile des Formulars herauslesen; `File`-Teile und Fehlendes zählen als leer. */
+/** Reads the string parts of the form; `File` parts and missing values count as empty. */
 function getFormString(form: FormData, key: AppointmentField): string {
   const value = form.get(key);
   return typeof value === 'string' ? value : '';
 }
 
 /**
- * Roheingaben normalisieren, bevor das Schema prüft: NFC (gleiche Zeichen, gleiche
- * Prüfung), einheitliche Umbrüche, unsichtbare Zeichen raus. Einzeilige Felder werden
- * zusätzlich auf je einen Leerzeichenlauf verdichtet.
+ * Normalises raw input before the schema validates: NFC (same characters, same validation),
+ * uniform line breaks, invisible characters removed. Single-line fields are additionally
+ * collapsed to one run of whitespace each.
  */
 export function readAppointmentValues(form: FormData): AppointmentValues {
   const values = {} as AppointmentValues;
@@ -206,8 +205,8 @@ function toErrorKey(message: string, field: AppointmentField): AppointmentErrorK
     return message as AppointmentErrorKey;
   }
 
-  // Sollte nicht vorkommen: alle Regeln setzen eigene `ERROR_KEYS`. Falls doch einmal
-  // eine zod-eigene Meldung durchkommt, greift die passende Feld-Fallback-Meldung.
+  // Should not happen: every rule sets its own `ERROR_KEYS`. If a zod-built-in message ever
+  // gets through, the matching field fallback message takes over.
   if (message.includes('too_big')) {
     return ERROR_KEYS.tooLong;
   }
@@ -216,8 +215,8 @@ function toErrorKey(message: string, field: AppointmentField): AppointmentErrorK
 }
 
 /**
- * Eingaben gegen das Schema prüfen – reine Funktion, kein Netzwerk, keine Side Effects.
- * `bounds` kommt aus `getAppointmentDateBounds(todayIso())`, nie aus dem Formular.
+ * Validates the input against the schema – a pure function, no network, no side effects.
+ * `bounds` comes from `getAppointmentDateBounds(todayIso())`, never from the form.
  */
 export function parseAppointmentRequest(
   values: AppointmentValues,
@@ -234,12 +233,12 @@ export function parseAppointmentRequest(
   for (const issue of result.error.issues) {
     const [field] = issue.path;
     if (!isAppointmentField(field) || errors[field]) {
-      continue; // erste Meldung pro Feld gewinnt
+      continue; // the first message per field wins
     }
     errors[field] = toErrorKey(issue.message, field);
   }
 
-  // Leere Pflichtfelder meldet zod als "zu kurz"/"ungültig"; passenden Text gibt es erst hier.
+  // zod reports empty required fields as "too short"/"invalid"; the matching text only appears here.
   for (const field of REQUIRED_FIELDS) {
     if (values[field].trim() === '') {
       errors[field] = ERROR_KEYS.required;

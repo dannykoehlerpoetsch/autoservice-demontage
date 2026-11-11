@@ -22,26 +22,26 @@ function renderFooter() {
 }
 
 describe('Footer', () => {
-  it('steht als Footer im Dokumentbaum', () => {
+  it('sits as a footer in the document tree', () => {
     renderFooter();
 
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 
-  it('verlinkt das Impressum', () => {
+  it('links the legal notice', () => {
     renderFooter();
 
     const link = screen.getByRole('link', { name: 'Impressum' });
     expect(link).toHaveAttribute('href', '/impressum');
   });
 
-  it('nennt das laufende Jahr, ohne es hart zu kodieren', () => {
+  it('names the current year without hard-coding it', () => {
     renderFooter();
 
     expect(screen.getByRole('contentinfo')).toHaveTextContent(String(new Date().getFullYear()));
   });
 
-  it('weist das Urheberrecht DaKoPo zu, nicht der fiktiven Werkstatt', () => {
+  it('attributes the copyright to DaKoPo, not the fictional workshop', () => {
     renderFooter();
 
     const footer = screen.getByRole('contentinfo');
@@ -49,7 +49,7 @@ describe('Footer', () => {
     expect(footer).not.toHaveTextContent('Autoservice Demontage');
   });
 
-  it('erklärt offen, dass es ein Demo-Projekt ist', () => {
+  it('states openly that this is a demo project', () => {
     renderFooter();
 
     expect(screen.getByText(messages.Footer.demoNote)).toBeInTheDocument();

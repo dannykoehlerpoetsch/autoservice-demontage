@@ -1,48 +1,52 @@
-import { betreiberAngabe, type BetreiberFeld } from '@/lib/legal/operator';
+import { operatorValue, type OperatorField } from '@/lib/legal/operator';
 
 /**
- * Zwei Bausteine für Impressum und Datenschutzerklärung – beide Seiten nennen dieselbe Person.
+ * Two building blocks for the legal notice and the privacy policy – both pages name the same person.
  *
- * `Angabe` zeigt den eingetragenen Wert oder, wo noch keiner steht, einen eindeutigen
- * Platzhalter. Die Kennzeichnung über `data-rechts-platzhalter` ist der Anker für die Tests.
+ * `OperatorValue` shows the entered value or, where none stands yet, a clear placeholder. The
+ * marking through `data-rechts-platzhalter` is the anchor for the tests.
  */
 
-/** Eingetragener Wert – oder der Platzhaltertext für die noch freie Stelle. */
-export function Angabe({
-  feld,
-  platzhalter,
+/** Entered value – or the placeholder text for the still blank spot. */
+export function FieldValue({
+  field,
+  placeholder,
 }: {
-  feld: BetreiberFeld;
-  platzhalter: (feld: BetreiberFeld) => string;
+  field: OperatorField;
+  placeholder: (field: OperatorField) => string;
 }) {
-  const wert = betreiberAngabe(feld);
+  const value = operatorValue(field);
 
-  if (wert === null) {
+  if (value === null) {
     return (
       <span data-rechts-platzhalter="true" className="text-gray-600 italic dark:text-gray-300">
-        {platzhalter(feld)}
+        {placeholder(field)}
       </span>
     );
   }
 
-  return <span data-rechts-wert="true">{wert}</span>;
+  return <span data-rechts-wert="true">{value}</span>;
 }
 
 /**
- * Name und Anschrift der betreibenden Person. Steht in einem `address`-Element, denn dafür ist
- * es da; `not-italic` nimmt dem Block die kursive Voreinstellung des Browsers.
+ * Name and address of the person operating the site. Stands in an `address` element, because that
+ * is what it is for; `not-italic` takes the block out of the browser's italic default.
  */
-export function Anschrift({ platzhalter }: { platzhalter: (feld: BetreiberFeld) => string }) {
+export function OperatorAddress({
+  placeholder,
+}: {
+  placeholder: (field: OperatorField) => string;
+}) {
   return (
     <address className="flex flex-col gap-0.5 text-sm leading-relaxed not-italic">
       <span className="font-semibold">
-        <Angabe feld="name" platzhalter={platzhalter} />
+        <FieldValue field="name" placeholder={placeholder} />
       </span>
       <span>
-        <Angabe feld="strasse" platzhalter={platzhalter} />
+        <FieldValue field="strasse" placeholder={placeholder} />
       </span>
       <span>
-        <Angabe feld="ort" platzhalter={platzhalter} />
+        <FieldValue field="ort" placeholder={placeholder} />
       </span>
     </address>
   );

@@ -1,19 +1,18 @@
 /**
- * Kleine, zeitzone-sichere Datumshelfer für die Terminanfrage.
+ * Small, timezone-safe date helpers for the appointment request.
  *
- * Grundsatz: durch die Anwendung wandert ein Termin als `YYYY-MM-DD` (nur das Datum,
- * keine Uhrzeit, keine Zeitzone in dem Wert). Umrechnungen laufen deshalb absichtlich
- * über die *lokalen* Bestandteile eines Datums – `toISOString()` würde je nach
- * Server-Offset um einen Tag springen.
+ * Rule of thumb: an appointment travels through the application as `YYYY-MM-DD` (date only –
+ * no clock time, no timezone inside the value). Conversions therefore deliberately use the
+ * *local* parts of a date; `toISOString()` would shift by a day depending on the server offset.
  */
 
 /**
- * Zeitzone der Werkstatt – "heute" meint den Kalendertag in Europe/Berlin, nicht in UTC.
- * Die Seite ist deutsch gedacht; ein Ort gehört nicht zu einer erfundenen Werkstatt.
+ * Workshop timezone – "today" means the calendar day in Europe/Berlin, not in UTC.
+ * The site is written in German; a real location is not part of a fictional workshop.
  */
 export const WORKSHOP_TIME_ZONE = 'Europe/Berlin';
 
-/** ein Datum als `YYYY-MM-DD` */
+/** A date as `YYYY-MM-DD` */
 export type IsoDate = string;
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -26,12 +25,12 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
-/** Datum -> `YYYY-MM-DD`, gezählt nach lokalen Kalenderregeln. */
+/** Date -> `YYYY-MM-DD`, counted by local calendar rules. */
 export function toIsoDate(date: Date): IsoDate {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/** `YYYY-MM-DD` -> Datum um lokalen Mitternacht, `null` bei Unsinn (z. B. 2027-02-31). */
+/** `YYYY-MM-DD` -> date at local midnight, `null` for nonsense (e.g. 2027-02-31). */
 export function fromIsoDate(value: string): Date | null {
   if (!isIsoDate(value)) {
     return null;
@@ -47,8 +46,8 @@ export function fromIsoDate(value: string): Date | null {
 }
 
 /**
- * Tage auf ein Datum addieren, ohne DST-Sprungstellen: gerechnet wird in UTC,
- * zurück kommt ein reiner Kalendertag.
+ * Add days to a date without DST jumps: arithmetic runs in UTC and a plain calendar day
+ * comes back out.
  */
 export function addIsoDays(value: IsoDate, days: number): IsoDate {
   const [year, month, day] = value.split('-').map(Number);
@@ -57,7 +56,7 @@ export function addIsoDays(value: IsoDate, days: number): IsoDate {
   return `${shifted.getUTCFullYear()}-${pad(shifted.getUTCMonth() + 1)}-${pad(shifted.getUTCDate())}`;
 }
 
-/** Heutiger Kalendertag in der gegebenen Zeitzone (unabhängig von Server- oder Browser-Zone). */
+/** Today's calendar day in the given timezone (independent of server or browser zone). */
 export function todayIso(timeZone: string = WORKSHOP_TIME_ZONE, now: Date = new Date()): IsoDate {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone,
@@ -73,15 +72,14 @@ export function todayIso(timeZone: string = WORKSHOP_TIME_ZONE, now: Date = new 
 }
 
 /**
- * Sprachkennung für `Intl`: die App liefert `de`/`en` (next-intl), `Intl` aber will die
- * vollständige Kennung. Ein Ort dafür, damit Kalender, Zusammenfassung und E-Mail-Vorschau
- * dasselbe Datum schreiben.
+ * Locale tag for `Intl`: the app ships `de`/`en` (next-intl) while `Intl` wants the full tag.
+ * One place for it so the calendar, the summary and the email preview write the same date.
  */
 export function intlLocaleFor(locale: string): string {
   return locale.startsWith('de') ? 'de-DE' : 'en-US';
 }
 
-/** `2027-05-08` -> `Sonntag, 8. Mai 2027` (bzw. englische Entsprechung) – für UI und Text. */
+/** `2027-05-08` -> `Sonntag, 8. Mai 2027` (or its English equivalent) – for UI and text. */
 export function formatIsoDateLong(value: IsoDate, locale: string): string {
   const date = fromIsoDate(value);
   if (!date) {

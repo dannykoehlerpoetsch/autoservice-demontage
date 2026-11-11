@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { makeTranslator } from '@/test-utils';
 
 /**
- * Metadaten erzeugt jede Seite über `seitenMetadaten`. Geprüft wird hier, was dabei garantiert
- * sein muss: Produktionsadresse in Canonical und `og:url`, Nichtindexierung, und dass die Locale
- * der aufgerufenen Route folgt – nicht pauschal der Startseite.
+ * Every page produces metadata through `createPageMetadata`. Checked here is what must be guaranteed
+ * while doing so: production URL in canonical and `og:url`, indexing as the rule and its exception,
+ * hreflang for both languages, and that the locale follows the requested route – not blanketly the
+ * homepage.
  *
- * Die zurückgegebenen Wege sind relativ; `metadataBase` macht daraus die absolute Adresse. Dass
- * die Auslieferung genau so eine absolute Adresse liefert, prüft e2e/seo.spec.ts am gebauten
- * HTML.
+ * The returned paths are relative; `metadataBase` turns them into the absolute URL. That the
+ * delivery really serves such an absolute URL is checked by e2e/seo.spec.ts against the built HTML.
  */
 
 vi.mock('next-intl/server', () => ({
@@ -20,122 +20,158 @@ vi.mock('next-intl/server', () => ({
 }));
 
 vi.mock('@/i18n/navigation', () => ({
-  // Deutsch ist die Locale ohne Präfix, Englisch trägt `/en` vor den Pfad – wie in der echten
-  // Auslieferung. `getPathname` selbst wird unten aufgerufen und mitgeprüft.
-  getPathname: vi.fn(({ locale, href }: { locale: string; href: string }) =>
-    locale === 'de' ? href : `/${locale}${href}`
-  ),
+  // German is the locale without a prefix, English puts `/en` in front of the path – the homepage
+  // without its own path part ends after `/en`. That is exactly how the real routing serves it.
+  getPathname: vi.fn(({ locale, href }: { locale: string; href: string }) => {
+    if (locale === 'de') {
+      return href;
+    }
+
+    return href === '/' ? `/${locale}` : `/${locale}${href}`;
+  }),
   Link: ({ children }: { children: unknown }) => children,
   usePathname: vi.fn(() => '/'),
   useRouter: vi.fn(() => ({ push: vi.fn(), replace: vi.fn() })),
 }));
 
-import { seitenMetadaten } from '@/lib/metadata';
+import { createPageMetadata } from '@/lib/metadata';
 import { getPathname } from '@/i18n/navigation';
-import { PRODUKTIONS_URL, SITE_URL } from '@/lib/site';
+import { PRODUCTION_URL, SITE_URL } from '@/lib/site';
 import messages from '../../../messages/de.json';
 
-/** Aus dem relativen Weg und der Basisadresse die absolute Adresse bauen – wie Next es tut. */
-function absolut(weg: unknown, basis: unknown): string {
-  if (typeof weg !== 'string' || typeof basis !== 'string') {
-    throw new Error(`kein relativer Weg übergeben: ${String(weg)} / ${String(basis)}`);
+/** Builds the absolute URL from the relative path and the base URL – the way Next does it. */
+function absolut(relativePath: unknown, baseUrl: unknown): string {
+  if (typeof relativePath !== 'string' || typeof baseUrl !== 'string') {
+    throw new Error(`no relative path given: ${String(relativePath)} / ${String(baseUrl)}`);
   }
 
-  return new URL(weg, basis).toString();
+  return new URL(relativePath, baseUrl).toString();
 }
 
-describe('seitenMetadaten', () => {
+describe('createPageMetadata', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('zeigt in Canonical und og:url dieselbe Adresse der aufgerufenen Seite', async () => {
-    const metadaten = await seitenMetadaten({
+  it('shows the same URL for the requested page in canonical and og:url', async () => {
+    const metadata = await createPageMetadata({
       locale: 'de',
       href: '/impressum',
-      titel: 'Impressum',
+      title: 'Impressum',
     });
-    const basis = String(metadaten.metadataBase).replace(/\/+$/, '');
+    const baseUrl = String(metadata.metadataBase).replace(/\/+$/, '');
 
-    // Die Basis trägt den Schrägstrich am Ende, sobald Next sie in eine URL übersetzt.
-    expect(basis).toBe(PRODUKTIONS_URL);
-    expect(metadaten.alternates?.canonical).toBe('/impressum');
-    expect(absolut(metadaten.alternates?.canonical, basis)).toBe(`${PRODUKTIONS_URL}/impressum`);
-    expect(absolut(metadaten.openGraph?.url, basis)).toBe(`${PRODUKTIONS_URL}/impressum`);
+    // The base carries the trailing slash as soon as Next turns it into a URL.
+    expect(baseUrl).toBe(PRODUCTION_URL);
+    expect(metadata.alternates?.canonical).toBe('/impressum');
+    expect(absolut(metadata.alternates?.canonical, baseUrl)).toBe(`${PRODUCTION_URL}/impressum`);
+    expect(absolut(metadata.openGraph?.url, baseUrl)).toBe(`${PRODUCTION_URL}/impressum`);
   });
 
-  it('stellt die englische Seite unter /en aus', async () => {
-    const metadaten = await seitenMetadaten({
+  it('serves the English page under /en', async () => {
+    const metadata = await createPageMetadata({
       locale: 'en',
       href: '/datenschutz',
-      titel: 'Privacy Policy',
+      title: 'Privacy Policy',
     });
 
-    expect(metadaten.alternates?.canonical).toBe('/en/datenschutz');
-    expect(metadaten.openGraph?.locale).toBe('en_US');
+    expect(metadata.alternates?.canonical).toBe('/en/datenschutz');
+    expect(metadata.openGraph?.locale).toBe('en_US');
   });
 
-  it('fällt bei einer unbekannten Locale auf die Standardsprache zurück', async () => {
-    const metadaten = await seitenMetadaten({
+  it('falls back to the default locale for an unknown locale', async () => {
+    const metadata = await createPageMetadata({
       locale: 'fr',
       href: '/impressum',
-      titel: 'Impressum',
+      title: 'Impressum',
     });
 
-    expect(metadaten.alternates?.canonical).toBe('/impressum');
-    expect(metadaten.openGraph?.locale).toBe('de_DE');
+    expect(metadata.alternates?.canonical).toBe('/impressum');
+    expect(metadata.openGraph?.locale).toBe('de_DE');
   });
 
-  it('hält die Seite aus allen drei Gründen aus der Indexierung', async () => {
-    const metadaten = await seitenMetadaten({ locale: 'de', href: '/', titel: 'Start' });
+  it('keeps every page without its own block open for indexing', async () => {
+    const metadata = await createPageMetadata({ locale: 'de', href: '/', title: 'Start' });
 
-    expect(metadaten.robots).toMatchObject({
-      index: false,
-      follow: false,
-      nocache: true,
-      googleBot: { index: false, follow: false, noimageindex: true },
+    expect(metadata.robots).toEqual({ index: true, follow: true });
+  });
+
+  it('excludes only the pages that set indexable: false', async () => {
+    const metadata = await createPageMetadata({
+      locale: 'de',
+      href: '/termin-anfrage/bestaetigung',
+      title: 'Anfrage eingegangen',
+      indexable: false,
+    });
+
+    expect(metadata.robots).toEqual({ index: false, follow: false });
+  });
+
+  it('cross-references the language variants of the homepage', async () => {
+    const metadata = await createPageMetadata({ locale: 'de', href: '/', title: 'Start' });
+
+    // German without a prefix, English with `/en` in front; x-default follows the default locale.
+    expect(metadata.alternates?.languages).toEqual({
+      de: '/',
+      en: '/en',
+      'x-default': '/',
     });
   });
 
-  it('nimmt die Beschreibung aus dem Namespace Metadata, wenn keine eigene gegeben ist', async () => {
-    const ohneEigene = await seitenMetadaten({ locale: 'de', href: '/', titel: 'Start' });
-    const mitEigene = await seitenMetadaten({
+  it('lets the English page point at its own URL', async () => {
+    const metadata = await createPageMetadata({
+      locale: 'en',
+      href: '/impressum',
+      title: 'Imprint',
+    });
+
+    expect(metadata.alternates?.canonical).toBe('/en/impressum');
+    expect(metadata.alternates?.languages).toEqual({
+      de: '/impressum',
+      en: '/en/impressum',
+      'x-default': '/impressum',
+    });
+  });
+
+  it('takes the description from the Metadata namespace when none is given', async () => {
+    const withoutCustom = await createPageMetadata({ locale: 'de', href: '/', title: 'Start' });
+    const withCustom = await createPageMetadata({
       locale: 'de',
       href: '/',
-      titel: 'Start',
-      beschreibung: 'eigener Text',
+      title: 'Start',
+      description: 'eigener Text',
     });
 
-    expect(ohneEigene.description).toBe(messages.Metadata.description);
-    expect(mitEigene.description).toBe('eigener Text');
-    expect(mitEigene.openGraph?.description).toBe('eigener Text');
+    expect(withoutCustom.description).toBe(messages.Metadata.description);
+    expect(withCustom.description).toBe('eigener Text');
+    expect(withCustom.openGraph?.description).toBe('eigener Text');
   });
 
-  it('trägt den Website-Namen in openGraph.siteName ein', async () => {
-    const standard = await seitenMetadaten({ locale: 'de', href: '/', titel: 'Start' });
-    const eigen = await seitenMetadaten({
+  it('writes the website name into openGraph.siteName', async () => {
+    const defaultMetadata = await createPageMetadata({ locale: 'de', href: '/', title: 'Start' });
+    const eigen = await createPageMetadata({
       locale: 'de',
       href: '/',
-      titel: 'Start',
+      title: 'Start',
       siteName: 'anderer Name',
     });
 
-    expect(standard.openGraph?.siteName).toBe(messages.Metadata.title);
+    expect(defaultMetadata.openGraph?.siteName).toBe(messages.Metadata.title);
     expect(eigen.openGraph?.siteName).toBe('anderer Name');
   });
 
-  it('hängt das Bild an die Basisadresse und nicht an localhost', async () => {
-    const metadaten = await seitenMetadaten({ locale: 'de', href: '/', titel: 'Start' });
-    const bild = (metadaten.openGraph?.images as Array<{ url: string }>)[0];
+  it('appends the image to the base URL and not to localhost', async () => {
+    const metadata = await createPageMetadata({ locale: 'de', href: '/', title: 'Start' });
+    const image = (metadata.openGraph?.images as Array<{ url: string }>)[0];
 
-    expect(bild.url).toBe('/Heroimage.png');
-    expect(absolut(bild.url, SITE_URL)).toBe(`${SITE_URL}/Heroimage.png`);
-    expect((metadaten.twitter?.images as string[])[0]).toBe('/Heroimage.png');
-    expect((metadaten.twitter as unknown as { card: string }).card).toBe('summary_large_image');
+    expect(image.url).toBe('/Heroimage.png');
+    expect(absolut(image.url, SITE_URL)).toBe(`${SITE_URL}/Heroimage.png`);
+    expect((metadata.twitter?.images as string[])[0]).toBe('/Heroimage.png');
+    expect((metadata.twitter as unknown as { card: string }).card).toBe('summary_large_image');
   });
 
-  it('baut den Weg über die Routing-Auslieferung und nicht über Seitenstringe', async () => {
-    await seitenMetadaten({ locale: 'de', href: '/termin-anfrage', titel: 'Terminanfrage' });
+  it('builds the path through the routing delivery instead of page strings', async () => {
+    await createPageMetadata({ locale: 'de', href: '/termin-anfrage', title: 'Terminanfrage' });
 
     expect(vi.mocked(getPathname)).toHaveBeenCalledWith({
       locale: 'de',

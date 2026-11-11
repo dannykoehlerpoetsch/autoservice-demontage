@@ -19,12 +19,11 @@ async function HomeContent() {
     <>
       <section className="flex flex-col items-start m-auto md:items-center" id="home">
         {/*
-         * Die Höhe folgt dem Seitenverhältnis des Logos, nicht der Viewport-Höhe. Ein
-         * fester vh-Wert würde das Breiten-/Höhenverhältnis des Rahmens vom Browserfenster
-         * abhängig machen: bei object-cover schrumpft dann nur die Breite, das Logo wird
-         * links und rechts abgeschnitten. aspect-... hält das Verhältnis des Bildes ein,
-         * object-contain zeigt es zusätzlich immer vollständig – auch nach dem nächsten
-         * Logo-Tausch mit anderem Verhältnis.
+         * The height follows the logo's aspect ratio, not the viewport height. A fixed vh value
+         * would make the frame's width/height ratio depend on the browser window: with
+         * object-cover only the width would shrink and the logo would be cut off left and right.
+         * `aspect-...` keeps the image's ratio, `object-contain` additionally always shows it in
+         * full – also after the next logo swap with a different ratio.
          */}
         <div className="relative w-full md:max-w-[70vw] mx-auto md:mt-8 aspect-[1686/346]">
           <Image
@@ -40,8 +39,8 @@ async function HomeContent() {
         <h2 className="text-2xl font-bold mb-4 md:text-center">{t('hero.subtitle')}</h2>
         <p className="mb-2">{t('hero.intro')}</p>
         {/*
-         * Kein Telefon- und kein Kontaktlink: der Betrieb ist fiktiv, es gibt nichts
-         * anzurufen. Die Primärinteraktion der Seite ist die Demo-Anfrage.
+         * No phone and no contact link: the business is fictional, there is nothing to call.
+         * The primary interaction of this page is the demo request.
          */}
         <Link
           href="/termin-anfrage"

@@ -4,14 +4,14 @@ import type { ReactNode } from 'react';
 import { makeTranslator } from '@/test-utils';
 
 /**
- * Impressum und Datenschutzerklärung als Server Components.
+ * Legal notice and privacy policy as server components.
  *
- * Die Browser-Specs (e2e/legal.spec.ts) prüfen die ausgelieferten Seiten; hier läuft derselbe
- * Code in jsdom, weil nur so der Zustand nach dem Eintragen echter Angaben messbar ist. Die
- * Übersetzungen kommen aus den echten `messages/*.json`.
+ * The browser specs (e2e/legal.spec.ts) check the delivered pages; here the same code runs in jsdom,
+ * because only then the state after entering real details is measurable. The translations come from
+ * the real `messages/*.json`.
  */
 
-async function texteFür(locale: string) {
+async function textForField(locale: string) {
   return locale === 'en'
     ? ((await import('../../../messages/en.json')).default as Record<string, unknown>)
     : ((await import('../../../messages/de.json')).default as Record<string, unknown>);
@@ -19,9 +19,9 @@ async function texteFür(locale: string) {
 
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn(async (options?: { locale?: string; namespace?: string }) => {
-    const texte = await texteFür(options?.locale ?? 'de');
+    const texts = await textForField(options?.locale ?? 'de');
 
-    return makeTranslator(texte, options?.namespace ?? '');
+    return makeTranslator(texts, options?.namespace ?? '');
   }),
 }));
 
@@ -36,22 +36,22 @@ vi.mock('@/i18n/navigation', () => ({
   useRouter: vi.fn(() => ({ push: vi.fn(), replace: vi.fn() })),
 }));
 
-import Impressum, {
-  generateMetadata as impressumMetadaten,
+import LegalNoticePage, {
+  generateMetadata as legalNoticeMetadata,
 } from '../../app/[locale]/impressum/page';
-import Datenschutz, {
-  generateMetadata as datenschutzMetadaten,
+import PrivacyPolicyPage, {
+  generateMetadata as privacyPolicyMetadata,
 } from '../../app/[locale]/datenschutz/page';
-import { BETREIBER, type BetreiberFeld } from '@/lib/legal/operator';
-import { PRODUKTIONS_URL, SITE_URL } from '@/lib/site';
+import { OPERATOR_DETAILS, type OperatorField } from '@/lib/legal/operator';
+import { PRODUCTION_URL, SITE_URL } from '@/lib/site';
 import de from '../../../messages/de.json';
 import en from '../../../messages/en.json';
 
-const FELDER: BetreiberFeld[] = ['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr'];
-const PLATZHALTER = '[noch eintragen:';
+const FIELD_LABELS: OperatorField[] = ['name', 'strasse', 'ort', 'email', 'telefon', 'ustIdNr'];
+const PLACEHOLDER_MARKUP = '[noch eintragen:';
 
-// Kunstwerte einer Testdatei – kein Name, keine Anschrift, keine echte Adresse.
-const TEST_WERTE: Partial<Record<BetreiberFeld, string>> = {
+// Artificial values of a test file – no name, no address, no real URL.
+const TEST_OPERATOR_VALUES: Partial<Record<OperatorField, string>> = {
   name: 'Erika Beispiel',
   strasse: 'Beispielweg 1',
   ort: '12345 Beispielstadt',
@@ -60,33 +60,33 @@ const TEST_WERTE: Partial<Record<BetreiberFeld, string>> = {
 
 const parameter = (locale: string) => Promise.resolve({ locale });
 
-function fullllen(werte: Partial<Record<BetreiberFeld, string>>) {
-  Object.assign(BETREIBER, werte);
+function fillOperator(values: Partial<Record<OperatorField, string>>) {
+  Object.assign(OPERATOR_DETAILS, values);
 }
 
 afterEach(() => {
-  for (const feld of FELDER) {
-    BETREIBER[feld] = '';
+  for (const field of FIELD_LABELS) {
+    OPERATOR_DETAILS[field] = '';
   }
 });
 
-// Jede Pruefung beginnt bei leeren Feldern, egal was in der Datei steht; nach dem Lauf gilt
-// wieder der Stand der Datei.
-const AUSGANGSSTAND: Record<BetreiberFeld, string> = { ...BETREIBER };
+// Every check starts from empty fields, whatever stands in the file; after the run
+// the file's state applies again.
+const ORIGINAL_OPERATOR: Record<OperatorField, string> = { ...OPERATOR_DETAILS };
 
 beforeEach(() => {
-  for (const feld of FELDER) {
-    BETREIBER[feld] = '';
+  for (const field of FIELD_LABELS) {
+    OPERATOR_DETAILS[field] = '';
   }
 });
 
 afterAll(() => {
-  Object.assign(BETREIBER, AUSGANGSSTAND);
+  Object.assign(OPERATOR_DETAILS, ORIGINAL_OPERATOR);
 });
 
-describe('Impressum', () => {
-  it('nennt Hinweis, Anschrift und Kontakt – sonst nichts', async () => {
-    const { container } = render(<>{await Impressum({ params: parameter('de') })}</>);
+describe('Legal notice', () => {
+  it('names the notice, address and contact – nothing else', async () => {
+    const { container } = render(<>{await LegalNoticePage({ params: parameter('de') })}</>);
 
     expect(screen.getByRole('heading', { level: 1, name: de.Impressum.title })).toBeInTheDocument();
     expect(screen.getByText(de.Impressum.fictionalNotice)).toBeInTheDocument();
@@ -95,29 +95,29 @@ describe('Impressum', () => {
     expect(screen.getByRole('heading', { level: 2, name: de.Impressum.anbieter.heading }));
     expect(screen.getByRole('heading', { level: 2, name: de.Impressum.kontakt.heading }));
 
-    // Nur die beiden Abschnitte, die zur Anschrift und zum Kontakt gehören.
+    // Only the two sections that belong to the address and to the contact.
     expect(container.querySelectorAll('h2')).toHaveLength(2);
   });
 
-  it('zeigt die fehlenden Angaben als Platzhalter, nicht als Daten', async () => {
-    const { container } = render(<>{await Impressum({ params: parameter('de') })}</>);
+  it('shows the missing details as placeholders, not as data', async () => {
+    const { container } = render(<>{await LegalNoticePage({ params: parameter('de') })}</>);
 
-    const frei = container.querySelectorAll('[data-rechts-platzhalter="true"]');
+    const placeholders = container.querySelectorAll('[data-rechts-platzhalter="true"]');
 
-    expect(frei).toHaveLength(4);
-    for (const element of Array.from(frei)) {
-      expect(element.textContent?.startsWith(PLATZHALTER)).toBe(true);
+    expect(placeholders).toHaveLength(4);
+    for (const element of Array.from(placeholders)) {
+      expect(element.textContent?.startsWith(PLACEHOLDER_MARKUP)).toBe(true);
     }
 
-    // Freiwillige Angaben erscheinen erst mit Wert.
+    // Optional details appear only with a value.
     const text = document.body.textContent ?? '';
     expect(text).not.toContain(de.Impressum.felder.telefon);
     expect(text).not.toContain(de.Impressum.felder.ustIdNr);
     expect(container.querySelectorAll('a[href^="tel:"], a[href^="mailto:"]')).toHaveLength(0);
   });
 
-  it('hält Entwicklerhinweise und Prüfpunkte aus der Seite heraus', async () => {
-    render(<>{await Impressum({ params: parameter('de') })}</>);
+  it('keeps developer hints and checkpoints out of the page', async () => {
+    render(<>{await LegalNoticePage({ params: parameter('de') })}</>);
 
     const text = document.body.textContent ?? '';
 
@@ -125,10 +125,10 @@ describe('Impressum', () => {
     expect(text).not.toMatch(/veröffentlichungsfertig|Noch zu prüfen/i);
   });
 
-  it('tauscht die Platzhalter gegen die eingetragenen Werte', async () => {
-    fullllen(TEST_WERTE);
+  it('swaps the placeholders for the entered values', async () => {
+    fillOperator(TEST_OPERATOR_VALUES);
 
-    const { container } = render(<>{await Impressum({ params: parameter('de') })}</>);
+    const { container } = render(<>{await LegalNoticePage({ params: parameter('de') })}</>);
 
     expect(screen.getByText('Erika Beispiel')).toBeInTheDocument();
     expect(screen.getByText('Beispielweg 1')).toBeInTheDocument();
@@ -137,60 +137,65 @@ describe('Impressum', () => {
     expect(container.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(0);
   });
 
-  it('zeigt eine freiwillige Angabe, sobald sie eingetragen ist', async () => {
-    fullllen({ ...TEST_WERTE, telefon: '+49 30 1234567', ustIdNr: 'DE123456789' });
+  it('shows an optional detail once it is entered', async () => {
+    fillOperator({ ...TEST_OPERATOR_VALUES, telefon: '+49 30 1234567', ustIdNr: 'DE123456789' });
 
-    render(<>{await Impressum({ params: parameter('de') })}</>);
+    render(<>{await LegalNoticePage({ params: parameter('de') })}</>);
 
     expect(screen.getByText('+49 30 1234567')).toBeInTheDocument();
     expect(screen.getByText('DE123456789')).toBeInTheDocument();
     expect(screen.getByText(`${de.Impressum.felder.telefon}:`)).toBeInTheDocument();
   });
 
-  it('bleibt auf Englisch bei derselben Struktur', async () => {
-    const { container } = render(<>{await Impressum({ params: parameter('en') })}</>);
+  it('stays in English with the same structure', async () => {
+    const { container } = render(<>{await LegalNoticePage({ params: parameter('en') })}</>);
 
     expect(screen.getByRole('heading', { level: 1, name: en.Impressum.title })).toBeInTheDocument();
 
-    const frei = container.querySelectorAll('[data-rechts-platzhalter="true"]');
-    expect(frei).toHaveLength(4);
-    expect(frei[0].textContent?.startsWith('[to be added:')).toBe(true);
+    const placeholders = container.querySelectorAll('[data-rechts-platzhalter="true"]');
+    expect(placeholders).toHaveLength(4);
+    expect(placeholders[0].textContent?.startsWith('[to be added:')).toBe(true);
   });
 
-  it('stellt Metadaten aus Titel, Canonical und Nichtindexierung zusammen', async () => {
-    const metadaten = await impressumMetadaten({ params: parameter('de') });
+  it('assembles metadata from title, canonical and indexing', async () => {
+    const metadata = await legalNoticeMetadata({ params: parameter('de') });
 
-    expect(metadaten.title).toBe(de.Impressum.title);
-    expect(metadaten.alternates?.canonical).toBe('/impressum');
-    expect(new URL(String(metadaten.alternates?.canonical), SITE_URL).toString()).toBe(
-      `${PRODUKTIONS_URL}/impressum`
+    expect(metadata.title).toBe(de.Impressum.title);
+    expect(metadata.alternates?.canonical).toBe('/impressum');
+    expect(new URL(String(metadata.alternates?.canonical), SITE_URL).toString()).toBe(
+      `${PRODUCTION_URL}/impressum`
     );
-    expect(metadaten.robots).toMatchObject({ index: false, follow: false });
+    expect(metadata.robots).toMatchObject({ index: true, follow: true });
+    expect(metadata.alternates?.languages).toEqual({
+      de: '/impressum',
+      en: '/en/impressum',
+      'x-default': '/impressum',
+    });
   });
 });
 
-describe('Datenschutzerklärung', () => {
-  it('beschreibtHosting, Cookie, lokale Speicherung und die Anfrage', async () => {
-    render(<>{await Datenschutz({ params: parameter('de') })}</>);
+describe('Privacy policy', () => {
+  it('describes hosting, cookies, local storage and the request', async () => {
+    render(<>{await PrivacyPolicyPage({ params: parameter('de') })}</>);
 
     const text = document.body.textContent ?? '';
 
-    for (const begriff of ['Vercel', 'NEXT_LOCALE', 'theme', 'Art. 6', 'Art. 77', 'DSGVO']) {
-      expect(text, begriff).toContain(begriff);
+    for (const term of ['Vercel', 'NEXT_LOCALE', 'theme', 'Art. 6', 'Art. 77', 'DSGVO']) {
+      expect(text, term).toContain(term);
     }
 
     expect(text).not.toMatch(/Google Maps|Cookie-Banner|keinerlei personenbezogene/i);
     expect(text).not.toMatch(/src\/|operator\.ts|Noch zu prüfen/i);
   });
 
-  it('führt die Abschnitte in Reihenfolge und nennt alle sechs Rechte', async () => {
-    const { container } = render(<>{await Datenschutz({ params: parameter('de') })}</>);
+  it('lists the sections in order and names all six rights', async () => {
+    const { container } = render(<>{await PrivacyPolicyPage({ params: parameter('de') })}</>);
 
-    const ueberschriften = Array.from(container.querySelectorAll('h2')).map(
+    const headings = Array.from(container.querySelectorAll('h2')).map(
       (element) => element.textContent
     );
 
-    expect(ueberschriften).toEqual([
+    expect(headings).toEqual([
       de.Datenschutz.verantwortlich.heading,
       de.Datenschutz.hosting.heading,
       de.Datenschutz.darstellung.heading,
@@ -201,24 +206,29 @@ describe('Datenschutzerklärung', () => {
     expect(container.querySelectorAll('ul li')).toHaveLength(de.Datenschutz.rechte.items.length);
   });
 
-  it('nennt die verantwortliche Person erst mit Wert, sonst als Platzhalter', async () => {
-    const { container } = render(<>{await Datenschutz({ params: parameter('de') })}</>);
+  it('names the responsible person only with a value, otherwise as a placeholder', async () => {
+    const { container } = render(<>{await PrivacyPolicyPage({ params: parameter('de') })}</>);
 
     expect(container.querySelector('address')).not.toBeNull();
     expect(container.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(4);
 
-    fullllen(TEST_WERTE);
-    const gefuellt = render(<>{await Datenschutz({ params: parameter('de') })}</>);
+    fillOperator(TEST_OPERATOR_VALUES);
+    const filled = render(<>{await PrivacyPolicyPage({ params: parameter('de') })}</>);
 
-    expect(gefuellt.container.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(0);
-    expect(gefuellt.getAllByText('Erika Beispiel').length).toBeGreaterThan(0);
+    expect(filled.container.querySelectorAll('[data-rechts-platzhalter="true"]')).toHaveLength(0);
+    expect(filled.getAllByText('Erika Beispiel').length).toBeGreaterThan(0);
   });
 
-  it('stellt Metadaten für die englische Seite zusammen', async () => {
-    const metadaten = await datenschutzMetadaten({ params: parameter('en') });
+  it('assembles metadata for the English page', async () => {
+    const metadata = await privacyPolicyMetadata({ params: parameter('en') });
 
-    expect(metadaten.title).toBe(en.Datenschutz.title);
-    expect(metadaten.alternates?.canonical).toBe('/en/datenschutz');
-    expect(metadaten.robots).toMatchObject({ index: false, follow: false });
+    expect(metadata.title).toBe(en.Datenschutz.title);
+    expect(metadata.alternates?.canonical).toBe('/en/datenschutz');
+    expect(metadata.robots).toMatchObject({ index: true, follow: true });
+    expect(metadata.alternates?.languages).toEqual({
+      de: '/datenschutz',
+      en: '/en/datenschutz',
+      'x-default': '/datenschutz',
+    });
   });
 });

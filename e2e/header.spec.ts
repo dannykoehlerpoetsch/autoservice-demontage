@@ -1,146 +1,147 @@
 import { test, expect, type Page } from '@playwright/test';
 
 /**
- * Header und Markenfarben im echten Browser.
+ * Header and brand colours in a real browser.
  *
- * Geprüft wird zweierlei, das ein DOM-Test nicht sieht:
+ * Two things are checked that a DOM test cannot see:
  *
- * 1. Das Logo wird in seinem echten Seitenverhältnis gerendert – die Datei misst 2172×724
- *    (genau 3:1). Ein gequetschtes Logo fällt nur am gerenderten Bild auf, nicht am DOM.
- * 2. Die Flächen der Markenfarbe tragen Schrift über WCAG-AA. Gemessen wird die tatsächlich
- *    berechnete Schriftfarbe gegen die tatsächlich berechnete Fläche, im hellen wie im
- *    dunklen Farbschema. axe prüft das zusätzlich seitennah (e2e/a11y.spec.ts); diese Specs
- *    halten die vier Kernflächen ausdrücklich fest, damit eine Ausnahme dort nicht still
- *    wieder einziehen kann.
+ * 1. The logo is rendered in its real aspect ratio – the file measures 2172×724 (exactly 3:1). A
+ *    squeezed logo only shows on the rendered image, not on the DOM.
+ * 2. The brand-colour surfaces carry text over WCAG-AA. Measured is the actually computed text
+ *    colour against the actually computed surface, in the light as in the dark scheme. axe checks
+ *    that additionally close to the page (e2e/a11y.spec.ts); these specs pin the four core surfaces
+ *    explicitly so that an exception cannot quietly move back in there.
  */
 
-const SEITENVERHÄLTNIS = 2172 / 724;
+const ASPECT_RATIO = 2172 / 724;
 
-type rgb = { rot: number; gruen: number; blau: number; alpha: number };
+type rgb = { red: number; green: number; blue: number; alpha: number };
 
-function zerlege(wert: string): rgb {
-  const hex = wert.match(/^#([0-9a-f]{3,8})$/i);
+function parseColor(value: string): rgb {
+  const hex = value.match(/^#([0-9a-f]{3,8})$/i);
   if (hex) {
-    const ziffern = hex[1].split('');
-    const kurz = ziffern.length === 3 || ziffern.length === 4;
-    const kanal = (index: number) =>
-      kurz
-        ? Number(`0x${ziffern[index]}${ziffern[index]}`)
-        : Number(`0x${ziffern[index * 2]}${ziffern[index * 2 + 1]}`);
-    const alphaZiffer = kurz ? ziffern[3] : (ziffern[6] ?? 'f');
+    const digits = hex[1].split('');
+    const isShortForm = digits.length === 3 || digits.length === 4;
+    const channel = (index: number) =>
+      isShortForm
+        ? Number(`0x${digits[index]}${digits[index]}`)
+        : Number(`0x${digits[index * 2]}${digits[index * 2 + 1]}`);
+    const alphaDigit = isShortForm ? digits[3] : (digits[6] ?? 'f');
 
     return {
-      rot: kanal(0),
-      gruen: kanal(1),
-      blau: kanal(2),
-      alpha: alphaZiffer === undefined ? 1 : Number(`0x${alphaZiffer}`) / 15,
+      red: channel(0),
+      green: channel(1),
+      blue: channel(2),
+      alpha: alphaDigit === undefined ? 1 : Number(`0x${alphaDigit}`) / 15,
     };
   }
 
-  const treffer = wert.match(
+  const match = value.match(
     /^rgba?\((\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)(?:[,/\s]+(\d+(?:\.\d+)?%?))?\)$/
   );
 
-  if (!treffer) {
-    throw new Error(`Farbwert nicht messbar (erwartet rgb/rgba): ${wert}`);
+  if (!match) {
+    throw new Error(`colour value not measurable (erwartet rgb/rgba): ${value}`);
   }
 
-  const [rot, gruen, blau] = [1, 2, 3].map((i) => Number(treffer[i]));
-  const alphaRoh = treffer[4];
+  const [red, green, blue] = [1, 2, 3].map((i) => Number(match[i]));
+  const rawAlpha = match[4];
   const alpha =
-    alphaRoh === undefined
+    rawAlpha === undefined
       ? 1
-      : alphaRoh.endsWith('%')
-        ? Number(alphaRoh.slice(0, -1)) / 100
-        : Number(alphaRoh);
+      : rawAlpha.endsWith('%')
+        ? Number(rawAlpha.slice(0, -1)) / 100
+        : Number(rawAlpha);
 
-  return { rot, gruen, blau, alpha };
+  return { red, green, blue, alpha };
 }
 
-function kontrast(schrift: string, flaeche: string): number {
-  const linie = (wert: number) => {
-    const k = wert / 255;
+function contrast(textColor: string, backgroundColor: string): number {
+  const toLinearChannel = (value: number) => {
+    const k = value / 255;
     return k <= 0.04045 ? k / 12.92 : Math.pow((k + 0.055) / 1.055, 2.4);
   };
 
-  const tonwert = (farbe: rgb) =>
-    0.2126 * linie(farbe.rot) + 0.7152 * linie(farbe.gruen) + 0.0722 * linie(farbe.blau);
+  const channelValue = (colorParts: rgb) =>
+    0.2126 * toLinearChannel(colorParts.red) +
+    0.7152 * toLinearChannel(colorParts.green) +
+    0.0722 * toLinearChannel(colorParts.blue);
 
-  // Halbtransparente Schrift liegt auf der Fläche und wird gemischt, wie der Browser sie zeigt.
-  const oben = zerlege(schrift);
-  const unten = zerlege(flaeche);
-  const mischen = (anteil: number, obenWert: number, untenWert: number) =>
-    anteil * obenWert + (1 - anteil) * untenWert;
+  // Semi-transparent text lies on the surface and is blended the way the browser shows it.
+  const topEdge = parseColor(textColor);
+  const bottomEdge = parseColor(backgroundColor);
+  const blend = (share: number, topValue: number, bottomValue: number) =>
+    share * topValue + (1 - share) * bottomValue;
 
-  const gemischt = {
-    rot: mischen(oben.alpha, oben.rot, unten.rot),
-    gruen: mischen(oben.alpha, oben.gruen, unten.gruen),
-    blau: mischen(oben.alpha, oben.blau, unten.blau),
+  const blended = {
+    red: blend(topEdge.alpha, topEdge.red, bottomEdge.red),
+    green: blend(topEdge.alpha, topEdge.green, bottomEdge.green),
+    blue: blend(topEdge.alpha, topEdge.blue, bottomEdge.blue),
     alpha: 1,
   };
 
-  const [heller, dunkler] = [tonwert(gemischt), tonwert(unten)].sort((a, b) => b - a);
+  const [heller, dunkler] = [channelValue(blended), channelValue(bottomEdge)].sort((a, b) => b - a);
 
   return (heller + 0.05) / (dunkler + 0.05);
 }
 
-/** Liest im Browser die Schriftfarbe eines Elements und die erste deckende Fläche darüber. */
-async function farbenVon(page: Page, selektor: string) {
-  return page.evaluate((sel) => {
-    const element = document.querySelector<HTMLElement>(sel);
+/** Reads the text colour of an element in the browser and the first covering surface above it. */
+async function colorsOf(page: Page, selector: string) {
+  return page.evaluate((target) => {
+    const element = document.querySelector<HTMLElement>(target);
     if (!element) {
-      throw new Error(`Element nicht gefunden: ${sel}`);
+      throw new Error(`element not found: ${target}`);
     }
 
     /*
-     * Tailwind liefert Weiß mit Deckkraft als oklab(... / 0.9), und Chrome gibt solche Werte
-     * auch so zurück – rechnerisch ist damit nichts anzufangen. Gemessen wird deshalb über
-     * einen Bildpunkt: die Zeichenfläche rechnet jeden gültigen CSS-Farbwert nach sRGB um.
+     * Tailwind delivers white with opacity as oklab(... / 0.9) and Chrome returns such values as
+     * they are – computationally nothing can be started with that. Measuring therefore happens
+     * through one pixel: the canvas converts any valid CSS colour value to sRGB.
      */
-    const bildpunkt = document.createElement('canvas');
-    bildpunkt.width = 1;
-    bildpunkt.height = 1;
-    const malgrund = bildpunkt.getContext('2d', { willReadFrequently: true });
-    if (!malgrund) {
-      throw new Error('Keine Zeichenfläche zum Messen verfügbar');
+    const pixel = document.createElement('canvas');
+    pixel.width = 1;
+    pixel.height = 1;
+    const surface = pixel.getContext('2d', { willReadFrequently: true });
+    if (!surface) {
+      throw new Error('no canvas available for measuring');
     }
 
-    const srgbMessung = (wert: string) => {
-      malgrund.fillStyle = '#010203';
-      malgrund.fillStyle = wert;
-      // Ein unzulässiger Wert lässt den vorherigen Stand stehen – der Marker zeigt ihn an.
-      if (malgrund.fillStyle === '#010203' && wert !== '#010203') {
-        throw new Error(`Farbwert nicht messbar: ${wert}`);
+    const srgbReading = (value: string) => {
+      surface.fillStyle = '#010203';
+      surface.fillStyle = value;
+      // A disallowed value leaves the previous state standing – the marker shows it.
+      if (surface.fillStyle === '#010203' && value !== '#010203') {
+        throw new Error(`colour value not measurable: ${value}`);
       }
 
-      malgrund.clearRect(0, 0, 1, 1);
-      malgrund.fillRect(0, 0, 1, 1);
-      const [rot, gruen, blau, deckung] = Array.from(malgrund.getImageData(0, 0, 1, 1).data);
+      surface.clearRect(0, 0, 1, 1);
+      surface.fillRect(0, 0, 1, 1);
+      const [red, green, blue, alphaByte] = Array.from(surface.getImageData(0, 0, 1, 1).data);
 
-      return `rgba(${rot}, ${gruen}, ${blau}, ${deckung / 255})`;
+      return `rgba(${red}, ${green}, ${blue}, ${alphaByte / 255})`;
     };
 
-    const schrift = srgbMessung(getComputedStyle(element).color);
+    const textColor = srgbReading(getComputedStyle(element).color);
 
-    let flaeche: string | null = null;
-    for (let knoten: HTMLElement | null = element; knoten; knoten = knoten.parentElement) {
-      const hintergrund = getComputedStyle(knoten).backgroundColor;
-      if (hintergrund && hintergrund !== 'transparent' && !hintergrund.endsWith(', 0)')) {
-        flaeche = srgbMessung(hintergrund);
+    let backgroundColor: string | null = null;
+    for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+      const background = getComputedStyle(node).backgroundColor;
+      if (background && background !== 'transparent' && !background.endsWith(', 0)')) {
+        backgroundColor = srgbReading(background);
         break;
       }
     }
 
-    if (!flaeche) {
-      throw new Error(`Keine Fläche gemessen für: ${sel}`);
+    if (!backgroundColor) {
+      throw new Error(`no surface measured for: ${target}`);
     }
 
-    return { schrift, flaeche, selektor: sel };
-  }, selektor);
+    return { textColor, backgroundColor, selector: target };
+  }, selector);
 }
 
-/** Die vier Flächen, die Schrift der Marke tragen. */
-const FLAECHEN = [
+/** The four surfaces that carry text of the brand. */
+const SURFACE_SELECTORS = [
   'header nav a',
   'header select',
   'footer a',
@@ -148,153 +149,158 @@ const FLAECHEN = [
   'main a[href="/termin-anfrage"]',
 ];
 
-async function flaechenMessen(page: Page) {
+async function measureAreas(page: Page) {
   const messung = [];
 
-  for (const selektor of FLAECHEN) {
-    const { schrift, flaeche } = await farbenVon(page, selektor);
+  for (const selector of SURFACE_SELECTORS) {
+    const { textColor, backgroundColor } = await colorsOf(page, selector);
 
-    messung.push({ selektor, schrift, flaeche, wert: kontrast(schrift, flaeche) });
+    messung.push({
+      selector,
+      textColor,
+      backgroundColor,
+      value: contrast(textColor, backgroundColor),
+    });
   }
 
   return messung;
 }
 
-async function ladeLogo(page: Page) {
+async function loadLogo(page: Page) {
   await page.goto('/');
 
   const logo = page.getByRole('link', { name: 'Zur Startseite' }).locator('img');
   await expect(logo).toBeVisible();
   await page.waitForFunction(() => {
-    const bild = document.querySelector<HTMLImageElement>('header img');
-    return bild !== null && bild.complete && bild.naturalWidth > 0;
+    const image = document.querySelector<HTMLImageElement>('header img');
+    return image !== null && image.complete && image.naturalWidth > 0;
   });
 
   return logo;
 }
 
-test.describe('Header-Logo', () => {
-  test('rendered im Seitenverhältnis der Datei – helles Farbschema', async ({ page }) => {
-    const logo = await ladeLogo(page);
+test.describe('Header logo', () => {
+  test("renders at the file's aspect ratio – light colour scheme", async ({ page }) => {
+    const logo = await loadLogo(page);
 
-    const maße = await logo.evaluate((knoten) => {
-      const bild = knoten as HTMLImageElement;
-      const kasten = bild.getBoundingClientRect();
+    const dimensions = await logo.evaluate((node) => {
+      const image = node as HTMLImageElement;
+      const box = image.getBoundingClientRect();
       return {
-        natur: bild.naturalWidth / bild.naturalHeight,
-        gerendert: kasten.width / kasten.height,
-        breite: kasten.width,
-        hoehe: kasten.height,
+        natural: image.naturalWidth / image.naturalHeight,
+        rendered: box.width / box.height,
+        width: box.width,
+        height: box.height,
       };
     });
 
-    // Das ausgelieferte Bild ist optimiert und kann in der Kantenlänge gerundet sein; die
-    // Seitenverhältnisse dürfen sich nur um Rundungsgrenzen unterscheiden.
-    expect(maße.natur).toBeCloseTo(SEITENVERHÄLTNIS, 1);
-    // Unverzerrt heißt: gerenderte Box und Bildinhalt haben dasselbe Verhältnis. Die Toleranz
-    // von zwei Prozent deckt die Rundung der Kantenlänge auf volle Gerätepixel ab.
-    expect(Math.abs(maße.gerendert / maße.natur - 1)).toBeLessThan(0.02);
-    // Keine kollabierte Höhe: das Logo füllt den Header, der Header bleibt eine Leiste.
-    expect(maße.hoehe).toBeGreaterThan(30);
-    expect(maße.breite).toBeGreaterThan(maße.hoehe);
+    // The delivered image is optimised and may be rounded in edge length; the
+    // aspect ratios may only differ by rounding margins.
+    expect(dimensions.natural).toBeCloseTo(ASPECT_RATIO, 1);
+    // Undistorted means: rendered box and image content have the same ratio. The two
+    // percent tolerance covers rounding the edge length to whole device pixels.
+    expect(Math.abs(dimensions.rendered / dimensions.natural - 1)).toBeLessThan(0.02);
+    // No collapsed height: the logo fills the header, the header stays a bar.
+    expect(dimensions.height).toBeGreaterThan(30);
+    expect(dimensions.width).toBeGreaterThan(dimensions.height);
   });
 
-  test('rendered unverzerrt im dunklen Farbschema', async ({ page }) => {
+  test('renders undistorted in the dark colour scheme', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('theme', 'dark');
     });
 
-    const logo = await ladeLogo(page);
+    const logo = await loadLogo(page);
 
-    const maße = await logo.evaluate((knoten) => {
-      const bild = knoten as HTMLImageElement;
-      const kasten = bild.getBoundingClientRect();
+    const dimensions = await logo.evaluate((node) => {
+      const image = node as HTMLImageElement;
+      const box = image.getBoundingClientRect();
       return {
-        gerendert: kasten.width / kasten.height,
-        natur: bild.naturalWidth / bild.naturalHeight,
+        rendered: box.width / box.height,
+        natural: image.naturalWidth / image.naturalHeight,
       };
     });
 
-    expect(Math.abs(maße.gerendert / maße.natur - 1)).toBeLessThan(0.02);
+    expect(Math.abs(dimensions.rendered / dimensions.natural - 1)).toBeLessThan(0.02);
   });
 
-  test('behält die Geometrie im schmalen Viewport', async ({ browser }) => {
-    const kontext = await browser.newContext({ viewport: { width: 375, height: 667 } });
-    const page = await kontext.newPage();
+  test('keeps the geometry in the narrow viewport', async ({ browser }) => {
+    const requestContext = await browser.newContext({ viewport: { width: 375, height: 667 } });
+    const page = await requestContext.newPage();
 
     await page.goto('/');
     const logo = page.getByRole('link', { name: 'Zur Startseite' }).locator('img');
     await expect(logo).toBeVisible();
 
-    const maße = await logo.evaluate((knoten) => {
-      const bild = knoten as HTMLImageElement;
-      const kasten = bild.getBoundingClientRect();
+    const dimensions = await logo.evaluate((node) => {
+      const image = node as HTMLImageElement;
+      const box = image.getBoundingClientRect();
       return {
-        verhaeltnis: kasten.width / kasten.height,
-        natur: bild.naturalWidth / bild.naturalHeight,
-        hoehe: kasten.height,
-        innerhalbDesViewports: kasten.right <= window.innerWidth,
+        ratio: box.width / box.height,
+        natural: image.naturalWidth / image.naturalHeight,
+        height: box.height,
+        withinViewport: box.right <= window.innerWidth,
       };
     });
 
-    expect(maße.innerhalbDesViewports).toBe(true);
-    expect(Math.abs(maße.verhaeltnis / maße.natur - 1)).toBeLessThan(0.02);
-    expect(maße.hoehe).toBeGreaterThan(24);
+    expect(dimensions.withinViewport).toBe(true);
+    expect(Math.abs(dimensions.ratio / dimensions.natural - 1)).toBeLessThan(0.02);
+    expect(dimensions.height).toBeGreaterThan(24);
 
-    // Der Menüknopf trägt die Navigation – im schmalen Viewport statt der Linkskette.
+    // The menu button carries the navigation – in the narrow viewport instead of the link chain.
     await expect(page.getByLabel('Menu öffnen')).toBeVisible();
     await expect(page.locator('header nav').first()).toBeHidden();
 
-    await kontext.close();
+    await requestContext.close();
   });
 });
 
-test.describe('Kontrast auf den Markenflächen', () => {
-  test('hält im hellen Farbschema 4,5:1', async ({ page }) => {
+test.describe('Contrast on the brand surfaces', () => {
+  test('holds 4.5:1 in the light colour scheme', async ({ page }) => {
     await page.goto('/');
 
-    for (const messung of await flaechenMessen(page)) {
+    for (const messung of await measureAreas(page)) {
       expect(
-        messung.wert,
-        `${messung.selektor}: ${messung.schrift} auf ${messung.flaeche}`
+        messung.value,
+        `${messung.selector}: ${messung.textColor} auf ${messung.backgroundColor}`
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
 
-  test('hält im dunklen Farbschema 4,5:1', async ({ page }) => {
+  test('holds 4.5:1 in the dark colour scheme', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('theme', 'dark');
     });
     await page.goto('/');
 
-    for (const messung of await flaechenMessen(page)) {
+    for (const messung of await measureAreas(page)) {
       expect(
-        messung.wert,
-        `${messung.selektor}: ${messung.schrift} auf ${messung.flaeche}`
+        messung.value,
+        `${messung.selector}: ${messung.textColor} auf ${messung.backgroundColor}`
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
 
-  test('nutzt für Flächen mit weißer Schrift das dunklere Token, nicht die reine Marke', async ({
+  test('uses the darker token for surfaces with white text, not the pure brand colour', async ({
     page,
   }) => {
     await page.goto('/');
 
-    const werte = await page.evaluate(() => {
+    const values = await page.evaluate(() => {
       const stil = getComputedStyle(document.documentElement);
 
       return {
-        marke: stil.getPropertyValue('--color-brand').trim(),
-        flaeche: stil.getPropertyValue('--color-brand-strong').trim(),
+        brandColor: stil.getPropertyValue('--color-brand').trim(),
+        backgroundColor: stil.getPropertyValue('--color-brand-strong').trim(),
         header: getComputedStyle(document.querySelector('header')!).backgroundColor,
       };
     });
 
-    // Die helle Marke bleibt Akzentfarbe; Flächen mit Schrift sind der dunklere Ton.
-    expect(werte.marke.toLowerCase()).toBe('#59a305');
-    expect(werte.flaeche.toLowerCase()).toBe('#3f6b0b');
-    expect(werte.header).toBe('rgb(63, 107, 11)');
-    // Weiß auf diesem Ton: 6,33:1.
-    expect(kontrast('rgb(255, 255, 255)', werte.header)).toBeGreaterThanOrEqual(4.5);
+    // The light brand stays the accent colour; surfaces carrying text are the darker tone.
+    expect(values.brandColor.toLowerCase()).toBe('#59a305');
+    expect(values.backgroundColor.toLowerCase()).toBe('#3f6b0b');
+    expect(values.header).toBe('rgb(63, 107, 11)');
+    // White on this tone: 6.33:1.
+    expect(contrast('rgb(255, 255, 255)', values.header)).toBeGreaterThanOrEqual(4.5);
   });
 });

@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Der Markenname bleibt in beiden Sprachen derselbe – er darf also nicht der Beweis für die
- * Umschaltung sein. Beweiskraft haben die Texte, die übersetzt werden: Untertitel,
- * Navigationsbeschriftung und Sektionsüberschrift.
+ * The brand name stays the same in both languages – so it may not be the proof of the switch.
+ * Proving power lies in the texts that are translated: subtitle, navigation label and section
+ * heading.
  */
 test.describe('Language switching', () => {
   test('switches the homepage content and URL to English', async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe('Language switching', () => {
     await page.getByLabel('Sprache').selectOption('en');
 
     await expect(page).toHaveURL(/\/en$/);
-    // Der Name bleibt – die Übersetzung drumherum wechselt.
+    // The name stays – the translation around it switches.
     await expect(
       page.getByRole('heading', { name: 'Autoservice Demontage', exact: true })
     ).toBeVisible();

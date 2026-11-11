@@ -5,69 +5,77 @@ import { routing, type Locale } from '@/i18n/routing';
 import { SITE_URL } from './site';
 
 /**
- * Metadaten einer Route – an einer Stelle, damit Produktionsadresse, Canonical und die
- * Nichtindexierung nicht je Seite neu erfunden werden können.
+ * Metadata for a route, kept in one place so the production URL, canonical, hreflang and
+ * indexing cannot be re-invented per page.
  *
- * Canonical und `og:url` folgen bewusst der aufgerufenen Route (auf Englisch mit `/en`
- * davor), nicht der Startseite: eine geteilte Seite soll auf genau die Adresse zeigen, die
- * sie selbst ist.
+ * Canonical and `og:url` deliberately follow the requested route (English with a leading `/en`),
+ * not the homepage: a shared page should point at exactly the address it is.
  *
- * Die Metadaten werden je Seite vollständig zurückgegeben, nicht als Fragment – Next führt
- * `openGraph` und `twitter` nicht Feld für Feld zusammen, ein Teilobjekt aus einer Seite
- * würde das komplette Objekt aus dem Layout ersetzen.
+ * Hreflang: every route exists in both language variants, so they reference each other, with
+ * `x-default` on the German one – the only variant served without a prefix.
+ *
+ * Each page returns its metadata in full rather than as a fragment: Next does not merge
+ * `openGraph` and `twitter` field by field, so a partial object from a page would replace the
+ * whole object coming from the layout.
  */
-export async function seitenMetadaten(props: {
+export async function createPageMetadata(props: {
   locale: string;
   href: string;
-  titel: string;
-  /** Standard: die Beschreibung der Website aus dem Namespace `Metadata`. */
-  beschreibung?: string;
-  /** Standard: der Name der Website aus dem Namespace `Metadata`. */
+  title: string;
+  /** Defaults to the site description from the `Metadata` namespace. */
+  description?: string;
+  /** Defaults to the site name from the `Metadata` namespace. */
   siteName?: string;
+  /**
+   * Defaults to indexable. Only pages that set this value opt out – so far the demo request
+   * confirmation view, which shows nothing but the request just submitted and therefore has no
+   * search content of its own.
+   */
+  indexable?: boolean;
 }): Promise<Metadata> {
-  const { locale, href, titel } = props;
-  const eigeneLocale: Locale = (routing.locales as readonly string[]).includes(locale)
+  const { locale, href, title } = props;
+  const resolvedLocale: Locale = (routing.locales as readonly string[]).includes(locale)
     ? (locale as Locale)
     : routing.defaultLocale;
-  const pfad = getPathname({ locale: eigeneLocale, href });
-  const m = await getTranslations({ locale: eigeneLocale, namespace: 'Metadata' });
-  const beschreibung = props.beschreibung ?? m('description');
-  const siteName = props.siteName ?? m('title');
+  const pathname = getPathname({ locale: resolvedLocale, href });
+  // The same route in every served language variant – the basis of the hreflang alternates.
+  const localePaths = Object.fromEntries(
+    routing.locales.map((otherLocale) => [otherLocale, getPathname({ locale: otherLocale, href })])
+  );
+  const translate = await getTranslations({ locale: resolvedLocale, namespace: 'Metadata' });
+  const description = props.description ?? translate('description');
+  const siteName = props.siteName ?? translate('title');
 
   return {
     metadataBase: new URL(SITE_URL),
-    title: titel,
-    description: beschreibung,
-    alternates: { canonical: pfad },
+    title,
+    description,
+    alternates: {
+      canonical: pathname,
+      languages: { ...localePaths, 'x-default': localePaths[routing.defaultLocale] },
+    },
     openGraph: {
-      title: titel,
-      description: beschreibung,
-      url: pfad,
-      siteName: siteName,
+      title,
+      description,
+      url: pathname,
+      siteName,
       images: [{ url: '/Heroimage.png' }],
-      locale: eigeneLocale === 'de' ? 'de_DE' : 'en_US',
+      locale: resolvedLocale === 'de' ? 'de_DE' : 'en_US',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: titel,
-      description: beschreibung,
+      title,
+      description,
       images: ['/Heroimage.png'],
     },
     /*
-     * Keine Indexierung, aber ohne Crawling-Sperre: damit ein Crawler `noindex` überhaupt
-     * lesen kann, bleibt die robots.txt frei (siehe src/app/robots.ts). Derselbe Wert steht
-     * zusätzlich als X-Robots-Tag auf jeder Antwort (siehe next.config.js).
+     * Public pages are indexable; only pages that set `indexable: false` are blocked. There is no
+     * global block any more – neither here nor as a header (the former `X-Robots-Tag: noindex,
+     * nofollow` on every response is gone). Vercel keeps preview deployments out of the index on
+     * its own by serving `X-Robots-Tag: noindex` there.
      */
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-      },
-    },
+    robots:
+      props.indexable === false ? { index: false, follow: false } : { index: true, follow: true },
   };
 }

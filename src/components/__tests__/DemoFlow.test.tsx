@@ -21,45 +21,45 @@ function renderDemoFlow() {
   );
 }
 
-const schritte = messages.DemoFlow.steps as { title: string; text: string }[];
+const steps = messages.DemoFlow.steps as { title: string; text: string }[];
 
 describe('DemoFlow', () => {
-  it('zaehlt die Schritte in einer geordneten Liste', () => {
+  it('counts the steps in an ordered list', () => {
     renderDemoFlow();
 
-    const liste = screen.getByRole('list');
+    const list = screen.getByRole('list');
 
-    expect(liste.tagName).toBe('OL');
-    expect(screen.getAllByRole('listitem')).toHaveLength(schritte.length);
+    expect(list.tagName).toBe('OL');
+    expect(screen.getAllByRole('listitem')).toHaveLength(steps.length);
   });
 
-  it('zeigt jeden Schritt mit Titel und Text aus den Übersetzungen', () => {
+  it('shows every step with title and text from the translations', () => {
     renderDemoFlow();
 
-    for (const schritt of schritte) {
-      expect(screen.getByRole('heading', { name: schritt.title })).toBeInTheDocument();
-      expect(screen.getByText(schritt.text)).toBeInTheDocument();
+    for (const step of steps) {
+      expect(screen.getByRole('heading', { name: step.title })).toBeInTheDocument();
+      expect(screen.getByText(step.text)).toBeInTheDocument();
     }
   });
 
-  it('gibt die Reihenfolge an die Liste weiter und verbirgt die Zahl dem Screenreader', () => {
+  it('passes the order on to the list and hides the number from screen readers', () => {
     renderDemoFlow();
 
-    const zahlen = screen.getAllByText(/^[\d]$/u);
+    const numbers = screen.getAllByText(/^[\d]$/u);
 
-    expect(zahlen.length).toBeGreaterThan(0);
-    for (const zahl of zahlen) {
-      expect(zahl).toHaveAttribute('aria-hidden', 'true');
+    expect(numbers.length).toBeGreaterThan(0);
+    for (const number of numbers) {
+      expect(number).toHaveAttribute('aria-hidden', 'true');
     }
   });
 
-  it('weist darauf hin, dass nichts vereinbart und nichts versendet wird', () => {
+  it('states that nothing is booked and nothing is sent', () => {
     renderDemoFlow();
 
     expect(screen.getByText(messages.DemoFlow.note)).toBeInTheDocument();
   });
 
-  it('führt ohne Umwege zur Demo-Anfrage', () => {
+  it('leads to the demo request without detours', () => {
     renderDemoFlow();
 
     const link = screen.getByRole('link', { name: messages.DemoFlow.cta });

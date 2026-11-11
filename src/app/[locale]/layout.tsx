@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { toLocale } from '@/i18n/locale';
 import { sans } from '@/lib/fonts';
-import { seitenMetadaten } from '@/lib/metadata';
+import { createPageMetadata } from '@/lib/metadata';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DemoBanner from '@/components/DemoBanner';
@@ -27,13 +27,13 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: 'Metadata' });
 
-  // Das Layout ist die Startseite derselben Locale – Canonical und `og:url` zeigen deshalb
-  // auf `/` bzw. `/en`. Jede Route mit eigenem Titel trägt ihre eigene Adresse nach.
-  return seitenMetadaten({
+  // The layout is the homepage of the same locale – canonical and `og:url` therefore point at
+  // `/` and `/en`. Every route with its own title carries its own address along.
+  return createPageMetadata({
     locale,
     href: '/',
-    titel: t('title'),
-    beschreibung: t('description'),
+    title: t('title'),
+    description: t('description'),
     siteName: t('title'),
   });
 }
@@ -65,9 +65,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className={`${sans.className} flex flex-col min-h-screen`} suppressHydrationWarning>
         <NextIntlClientProvider>
-          {/* Klebt nicht: der Hinweis scrollt weg, der darunterliegende Header bleibt oben stehen. */}
+          {/* Not sticky: the notice scrolls away while the header below it stays pinned. */}
           <DemoBanner />
-          {/* Überlebt die Navigation – trägt Serviceauswahl und abgeschlossene Demo-Anfrage. */}
+          {/* Survives navigation – carries the service selection and the finished demo request. */}
           <BookingProvider>
             <Header />
             <main className="grow flex flex-col">{children}</main>

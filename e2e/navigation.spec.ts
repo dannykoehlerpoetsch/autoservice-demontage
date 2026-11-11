@@ -56,16 +56,16 @@ test.describe('Navigation', () => {
     await expect(notice).toBeVisible();
     await expect(notice).toContainText('Autoservice Demontage ist eine fiktive Kfz-Werkstatt');
 
-    const portfolio = notice.getByRole('link', { name: /Zum Portfolio/ });
-    await expect(portfolio).toHaveAttribute('href', 'https://dakopo.vercel.app/');
-    await expect(portfolio).toHaveAttribute('target', '_blank');
+    const portfolioLink = notice.getByRole('link', { name: /Zum Portfolio/ });
+    await expect(portfolioLink).toHaveAttribute('href', 'https://dakopo.vercel.app/');
+    await expect(portfolioLink).toHaveAttribute('target', '_blank');
   });
 });
 
-test.describe('Kein realer Betrieb', () => {
+test.describe('No real business', () => {
   test('offers no phone, email or map link anywhere on the page', async ({ page }) => {
-    for (const pfad of ['/', '/en', '/impressum', '/termin-anfrage']) {
-      await page.goto(pfad);
+    for (const pathname of ['/', '/en', '/impressum', '/termin-anfrage']) {
+      await page.goto(pathname);
 
       await expect(page.locator('a[href^="tel:"], a[href^="mailto:"]')).toHaveCount(0);
       await expect(page.locator('iframe')).toHaveCount(0);

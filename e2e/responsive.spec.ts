@@ -1,128 +1,126 @@
 import { test, expect, type Page } from '@playwright/test';
 
 /**
- * Verhalten auf schmalen und breiten Viewports – im DOM gemessen, nicht als Bild.
+ * Behaviour on narrow and wide viewports – measured in the DOM.
  *
- * Was ein Bildvergleich zeigen sollte, steht hier als behauptete Eigenschaft: welche Steuerung es
- * in schmaler Breite gibt, dass sie bedienbar ist, dass die Seite innerhalb des Viewports bleibt
- * und dass das Hero-Bild seine Proportionen behält. Dafür ist kein Referenzbild nötig
- * – und damit pflegt auch niemand eins.
+ * Claimed are the properties themselves: which control exists at a narrow width, that it is
+ * operable, that the page stays inside the viewport and that the hero image keeps its proportions.
  *
- * Die schmale Breite ist 375 px: ein kleines Telefon. Dort übergibt der Kopfbereich seine
- * Navigationskette an den Menüknopf, und der Fußbereich bleibt die einzige ständige Linkliste.
+ * The narrow width is 375 px: a small phone. There the header hands its navigation chain over to the
+ * menu button, and the footer stays the only permanent link list.
  */
 
-const SCHMAL = { width: 375, height: 667 };
-const BREIT = { width: 1280, height: 800 };
+const NARROW_VIEWPORT = { width: 375, height: 667 };
+const WIDE_VIEWPORT = { width: 1280, height: 800 };
 
-// Seitenverhältnis der Datei public/Heroimage.png (1686×346).
-const HERO_SEITENVERHÄLTNIS = 1686 / 346;
+// Aspect ratio of the file public/Heroimage.png (1686×346).
+const HERO_ASPECT_RATIO = 1686 / 346;
 
-async function ohneHorizontalesUberlaufen(page: Page) {
-  const maße = await page.evaluate(() => ({
-    inhalt: document.documentElement.scrollWidth,
+async function withoutHorizontalOverflow(page: Page) {
+  const dimensions = await page.evaluate(() => ({
+    content: document.documentElement.scrollWidth,
     viewport: document.documentElement.clientWidth,
   }));
 
   expect(
-    maße.inhalt,
-    `${maße.inhalt} px Inhalt über den Viewport von ${maße.viewport} px hinaus`
-  ).toBeLessThanOrEqual(maße.viewport);
+    dimensions.content,
+    `${dimensions.content} px Inhalt über den Viewport von ${dimensions.viewport} px hinaus`
+  ).toBeLessThanOrEqual(dimensions.viewport);
 }
 
-/** Die beiden `nav`-Elemente im Kopfbereich: die Kette des breiten Viewports und das Menü. */
-function kopfNavigationen(page: Page) {
+/** The two `nav` elements in the header: the chain of the wide viewport and the menu. */
+function headerNavLinks(page: Page) {
   return page.locator('header nav');
 }
 
-test.describe('Schmaler Viewport', () => {
-  test.use({ viewport: SCHMAL });
+test.describe('Narrow viewport', () => {
+  test.use({ viewport: NARROW_VIEWPORT });
 
-  test('überlässt die Navigation dem Menüknopf und führt zu den Abschnitten', async ({ page }) => {
+  test('leaves navigation to the menu button and leads to the sections', async ({ page }) => {
     await page.goto('/');
 
-    const navigationen = kopfNavigationen(page);
+    const navLinks = headerNavLinks(page);
 
-    // Bei 375 px trägt der Knopf die Navigation; die Kette ist im DOM, aber nicht sichtbar.
-    await expect(navigationen).toHaveCount(1);
-    await expect(navigationen.first()).toBeHidden();
+    // At 375 px the button carries the navigation; the chain is in the DOM but not visible.
+    await expect(navLinks).toHaveCount(1);
+    await expect(navLinks.first()).toBeHidden();
     await expect(page.getByLabel('Menu öffnen')).toBeVisible();
 
     await page.getByLabel('Menu öffnen').click();
 
-    await expect(navigationen).toHaveCount(2);
+    await expect(navLinks).toHaveCount(2);
 
-    const menue = navigationen.nth(1);
-    await expect(menue).toBeVisible();
-    await expect(menue.getByRole('link', { name: 'Leistungen' })).toBeVisible();
-    await expect(menue.getByRole('link', { name: 'Demo-Ablauf' })).toBeVisible();
-    // Sprachwahl und Farbumschaltung wandern in das Menü hinein.
-    await expect(menue.getByLabel('Sprache')).toBeVisible();
+    const menu = navLinks.nth(1);
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Leistungen' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Demo-Ablauf' })).toBeVisible();
+    // Language choice and colour switch move into the menu.
+    await expect(menu.getByLabel('Sprache')).toBeVisible();
 
-    // Ein Klick führt zum Abschnitt und räumt das Menü wieder weg.
-    await menue.getByRole('link', { name: 'Leistungen' }).click();
+    // One click leads to the section and clears the menu again.
+    await menu.getByRole('link', { name: 'Leistungen' }).click();
 
     await expect(page.locator('#services')).toBeInViewport();
-    await expect(navigationen).toHaveCount(1);
+    await expect(navLinks).toHaveCount(1);
     await expect(page.getByLabel('Menu öffnen')).toBeVisible();
 
-    // Auch ein Druck außerhalb des Menüs schließt es – sonst liegt es über dem Inhalt.
+    // A press outside the menu closes it as well – otherwise it lies over the content.
     await page.getByLabel('Menu öffnen').click();
-    await expect(navigationen).toHaveCount(2);
+    await expect(navLinks).toHaveCount(2);
 
-    // Ein Druck außerhalb des Menüs schließt es – sonst liegt es über dem Inhalt. Gesteuert über
-    // ein `pointerdown` auf `body`, denn ein Klick auf ein Element unter dem Menü würde erst
-    // durchgereicht, wenn das Menü schon zu wäre.
+    // A press outside the menu closes it – otherwise it lies over the content. Driven through
+    // a `pointerdown` on `body`, because a click on an element below the menu would only be
+    // passed through once the menu was already closed.
     await page.locator('body').dispatchEvent('pointerdown');
-    await expect(navigationen).toHaveCount(1);
+    await expect(navLinks).toHaveCount(1);
   });
 
-  test('zeigt das Hero-Bild in seinen Proportionen und läuft nicht über', async ({ page }) => {
+  test('shows the hero image in its proportions without overflowing', async ({ page }) => {
     await page.goto('/');
 
-    await ohneHorizontalesUberlaufen(page);
+    await withoutHorizontalOverflow(page);
 
-    const bild = page.locator('#home img').first();
-    await expect(bild).toBeVisible();
+    const image = page.locator('#home img').first();
+    await expect(image).toBeVisible();
 
-    const maße = await bild.evaluate((knoten) => {
-      const element = knoten as HTMLImageElement;
-      const kasten = element.getBoundingClientRect();
+    const dimensions = await image.evaluate((node) => {
+      const element = node as HTMLImageElement;
+      const box = element.getBoundingClientRect();
 
       return {
-        gerendert: kasten.width / kasten.height,
-        natur: element.naturalWidth / element.naturalHeight,
-        hoehe: kasten.height,
-        rechts: kasten.right,
+        rendered: box.width / box.height,
+        natural: element.naturalWidth / element.naturalHeight,
+        height: box.height,
+        right: box.right,
         viewport: document.documentElement.clientWidth,
       };
     });
 
-    // Der Rahmen folgt der Klasse `aspect-[1686/346]`. Weicht das gerenderte Bild davon ab, wurde
+    // The frame follows the class `aspect-[1686/346]`. If the rendered image deviates, it was
     // es gedehnt oder gestaucht.
     expect(
-      Math.abs(maße.gerendert / HERO_SEITENVERHÄLTNIS - 1),
-      `Rahmenverhältnis ${maße.gerendert} gegen Datei ${HERO_SEITENVERHÄLTNIS}`
+      Math.abs(dimensions.rendered / HERO_ASPECT_RATIO - 1),
+      `Rahmenverhältnis ${dimensions.rendered} gegen Datei ${HERO_ASPECT_RATIO}`
     ).toBeLessThan(0.01);
 
-    // Die ausgelieferte Variante ist kleiner als die Datei, und der Bildoptimierer rundet ihre
-    // Höhe auf ganze Pixel – deshalb hier 2,5 % und keine Nachkomma-Genauigkeit.
+    // The delivered variant is smaller than the file, and the image optimiser rounds its
+    // height to whole pixels – which is why 2.5 % here and no decimal precision.
     expect(
-      Math.abs(maße.natur / HERO_SEITENVERHÄLTNIS - 1),
-      `Ausgelieferte Variante ${maße.natur} gegen 1686×346`
+      Math.abs(dimensions.natural / HERO_ASPECT_RATIO - 1),
+      `Ausgelieferte Variante ${dimensions.natural} gegen 1686×346`
     ).toBeLessThan(0.025);
 
-    expect(maße.hoehe).toBeGreaterThan(40);
-    expect(maße.rechts).toBeLessThanOrEqual(maße.viewport);
+    expect(dimensions.height).toBeGreaterThan(40);
+    expect(dimensions.right).toBeLessThanOrEqual(dimensions.viewport);
 
-    // Die Hauptaktion der Seite ist auf dem Telefon zu erreichen; denselben Text gibt es weiter
-    // unten ein zweites Mal, deshalb auf den Hero-Bereich eingegrenzt.
+    // The main action of the page is reachable on the phone; the same text exists further
+    // down a second time, which is why this is scoped to the hero area.
     const handels = page.locator('#home').getByRole('link', { name: 'Demo-Anfrage starten' });
     await expect(handels).toBeVisible();
     await expect(handels).toHaveAttribute('href', /termin-anfrage/);
   });
 
-  test('führt im Fußbereich zu beiden Rechtsseiten', async ({ page }) => {
+  test('leads in the footer to both legal pages', async ({ page }) => {
     await page.goto('/');
 
     const spalte = page.getByRole('navigation', { name: 'Rechtliche Seiten' });
@@ -139,10 +137,10 @@ test.describe('Schmaler Viewport', () => {
   });
 });
 
-test.describe('Breiter Viewport', () => {
-  test.use({ viewport: BREIT });
+test.describe('Wide viewport', () => {
+  test.use({ viewport: WIDE_VIEWPORT });
 
-  test('zeigt die Navigationskette ohne jeden Klick und hält die Breite ein', async ({ page }) => {
+  test('shows the navigation chain without any click and keeps the width', async ({ page }) => {
     await page.goto('/');
 
     for (const name of ['Start', 'Leistungen', 'Demo-Ablauf']) {
@@ -151,13 +149,13 @@ test.describe('Breiter Viewport', () => {
       ).toBeVisible();
     }
 
-    // Der Menüknopf gehört auf den schmalen Viewport; hier wäre er nur ein zweiter Weg.
+    // The menu button belongs to the narrow viewport; here it would only be a second path.
     await expect(page.getByLabel('Menu öffnen')).toBeHidden();
-    await expect(kopfNavigationen(page)).toHaveCount(1);
+    await expect(headerNavLinks(page)).toHaveCount(1);
 
     await page.locator('#services').scrollIntoViewIfNeeded();
     await expect(page.locator('#services')).toBeInViewport();
 
-    await ohneHorizontalesUberlaufen(page);
+    await withoutHorizontalOverflow(page);
   });
 });

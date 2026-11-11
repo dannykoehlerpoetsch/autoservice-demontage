@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ReactNode } from 'react';
-import BookingProvider, { useBookingService } from '../BookingProvider';
+import BookingProvider, { useBooking } from '../BookingProvider';
 import Services from '../Services';
 import { SERVICE_IDS } from '@/lib/services';
 import deMessages from '../../../messages/de.json';
@@ -16,9 +16,9 @@ vi.mock('@/i18n/navigation', () => ({
   useRouter: vi.fn(() => ({ push: pushMock, replace: vi.fn() })),
 }));
 
-/** Spioniert, was der Dialog im Booking-Context hinterlässt. */
+/** Spies on what the dialog leaves behind in the booking context. */
 function ServiceProbe() {
-  const { serviceId } = useBookingService();
+  const { serviceId } = useBooking();
   return <span data-testid="probe">{serviceId ?? 'leer'}</span>;
 }
 
@@ -64,7 +64,7 @@ describe('Services', () => {
     expect(
       screen.getByRole('button', { name: `Demo-Anfrage für ${first.heading} ausfüllen` })
     ).toBeInTheDocument();
-    // Kein zweiter Schließen-Button mehr unter dem Text.
+    // No second close button below the text any more.
     expect(within(dialog).getAllByRole('button')).toHaveLength(2);
   });
 
@@ -100,7 +100,7 @@ describe('Services', () => {
 
     expect(screen.getByTestId('probe')).toHaveTextContent(oilChange.id);
     expect(pushMock).toHaveBeenCalledWith('/termin-anfrage');
-    // Der Dialog ist geschlossen, damit hinter der neuen Seite nichts offen bleibt.
+    // The dialog is closed so nothing stays open behind the new page.
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 

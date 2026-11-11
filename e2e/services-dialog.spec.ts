@@ -7,7 +7,7 @@ test.describe('Service detail dialog', () => {
     await page.goto('/');
 
     const card = page.getByRole('button', { name: /Bremsenservice/ });
-    // Direkt springen statt smooth scrollen, damit die Karte stabil liegt.
+    // Jump directly instead of smooth scrolling so the card sits stable.
     await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
 
     const section = page.locator('#services');
@@ -22,25 +22,25 @@ test.describe('Service detail dialog', () => {
       dialog.getByRole('button', { name: 'Demo-Anfrage für Bremsenservice ausfüllen' })
     ).toBeVisible();
 
-    // Kein Layoutshift: Scrollbar-Pfad bleibt reserviert, die Sektion liegt gleich.
+    // No layout shift: the scrollbar path stays reserved, the section sits in place right away.
     const sectionAfter = await section.boundingBox();
     expect({ x: sectionAfter?.x, width: sectionAfter?.width }).toEqual({
       x: sectionBefore?.x,
       width: sectionBefore?.width,
     });
 
-    // Einblend-Animation abwarten, sonst werden die Boxen mitten im
+    // Wait for the reveal animation, otherwise the boxes are measured in the middle of
     // scale(0.96 -> 1) gemessen.
     await dialog.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
 
-    // Modal mittig auf der Seitenachse (ICB = Viewport ohne Scrollbar-Pfad).
+    // Modal centred on the page axis (ICB = viewport without the scrollbar path).
     const dialogBox = await dialog.boundingBox();
     const icbWidth = await page.evaluate(() => document.documentElement.clientWidth);
     expect(
       Math.abs((dialogBox?.x ?? 0) + (dialogBox?.width ?? 0) / 2 - icbWidth / 2)
     ).toBeLessThanOrEqual(1);
 
-    // Der CTA füllt die volle Inhaltsbreite, Schließen gibt es nur noch als X.
+    // The CTA fills the full content width, close only exists as an X.
     const expectedCtaWidth = await dialog.evaluate((el) => {
       const cs = getComputedStyle(el);
       return el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);

@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useState } from 'react';
-import BookingProvider, { useBookingService } from '../BookingProvider';
+import BookingProvider, { useBooking } from '../BookingProvider';
 import type { AppointmentInput } from '@/lib/appointment/schema';
 
 /**
- * Der Provider ist die gesamte Datenschiene der Demo: zwei Werte in React-State, weiter
- * nichts. Geprüft wird hier, was dabei nicht passieren darf – dass etwas in Storage, Cookie
- * oder Netzwerk landet – und dass die Werte das Neumontieren der Kinder überleben, weil die
- * Bestätigungsseite eine andere Route ist.
+ * The provider is the entire data rail of the demo: two values in React state, nothing else. Checked
+ * here is what must not happen while doing so – that anything lands in storage, a cookie or the
+ * network – and that the values survive the remounting of the children, because the confirmation
+ * page is a different route.
  */
 
-const ANFRAGE: AppointmentInput = {
+const SAVED_REQUEST: AppointmentInput = {
   name: 'Jennifer Krüger',
   phone: '+491701234567',
   email: 'j.krueger@beispiel.de',
@@ -20,20 +20,19 @@ const ANFRAGE: AppointmentInput = {
   note: 'Bremsbelag hinten',
 };
 
-function Rahmen() {
-  const { serviceId, request, selectService, completeRequest, startNewRequest } =
-    useBookingService();
+function Wrapper() {
+  const { serviceId, request, selectService, completeRequest, startNewRequest } = useBooking();
   const [kind, setKind] = useState(0);
 
   return (
     <>
       <button onClick={() => selectService('reifen')}>Service wählen</button>
       <button onClick={() => selectService(null)}>Service abwählen</button>
-      <button onClick={() => completeRequest(ANFRAGE)}>Anfrage abschließen</button>
+      <button onClick={() => completeRequest(SAVED_REQUEST)}>Anfrage abschließen</button>
       <button onClick={startNewRequest}>Neue Anfrage</button>
       <button onClick={() => setKind((k) => k + 1)}>Kind neu montieren</button>
 
-      {/* Das Kind geht bewusst unter und kommt wieder – wie bei einer Navigation. */}
+      {/* The child deliberately unmounts and comes back – like during navigation. */}
       <div key={kind}>
         <span data-testid="service">{serviceId ?? 'leer'}</span>
         <span data-testid="anfrage">{request ? request.name : 'leer'}</span>
@@ -42,9 +41,9 @@ function Rahmen() {
   );
 }
 
-/** Nur der Consumer, ohne Provider darüber. */
-function Waise() {
-  useBookingService();
+/** Only the consumer, without a provider above it. */
+function Orphan() {
+  useBooking();
   return null;
 }
 
@@ -54,10 +53,10 @@ describe('BookingProvider', () => {
     sessionStorage.clear();
   });
 
-  it('merkt sich die gewählte Leistung', () => {
+  it('remembers the chosen service', () => {
     render(
       <BookingProvider>
-        <Rahmen />
+        <Wrapper />
       </BookingProvider>
     );
 
@@ -68,39 +67,39 @@ describe('BookingProvider', () => {
     expect(screen.getByTestId('service')).toHaveTextContent('leer');
   });
 
-  it('hält die abgeschlossene Anfrage und übersteht das Neumontieren der Kinder', () => {
+  it('keeps the finished request and survives remounting the children', () => {
     render(
       <BookingProvider>
-        <Rahmen />
+        <Wrapper />
       </BookingProvider>
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Anfrage abschließen' }));
     fireEvent.click(screen.getByRole('button', { name: 'Kind neu montieren' }));
 
-    // Der Inhalt ist neu gebaut, der Wert geblieben: genau davon lebt die Bestätigungsseite.
+    // The content was rebuilt, the value stayed: that is exactly what the confirmation page lives on.
     expect(screen.getByTestId('anfrage')).toHaveTextContent('Jennifer Krüger');
     expect(screen.getByTestId('service')).toHaveTextContent('bremsen');
   });
 
-  it('setzt die Vorauswahl auf die Leistung der Anfrage', () => {
+  it('preselects the service of the request', () => {
     render(
       <BookingProvider>
-        <Rahmen />
+        <Wrapper />
       </BookingProvider>
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Neue Anfrage' }));
     fireEvent.click(screen.getByRole('button', { name: 'Anfrage abschließen' }));
 
-    // Wer nach dem Abschluss zurück ins Formular geht, sieht dieselbe Leistung wie zuvor.
+    // Whoever goes back into the form after finishing sees the same service as before.
     expect(screen.getByTestId('service')).toHaveTextContent('bremsen');
   });
 
-  it('nimmt auf Wunsch alles zurück', () => {
+  it('undoes everything on request', () => {
     render(
       <BookingProvider>
-        <Rahmen />
+        <Wrapper />
       </BookingProvider>
     );
 
@@ -111,7 +110,7 @@ describe('BookingProvider', () => {
     expect(screen.getByTestId('service')).toHaveTextContent('leer');
   });
 
-  it('lässt die Daten im Arbeitspeicher des Browsers – nirgends sonst', () => {
+  it("keeps the data in the browser's working memory – nowhere else", () => {
     const storage = vi.spyOn(Storage.prototype, 'setItem');
     const removeItem = vi.spyOn(Storage.prototype, 'removeItem');
     const fetchSpy = vi.fn();
@@ -119,7 +118,7 @@ describe('BookingProvider', () => {
 
     render(
       <BookingProvider>
-        <Rahmen />
+        <Wrapper />
       </BookingProvider>
     );
 
@@ -135,11 +134,11 @@ describe('BookingProvider', () => {
     expect(sessionStorage).toHaveLength(0);
   });
 
-  it('meldet eine klare Ursache, wenn es ohne Provider benutzt wird', () => {
-    const konsole = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('reports a clear cause when used without the provider', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(() => render(<Waise />)).toThrow(/BookingProvider/);
+    expect(() => render(<Orphan />)).toThrow(/BookingProvider/);
 
-    konsole.mockRestore();
+    consoleSpy.mockRestore();
   });
 });
